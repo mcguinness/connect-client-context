@@ -4,18 +4,18 @@ abbrev: "OIDC Client Context"
 docName: "draft-mcguinness-connect-client-context-latest"
 category: std
 ipr: trust200902
-area: Security
-workgroup: "OpenID Connect"
+# area: Security
+# workgroup: "OpenID Connect"
 keyword:
   - OpenID Connect
   - OAuth 2.0
   - Client Context
 venue:
-  group: "OpenID Connect"
-  type: Working Group
-  mail: "openid-specs-ab@lists.openid.net"
-  github: "mcguinness/draft-mcguinness-connect-client-context"
-  latest: "https://mcguinness.github.io/draft-mcguinness-connect-client-context/draft-mcguinness-connect-client-context.html"
+#  group: "OpenID Connect"
+#  type: Working Group
+#  mail: "openid-specs-ab@lists.openid.net"
+  github: "mcguinness/connect-client-context"
+  latest: "https://mcguinness.github.io/connect-client-context/draft-mcguinness-connect-client-context.html"
 author:
   -
     ins: K. McGuinness
