@@ -1,7 +1,7 @@
 ---
 title: "OpenID Connect Client Context Parameter"
 abbrev: "OIDC Client Context"
-docName: "draft-mcguinness-connect-client-context-00"
+docName: "draft-mcguinness-connect-client-context-latest"
 category: std
 ipr: trust200902
 area: Security
@@ -10,13 +10,12 @@ keyword:
   - OpenID Connect
   - OAuth 2.0
   - Client Context
-  - Purpose Context
-  - Just-in-Time Access
-  - AI Agents
 venue:
   group: "OpenID Connect"
   type: Working Group
   mail: "openid-specs-ab@lists.openid.net"
+  github: "mcguinness/draft-mcguinness-connect-client-context"
+  latest: "https://mcguinness.github.io/draft-mcguinness-connect-client-context/draft-mcguinness-connect-client-context.html"
 author:
   -
     ins: K. McGuinness
