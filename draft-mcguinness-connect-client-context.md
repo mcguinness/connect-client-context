@@ -447,34 +447,55 @@ The `actor` sub-object identifies the entity that triggered the purpose and requ
   * `service` — an application, system, or automated service initiated this authentication.
 
 `id`
-: OPTIONAL. String containing a stable identifier for the acting entity. For AI agents, this MAY be a session or agent instance identifier. For services, this MAY be a stable service identifier registered with the platform.
+: OPTIONAL. String containing a stable identifier for the acting entity itself — the agent session, service name, or user identifier that names the direct actor. `actor.id` identifies *what* is acting. Its interpretation depends on `actor.type`:
+  * When `type` is `user`: `id` is a stable identifier for the human user acting as the direct actor (e.g., a platform user ID). If `sub` is also present, both MUST refer to the same individual.
+  * When `type` is `agent`: `id` is a stable identifier for the agent instance or agent deployment (e.g., a session ID, model deployment name, or agent registration identifier). It MUST NOT be used to carry the identity of the human principal behind the agent; use `sub` for that purpose.
+  * When `type` is `service`: `id` is a stable identifier for the service or application registered with the platform (e.g., a service account name or client ID). It MUST NOT carry a human user identifier.
 
 `sub`
-: OPTIONAL. String containing the subject identifier of the human principal on whose behalf the actor is acting. When an AI agent or service is the direct actor (`type` is `agent` or `service`) but a human user ultimately authorized or triggered the action, `sub` SHOULD be set to that user's stable identifier (e.g., their `sub` from a prior ID Token or a platform user ID). This enables the OP to apply policy based on the human principal behind an automated actor and to produce audit records that trace actions to an accountable human. When `type` is `user`, `sub` SHOULD be set to that user's identifier.
+: OPTIONAL. String containing the subject identifier of the human principal on whose authority this actor is acting. `actor.sub` always refers to a human, regardless of `actor.type`:
+  * When `type` is `user`: `sub` SHOULD be set to that user's stable subject identifier (e.g., their `sub` from a prior ID Token). `actor.id` and `actor.sub` MAY be the same value.
+  * When `type` is `agent`: `sub` MUST be set to the subject identifier of the human user who authorized the agent to act. It MUST NOT contain the agent's own identifier. The distinction is: `id` names the agent, `sub` names the human behind it.
+  * When `type` is `service`: `sub` SHOULD be set to the human user who authorized or owns the service invocation, if that relationship is known and relevant to OP policy.
 
 `delegation`
-: OPTIONAL. Array of objects representing the delegation chain that led to this authentication request, ordered from the outermost delegator (closest to the human) to the immediate caller. Each element in the array MUST contain a `type` field (using the same RECOMMENDED values as `actor.type`) and SHOULD contain an `id` field. Elements MAY contain a `sub` field with the same semantics as `actor.sub`. The `delegation` structure follows the nesting model of the `act` claim in Token Exchange ({{!RFC8693}}), adapted for the authentication layer.
+: OPTIONAL. Array of delegation chain objects describing the sequence of intermediaries through which authority was delegated to the direct actor, ordered from the principal closest to the human (outermost, index 0) to the entity immediately preceding the direct actor (innermost, last element). The direct actor itself is expressed in the top-level `actor` object and MUST NOT be repeated in `delegation`. This ordering follows the direction of authority delegation: `delegation[0]` is the entity that originated or authorized the chain, and the last element delegated to the direct actor.
 
-  Example: a scheduler service (`service`) acting on behalf of an AI agent (`agent`) that was authorized by a user would produce:
+  Each element of the `delegation` array MUST be a JSON object with the following members:
+
+  `type`
+  : REQUIRED. String indicating the category of this chain member. Uses the same RECOMMENDED values as `actor.type` (`user`, `agent`, `service`).
+
+  `id`
+  : OPTIONAL. String containing a stable identifier for this chain member, with the same semantics as `actor.id` relative to the member's `type`.
+
+  `sub`
+  : OPTIONAL. String containing the subject identifier of the human principal at this chain position, with the same semantics as `actor.sub` relative to the member's `type`.
+
+  Unknown members in delegation chain objects MUST be ignored.
+
+  The `delegation` structure follows the direction-of-delegation ordering of the `act` claim in Token Exchange ({{!RFC8693}}), adapted for the authentication layer.
+
+  Example: a scheduler service (`service`) acting on behalf of an AI agent (`agent`) that was authorized by a user produces the following `actor` object. The user is `delegation[0]` (outermost), the agent is `delegation[1]` (intermediate), and the scheduler service is the direct actor at the top level:
 
   ~~~json
   {
     "type": "service",
     "id": "scheduler-svc",
     "delegation": [
-      { "type": "agent", "id": "assistant-v2", "sub": "user-42" },
-      { "type": "user", "sub": "user-42" }
+      { "type": "user", "sub": "user-42" },
+      { "type": "agent", "id": "assistant-v2", "sub": "user-42" }
     ]
   }
   ~~~
 
-  The `delegation` array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been granted explicit trust for delegation claims.
+  The `delegation` array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been separately authorized to assert delegation claims (see {{actor-verification}}).
 
 #### Verification Semantics {#actor-verification}
 
 The `actor` value and its sub-fields are client-supplied assertions; they are not authenticated by this parameter alone. This means:
 
-* The OP MUST NOT treat `actor.type`, `actor.id`, `actor.sub`, or `actor.delegation` as verified facts unless the client has been separately authorized to make such assertions (e.g., via client credentials issued to a trusted service, or a platform-level trust grant in the client's registration metadata).
+* The OP MUST NOT treat `actor.type`, `actor.id`, `actor.sub`, or `actor.delegation` as verified facts unless the client holds an explicit delegation trust grant for those claims. The mechanism for establishing delegation trust grants is to be defined in a future version of this specification (TBD).
 
 * When the OP cannot verify `actor` claims, it SHOULD treat them as advisory context — useful for policy hints and UI display — but MUST NOT rely on them as the sole basis for elevated trust or reduced authentication requirements.
 
@@ -495,7 +516,7 @@ The `constraints` sub-object groups conditions that bound the resulting authenti
 : OPTIONAL. Non-negative integer expressing the maximum permitted lifetime of the resulting session and tokens, in seconds, measured from the time of token issuance. When present, the OP SHOULD cap the lifetime of the issued ID Token, access token, and any refresh tokens to this value. If both `expires_at` and `max_duration` are present, the OP MUST enforce whichever bound is more restrictive (i.e., whichever results in the earlier expiration). `max_duration` is a relative constraint and is appropriate when the client cannot predict the exact issuance time; `expires_at` is appropriate when the authorization is tied to an external deadline (e.g., end of a business day or ticket expiry). Both MAY be present simultaneously to express "no longer than X seconds and no later than Y".
 
 `max_uses`
-: OPTIONAL. Positive integer indicating the maximum number of times the resulting authorization may be used to perform the purpose. When present, the OP SHOULD track use-count against the `instance_id` and reject subsequent attempts once the limit is reached.
+: OPTIONAL. Positive integer indicating the maximum number of successful token issuances that may result from this authorization request. A **use** is defined as one successful completion of the authorization code exchange (or equivalent token endpoint call) that results in the issuance of tokens carrying the `client_context` claim for this `instance_id`. Re-authentication flows that produce a new ID Token each count as one use. Token refresh operations against an already-issued token do NOT count as additional uses. When `max_uses` is `1`, the purpose is single-use: once tokens have been issued, the OP MUST reject any further authorization attempts that present the same `instance_id` with `invalid_client_context`. When `max_uses` is greater than `1`, the OP SHOULD track use-count against the `instance_id` and return `invalid_client_context` once the limit is reached. Use of `max_uses` without `instance_id` is NOT RECOMMENDED; without `instance_id`, the OP has no stable key against which to track use-count.
 
 ### OP Policy Guidance
 
@@ -640,13 +661,19 @@ The Authorization Server SHOULD use the `client_context` values as input to auth
 * **Tenant context** MAY restrict authentication to users belonging to a specific organization or domain, apply tenant-specific MFA requirements, or select a tenant-specific IdP.
 * **Purpose context** MAY trigger step-up authentication, require explicit re-authentication regardless of existing session, reduce session and token lifetimes, or require additional approval.
 
-The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier) before evaluating policy and returning the context in the ID Token.
+The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier, expanding a short tenant code to a fully qualified domain name) before evaluating policy. When normalization occurs, the OP MUST return the canonical value it acted upon in the `client_context` claim of the ID Token, not the alias or abbreviated form the client submitted. For example, if the client sends `{ "type": "app", "id": "admin" }` and the OP resolves `"admin"` to the canonical identifier `"admin_console"`, the ID Token MUST contain `{ "type": "app", "id": "admin_console" }`. Clients MUST be prepared to receive canonical values that differ from what they submitted and MUST evaluate normalization acceptability as part of their response validation (see {{validating-the-response}}).
 
 ## Issuing the ID Token
 
 If authentication succeeds and the request included `client_context`, the Authorization Server MUST include a `client_context` claim in the ID Token. The value MUST be a JSON array reflecting the context as evaluated and applied by the OP. The OP MUST NOT include context elements it did not validate and apply. The returned value MAY differ from the requested value due to normalization or OP policy (e.g., resolved aliases, dropped optional fields), but it MUST accurately represent what the OP acted upon — it MUST NOT be an unevaluated echo of the request.
 
-If the OP does not support `client_context`, it MUST NOT include the claim and MUST reject requests that include `client_context` with `unsupported_client_context_type`. Clients that required specific context MUST treat the absence of the `client_context` claim in the ID Token as a verification failure and MUST NOT proceed with operations that depend on that context.
+There are two distinct cases in which the `client_context` claim may be absent from an ID Token, and clients MUST handle them differently:
+
+1. **OP does not support the feature.** If the OP does not support `client_context`, it MUST reject the authorization request with `unsupported_client_context_type` before issuing any tokens. An ID Token will not be issued in this case. Clients encountering this error SHOULD NOT retry with the same parameter against the same OP; they SHOULD consult the OP's discovery metadata to determine whether any context types are supported.
+
+2. **OP supports the feature but the claim is absent from an issued ID Token.** If the OP advertises `client_context_types_supported` (indicating it supports the feature) but the issued ID Token does not contain a `client_context` claim, this is a processing failure. Clients MUST treat this as a verification failure. Clients MUST NOT proceed with operations that depend on the applied context, and SHOULD surface an error indicating that the expected context was not confirmed by the OP.
+
+The two cases are distinguishable: case 1 results in an error response at the authorization or token endpoint; case 2 results in a successful token response containing an ID Token without the expected claim.
 
 The following is an example ID Token payload containing an applied context:
 
