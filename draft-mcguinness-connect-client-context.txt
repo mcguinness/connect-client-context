@@ -9,7 +9,7 @@ Expires: 11 September 2026
 
 
                 OpenID Connect Client Context Parameter
-               draft-mcguinness-connect-client-context-00
+             draft-mcguinness-connect-client-context-latest
 
 Abstract
 
@@ -32,12 +32,18 @@ About This Document
 
    This note is to be removed before publishing as an RFC.
 
-   Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-mcguinness-connect-client-
-   context/.
+   The latest revision of this draft can be found at
+   https://mcguinness.github.io/draft-mcguinness-connect-client-context/
+   draft-mcguinness-connect-client-context.html.  Status information for
+   this document may be found at https://datatracker.ietf.org/doc/draft-
+   mcguinness-connect-client-context/.
 
    Discussion of this document takes place on the OpenID Connect Working
    Group mailing list (mailto:openid-specs-ab@lists.openid.net).
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/mcguinness/draft-mcguinness-connect-client-
+   context.
 
 Status of This Memo
 
@@ -48,15 +54,6 @@ Status of This Memo
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
    Drafts is at https://datatracker.ietf.org/drafts/current/.
-
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 1]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
@@ -81,94 +78,78 @@ Copyright Notice
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
-     1.1.  The Multi-Context Problem . . . . . . . . . . . . . . . .   4
-     1.2.  Gap in Existing Parameters  . . . . . . . . . . . . . . .   5
-     1.3.  This Specification  . . . . . . . . . . . . . . . . . . .   5
-     1.4.  Design Principles . . . . . . . . . . . . . . . . . . . .   5
-   2.  Conventions . . . . . . . . . . . . . . . . . . . . . . . . .   6
-     2.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   6
-   3.  Protocol Overview . . . . . . . . . . . . . . . . . . . . . .   6
-   4.  The client_context Authorization Request Parameter  . . . . .   8
-     4.1.  Definition  . . . . . . . . . . . . . . . . . . . . . . .   8
-     4.2.  Context Object Schema . . . . . . . . . . . . . . . . . .   9
-     4.3.  Transmission  . . . . . . . . . . . . . . . . . . . . . .   9
-   5.  Registered Context Types  . . . . . . . . . . . . . . . . . .  10
-     5.1.  Application Context (app) . . . . . . . . . . . . . . . .  11
-     5.2.  Tenant Context (tenant) . . . . . . . . . . . . . . . . .  11
-     5.3.  Purpose Context (purpose) . . . . . . . . . . . . . . . .  12
-       5.3.1.  Top-Level Members . . . . . . . . . . . . . . . . . .  13
-       5.3.2.  The display Object  . . . . . . . . . . . . . . . . .  13
-       5.3.3.  The params Object . . . . . . . . . . . . . . . . . .  14
-       5.3.4.  The initiator Object  . . . . . . . . . . . . . . . .  15
-       5.3.5.  The constraints Object  . . . . . . . . . . . . . . .  16
-       5.3.6.  OP Policy Guidance  . . . . . . . . . . . . . . . . .  16
-       5.3.7.  Examples  . . . . . . . . . . . . . . . . . . . . . .  16
-   6.  Client Processing Rules . . . . . . . . . . . . . . . . . . .  17
-     6.1.  Constructing the Request  . . . . . . . . . . . . . . . .  17
-
-
-
-McGuinness              Expires 11 September 2026               [Page 2]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
-     6.2.  Validating the Response . . . . . . . . . . . . . . . . .  18
-     6.3.  Example: Client Verification Logic  . . . . . . . . . . .  19
-   7.  Authorization Server Processing Rules . . . . . . . . . . . .  19
-     7.1.  Parsing and Validation  . . . . . . . . . . . . . . . . .  19
-     7.2.  Policy Evaluation . . . . . . . . . . . . . . . . . . . .  20
-     7.3.  Issuing the ID Token  . . . . . . . . . . . . . . . . . .  20
-   8.  Use Cases . . . . . . . . . . . . . . . . . . . . . . . . . .  21
-     8.1.  Multi-Tenant SaaS . . . . . . . . . . . . . . . . . . . .  21
-     8.2.  Just-in-Time Administrative Access  . . . . . . . . . . .  22
-     8.3.  AI Agent Authorization  . . . . . . . . . . . . . . . . .  23
-       8.3.1.  Why Not Token Exchange or RAR?  . . . . . . . . . . .  24
-   9.  Third-Party Initiated Login . . . . . . . . . . . . . . . . .  26
-     9.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  26
-     9.2.  The client_context_hint Parameter . . . . . . . . . . . .  26
-     9.3.  Client Processing of the Hint . . . . . . . . . . . . . .  27
-     9.4.  Discovery Metadata  . . . . . . . . . . . . . . . . . . .  28
-   10. Relationship to Other Mechanisms  . . . . . . . . . . . . . .  29
-     10.1.  Relationship to Authentication Context (acr) . . . . . .  29
-     10.2.  Relationship to Rich Authorization Requests  . . . . . .  29
-     10.3.  Relationship to Resource Indicators  . . . . . . . . . .  30
-   11. OP Discovery Metadata . . . . . . . . . . . . . . . . . . . .  30
-   12. Client Registration Metadata  . . . . . . . . . . . . . . . .  31
-   13. Error Handling  . . . . . . . . . . . . . . . . . . . . . . .  31
-   14. Security Considerations . . . . . . . . . . . . . . . . . . .  32
-     14.1.  Context Integrity  . . . . . . . . . . . . . . . . . . .  32
-     14.2.  Context Injection  . . . . . . . . . . . . . . . . . . .  33
-     14.3.  Context Verification . . . . . . . . . . . . . . . . . .  33
-     14.4.  Token Replay Across Contexts . . . . . . . . . . . . . .  33
-     14.5.  Over-Privileged Context Requests . . . . . . . . . . . .  34
-     14.6.  Purpose Context Expiration . . . . . . . . . . . . . . .  34
-     14.7.  Third-Party Hint Injection . . . . . . . . . . . . . . .  34
-     14.8.  Confidentiality of Purpose Context . . . . . . . . . . .  35
-   15. Privacy Considerations  . . . . . . . . . . . . . . . . . . .  35
-   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  35
-     16.1.  OAuth Parameters Registry  . . . . . . . . . . . . . . .  35
-     16.2.  OAuth Authorization Server Metadata Registry . . . . . .  36
-     16.3.  OAuth Dynamic Client Registration Metadata Registry  . .  36
-     16.4.  OAuth Client Context Type Registry . . . . . . . . . . .  36
-     16.5.  JWT Claims Registry  . . . . . . . . . . . . . . . . . .  37
-   17. Normative References  . . . . . . . . . . . . . . . . . . . .  37
+   1.  Introduction
+     1.1.  The Multi-Context Problem
+     1.2.  Gap in Existing Parameters
+     1.3.  This Specification
+     1.4.  Design Principles
+   2.  Conventions
+     2.1.  Terminology
+   3.  Protocol Overview
+   4.  The client_context Authorization Request Parameter
+     4.1.  Definition
+     4.2.  Context Object Schema
+     4.3.  Transmission
+   5.  Registered Context Types
+     5.1.  Application Context (app)
+     5.2.  Tenant Context (tenant)
+     5.3.  Purpose Context (purpose)
+       5.3.1.  Top-Level Members
+       5.3.2.  The display Object
+       5.3.3.  The params Object
+       5.3.4.  The actor Object
+       5.3.5.  The constraints Object
+       5.3.6.  OP Policy Guidance
+       5.3.7.  Examples
+   6.  Client Processing Rules
+     6.1.  Constructing the Request
+     6.2.  Validating the Response
+     6.3.  Example: Client Verification Logic
+   7.  Authorization Server Processing Rules
+     7.1.  Parsing and Validation
+     7.2.  Policy Evaluation
+     7.3.  Issuing the ID Token
+   8.  Use Cases
+     8.1.  Multi-Tenant SaaS
+     8.2.  Just-in-Time Administrative Access
+     8.3.  AI Agent Authorization
+       8.3.1.  Why Not Token Exchange or RAR?
+   9.  Third-Party Initiated Login
+     9.1.  Overview
+     9.2.  The client_context_hint Parameter
+     9.3.  Client Processing of the Hint
+     9.4.  Discovery Metadata
+   10. Relationship to Other Mechanisms
+     10.1.  Relationship to Authentication Context (acr)
+     10.2.  Relationship to Rich Authorization Requests
+     10.3.  Relationship to Resource Indicators
+   11. OP Discovery Metadata
+   12. Client Registration Metadata
+   13. Error Handling
+   14. Security Considerations
+     14.1.  Context Integrity
+     14.2.  Context Injection
+     14.3.  Context Verification
+     14.4.  Token Replay Across Contexts
+     14.5.  Over-Privileged Context Requests
+     14.6.  Purpose Context Expiration
+     14.7.  Third-Party Hint Injection
+     14.8.  Confidentiality of Purpose Context
+   15. Privacy Considerations
+   16. IANA Considerations
+     16.1.  OAuth Parameters Registry
+     16.2.  OAuth Authorization Server Metadata Registry
+     16.3.  OAuth Dynamic Client Registration Metadata Registry
+     16.4.  OAuth Client Context Type Registry
+     16.5.  JWT Claims Registry
+   17. Normative References
    Appendix A.  Combined Request Example: client_context, acr_values,
-           and authorization_details . . . . . . . . . . . . . . . .  39
-     A.1.  Authorization Request . . . . . . . . . . . . . . . . . .  40
-     A.2.  What Each Parameter Does  . . . . . . . . . . . . . . . .  41
-     A.3.  Resulting ID Token  . . . . . . . . . . . . . . . . . . .  41
-     A.4.  Layered Model Summary . . . . . . . . . . . . . . . . . .  42
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  43
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 3]
-
-Internet-Draft             OIDC Client Context                March 2026
-
+           and authorization_details
+     A.1.  Authorization Request
+     A.2.  What Each Parameter Does
+     A.3.  Resulting ID Token
+     A.4.  Layered Model Summary
+   Author's Address
 
 1.  Introduction
 
@@ -217,15 +198,6 @@ Internet-Draft             OIDC Client Context                March 2026
    step-up authentication and restrict the resulting session to that
    specific operation.
 
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 4]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 1.2.  Gap in Existing Parameters
 
    Existing OpenID Connect and OAuth 2.0 parameters each serve a
@@ -272,15 +244,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    *  purpose.id is the primary policy key for purpose-scoped
       authentication.
-
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 5]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    *  params contains purpose-specific, validated inputs for
       authentication policy, consent display, and audit.  It is not a
@@ -331,13 +294,6 @@ Internet-Draft             OIDC Client Context                March 2026
    The following diagram illustrates the flow of a client_context-
    bearing authorization request through an OpenID Connect interaction.
 
-
-
-McGuinness              Expires 11 September 2026               [Page 6]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
     Client                           OpenID Provider
       |                                     |
       |-- Authorization Request ----------->|
@@ -382,17 +338,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    2.  The OP receives the request and validates the client_context
        parameter structure.
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 7]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    3.  The OP evaluates the supplied context as input to its
        authentication policy, for example, determining that a purpose
@@ -441,15 +386,6 @@ Host: server.example.com
      { "type": "app", "id": "calendar" }
    ]
 
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 8]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 4.2.  Context Object Schema
 
    Each element of the client_context array MUST be a JSON object
@@ -462,11 +398,14 @@ Internet-Draft             OIDC Client Context                March 2026
 
    *  Additional members are defined by the context type specification.
 
-   *  Members not recognized by the recipient SHOULD be ignored
-      (forward-compatibility).
+   *  Members not recognized by the recipient MUST be ignored (forward-
+      compatibility).  Implementations MUST NOT reject a context object
+      solely because it contains unrecognized members.
 
-   *  Unless otherwise specified by the context type, Clients SHOULD
-      include at most one object per context type in a single request.
+   *  Unless otherwise specified by the context type, a request MUST NOT
+      include more than one context object with the same type value.  A
+      request that violates this constraint MUST be rejected with
+      invalid_client_context.
 
 4.3.  Transmission
 
@@ -481,30 +420,6 @@ Internet-Draft             OIDC Client Context                March 2026
    *Request Object.* The parameter is included as a claim in a JWT
    Request Object per Section 6 of [OIDC.Core].  This protects integrity
    when the Request Object is signed.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026               [Page 9]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    {
      "iss": "s6BhdRkqt3",
@@ -551,16 +466,6 @@ response_type=code
   %7B%22type%22%3A%22purpose%22%2C%22id%22%3A%22add_oauth_client%22%7D%5D
 
 5.  Registered Context Types
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 10]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
 5.1.  Application Context (app)
 
@@ -610,14 +515,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    *Optional members:*
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 11]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    domain  OPTIONAL.  The domain associated with the tenant, when the id
       is not itself a domain.  Useful for routing home-realm discovery.
 
@@ -666,14 +563,6 @@ Internet-Draft             OIDC Client Context                March 2026
    distinct sub-objects to avoid ambiguity and enable each consumer to
    operate independently on its relevant fields.
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 12]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 5.3.1.  Top-Level Members
 
    *Required members:*
@@ -695,8 +584,12 @@ Internet-Draft             OIDC Client Context                March 2026
       identifier for this specific invocation of the purpose.  This
       value enables later receipts, audit records, or downstream
       protocols to refer to the same authenticated purpose instance.
-      When present, the OP SHOULD return the validated value in the
-      resulting client_context claim.  Example value:
+      The instance_id MUST be unique within the scope of the issuing
+      client_id and the purpose.id; clients MUST NOT reuse an
+      instance_id value across different authorization requests for the
+      same purpose type.  When present, the OP SHOULD include the
+      instance_id in the client_context claim of the issued ID Token
+      without modification.  Example value:
       "01JNP8Q8W5W4K7QG0R9B3R2M6F".
 
    display  OPTIONAL.  Object providing human-readable labels for
@@ -708,9 +601,9 @@ Internet-Draft             OIDC Client Context                March 2026
       is defined per id value; different purpose types carry different
       parameters.  See Section 5.3.3.
 
-   initiator  OPTIONAL.  Object identifying the entity that triggered
-      this purpose and is requesting the authentication on behalf of the
-      End-User.  See Section 5.3.4.
+   actor  OPTIONAL.  Object identifying the entity that triggered this
+      purpose and is requesting the authentication on behalf of the End-
+      User.  See Section 5.3.4.
 
    constraints  OPTIONAL.  Object specifying limiting conditions on the
       resulting authentication session and tokens.  See Section 5.3.5.
@@ -722,14 +615,6 @@ Internet-Draft             OIDC Client Context                March 2026
    labels that the OP SHOULD present to the End-User.
 
    title  OPTIONAL.  Short human-readable title for the purpose,
-
-
-
-McGuinness              Expires 11 September 2026              [Page 13]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
       suitable for a consent screen heading.  Example: "Register OAuth
       Client".
 
@@ -777,15 +662,6 @@ Internet-Draft             OIDC Client Context                March 2026
    MUST NOT be used to express resource permissions or downstream access
    rights.
 
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 14]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    params MAY include policy-relevant target identifiers for an
    authenticated administrative action, such as a target subject
    identifier, client identifier, tenant identifier, or deployment
@@ -799,48 +675,97 @@ Internet-Draft             OIDC Client Context                March 2026
    decisions at downstream resource servers; that is the role of access
    tokens.
 
-5.3.4.  The initiator Object
+5.3.4.  The actor Object
 
-   The initiator sub-object identifies the entity that triggered the
-   purpose and requested authentication on the End-User's behalf.  This
-   enables the OP to apply policy rules based on who or what initiated
-   the authentication, not just what purpose is being performed.
+   The actor sub-object identifies the entity that triggered the purpose
+   and requested authentication on the End-User's behalf.  This enables
+   the OP to apply policy rules based on who or what initiated the
+   authentication, not just what purpose is being performed.
 
-   id  OPTIONAL.  String containing a stable identifier for the
-      initiating entity.  For AI agents, this MAY be a session or agent
-      instance identifier.  For services, this MAY be a stable service
-      identifier registered with the platform.
+   type  REQUIRED if actor is present.  String indicating the category
+      of the acting entity.  RECOMMENDED values:
 
-   type  REQUIRED if initiator is present.  String indicating the
-      category of the initiating entity.  RECOMMENDED values:
+      *  user — a human user initiated this authentication (e.g., a
+         manager initiating a verification flow for a team member).
 
-      *  user - a human user initiated this purpose (e.g., a manager
-         initiating a verification flow for a team member).
+      *  agent — an AI agent or automated agent initiated this
+         authentication.
 
-      *  agent - an AI agent or automated agent initiated this purpose.
+      *  service — an application, system, or automated service
+         initiated this authentication.
 
-      *  service - an application, system, or automated service
-         initiated this purpose.
+   id  OPTIONAL.  String containing a stable identifier for the acting
+      entity.  For AI agents, this MAY be a session or agent instance
+      identifier.  For services, this MAY be a stable service identifier
+      registered with the platform.
 
-   Clients SHOULD omit initiator when the End-User directly starts the
-   authentication within the Client itself.  The initiator value is
-   informational and is not itself authenticated by this parameter.
-   Clients SHOULD authenticate the initiator through separate means
-   (e.g., service-to-service OAuth credentials) before asserting its
-   identity here.  OPs MAY apply more stringent authentication
-   requirements when initiator.type is agent or service to mitigate
-   automated abuse.
+   sub  OPTIONAL.  String containing the subject identifier of the human
+      principal on whose behalf the acting entity is acting.  When an AI
+      agent or service is the direct initiator (type is agent or
+      service) but a human user ultimately authorized or triggered the
+      action, sub SHOULD be set to that user's stable identifier (e.g.,
+      their sub from a prior ID Token or a platform user ID).  This
+      enables the OP to apply policy based on the human principal behind
+      an automated initiator and to produce audit records that trace
+      actions to an accountable human.  When type is user, sub SHOULD be
+      set to that user's identifier.
 
+   delegation  OPTIONAL.  Array of objects representing the delegation
+      chain that led to this authentication request, ordered from the
+      outermost delegator (closest to the human) to the immediate
+      caller.  Each element in the array MUST contain a type field
+      (using the same RECOMMENDED values as actor.type) and SHOULD
+      contain an id field.  Elements MAY contain a sub field with the
+      same semantics as actor.sub.  The delegation structure follows the
+      nesting model of the act claim in Token Exchange ([RFC8693]),
+      adapted for the authentication layer.
 
+      Example: a scheduler service (service) acting on behalf of an AI
+      agent (agent) that was authorized by a user would produce:
 
+      {
+        "type": "service",
+        "id": "scheduler-svc",
+        "delegation": [
+          { "type": "agent", "id": "assistant-v2", "sub": "user-42" },
+          { "type": "user", "sub": "user-42" }
+        ]
+      }
 
+      The delegation array MUST NOT be used to bypass OP policy.  The OP
+      MUST treat all entries as unverified client assertions unless the
+      client has been granted explicit trust for delegation claims.
 
+5.3.4.1.  Verification Semantics
 
+   The actor value and its sub-fields are client-supplied assertions;
+   they are not authenticated by this parameter alone.  This means:
 
-McGuinness              Expires 11 September 2026              [Page 15]
-
-Internet-Draft             OIDC Client Context                March 2026
+   *  The OP MUST NOT treat actor.type, actor.id, actor.sub, or
+      actor.delegation as verified facts unless the client has been
+      separately authorized to make such assertions (e.g., via client
+      credentials issued to a trusted service, or a platform-level trust
+      grant in the client's registration metadata).
 
+   *  When the OP cannot verify actor claims, it SHOULD treat them as
+      advisory context — useful for policy hints and UI display — but
+      MUST NOT rely on them as the sole basis for elevated trust or
+      reduced authentication requirements.
+
+   *  When actor.type is agent or service, the OP SHOULD apply more
+      stringent authentication requirements (e.g., mandatory re-
+      authentication, higher ACR) rather than relaxing them, since the
+      presence of a non-human actor represents increased automation
+      risk.
+
+   *  Clients SHOULD authenticate the acting entity through independent
+      means (e.g., service-to-service OAuth credentials, platform
+      identity tokens) and convey verified initiator identity through
+      those channels before asserting it in actor.  Clients MUST NOT
+      fabricate actor.sub values.
+
+   Clients SHOULD omit actor when the End-User directly starts the
+   authentication within the Client itself with no intermediary.
 
 5.3.5.  The constraints Object
 
@@ -852,7 +777,29 @@ Internet-Draft             OIDC Client Context                March 2026
       longer valid.  The OP SHOULD enforce that any resulting session,
       token, or other local authorization state used to carry out the
       purpose does not outlive this value, including refresh tokens
-      where applicable.
+      where applicable.  If expires_at is in the past at the time of
+      processing, the OP MUST reject the request with
+      invalid_client_context_value.
+
+   max_duration  OPTIONAL.  Non-negative integer expressing the maximum
+      permitted lifetime of the resulting session and tokens, in
+      seconds, measured from the time of token issuance.  When present,
+      the OP SHOULD cap the lifetime of the issued ID Token, access
+      token, and any refresh tokens to this value.  If both expires_at
+      and max_duration are present, the OP MUST enforce whichever bound
+      is more restrictive (i.e., whichever results in the earlier
+      expiration). max_duration is a relative constraint and is
+      appropriate when the client cannot predict the exact issuance
+      time; expires_at is appropriate when the authorization is tied to
+      an external deadline (e.g., end of a business day or ticket
+      expiry).  Both MAY be present simultaneously to express "no longer
+      than X seconds and no later than Y".
+
+   max_uses  OPTIONAL.  Positive integer indicating the maximum number
+      of times the resulting authorization may be used to perform the
+      purpose.  When present, the OP SHOULD track use-count against the
+      instance_id and reject subsequent attempts once the limit is
+      reached.
 
 5.3.6.  OP Policy Guidance
 
@@ -864,9 +811,9 @@ Internet-Draft             OIDC Client Context                March 2026
    End-User during authentication to provide a complete picture of what
    the user is authorizing.
 
-   The OP SHOULD evaluate initiator.type when id alone is insufficient
-   to determine authentication requirements.  For example, an OP MAY
-   require re-authentication when initiator.type is agent, regardless of
+   The OP SHOULD evaluate actor.type when id alone is insufficient to
+   determine authentication requirements.  For example, an OP MAY
+   require re-authentication when actor.type is agent, regardless of
    existing session state.
 
    The OP MAY bind a validated purpose object to the authenticated
@@ -880,24 +827,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    *Example: AI agent task*
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 16]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    {
      "type": "purpose",
      "id": "summarize_inbox",
@@ -906,12 +835,17 @@ Internet-Draft             OIDC Client Context                March 2026
        "description": "AI Assistant will read your unread emails from the past 7 days and generate a summary.",
        "locale": "en"
      },
-     "initiator": {
+     "actor": {
        "type": "agent",
-       "id": "agent-session-a1b2c3"
+       "id": "agent-session-a1b2c3",
+       "sub": "user-9f3d2a",
+       "delegation": [
+         { "type": "user", "sub": "user-9f3d2a" }
+       ]
      },
      "constraints": {
-       "expires_at": "2026-03-10T20:00:00Z"
+       "expires_at": "2026-03-10T20:00:00Z",
+       "max_duration": 3600
      }
    }
 
@@ -931,7 +865,9 @@ Internet-Draft             OIDC Client Context                March 2026
        "environment": "production"
      },
      "constraints": {
-       "expires_at": "2026-03-10T18:00:00Z"
+       "expires_at": "2026-03-10T18:00:00Z",
+       "max_duration": 900,
+       "max_uses": 1
      }
    }
 
@@ -946,22 +882,15 @@ Internet-Draft             OIDC Client Context                March 2026
        NOT RECOMMENDED; omit the parameter entirely if no context is
        applicable.
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 17]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    2.  Ensure each element is a JSON object containing a type field with
        a non-empty string value.
 
    3.  Ensure each object's structure conforms to the schema defined for
        that context type.
 
-   4.  Avoid including contradictory context values (e.g., two tenant
-       objects with different id values).
+   4.  Ensure the array contains at most one object per type value.
+       Including multiple objects with the same type is a protocol error
+       and will cause the request to be rejected.
 
    5.  Include a nonce parameter in the authorization request to bind
        the resulting ID Token to the request.
@@ -983,7 +912,11 @@ Internet-Draft             OIDC Client Context                March 2026
        sent in the request.
 
    3.  If the request included client_context, examine the
-       client_context claim in the ID Token.
+       client_context claim in the ID Token.  A Client that gates any
+       operation on client_context MUST verify the client_context claim
+       in the validated ID Token.  The Client MUST NOT rely on the
+       client_context it sent in the authorization request as
+       confirmation that the OP evaluated or applied that context.
 
    4.  Compare the returned context to the requested context.  The
        Client MUST detect and handle:
@@ -1002,13 +935,6 @@ Internet-Draft             OIDC Client Context                March 2026
        *  *Additional context:* The OP included context objects not
           present in the request.  The Client SHOULD ignore unexpected
           context types.
-
-
-
-McGuinness              Expires 11 September 2026              [Page 18]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    5.  Reject or restrict privileged operations if required context
        values are absent or inconsistent.
@@ -1058,24 +984,32 @@ Internet-Draft             OIDC Client Context                March 2026
        string value.  If any object is missing type, return
        invalid_client_context.
 
+   4.  Verify that no two objects in the array share the same type
+       value.  If duplicate context types are present, return
+       invalid_client_context.  Partial application of a subset of the
+       array is not permitted.
 
-
-
-McGuinness              Expires 11 September 2026              [Page 19]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
-   4.  For each context type in the request: a.  If the type is not
+   5.  For each context type in the request: a.  If the type is not
        recognized and the OP does not support unknown types, return
        unsupported_client_context_type. b.  If the type is recognized,
        validate the object against the registered schema for that type.
        If validation fails, return invalid_client_context_value.
 
-   5.  If the client's registration metadata includes
+   6.  If the client's registration metadata includes
        client_context_types, verify that all requested context types are
        in the registered list.  If not, return
        unsupported_client_context_type.
+
+   7.  If client_context_par_required is true in the OP's discovery
+       metadata and the request was not submitted as a Pushed
+       Authorization Request ([RFC9126]), return invalid_request.  The
+       OP MUST NOT process client_context received outside of a PAR
+       request when this flag is set.
+
+   8.  If any context object fails validation or is unsupported (steps
+       2–6), the Authorization Server MUST reject the entire
+       authorization request.  Partial application of valid context
+       objects from an otherwise invalid request is not permitted.
 
 7.2.  Policy Evaluation
 
@@ -1101,26 +1035,25 @@ Internet-Draft             OIDC Client Context                March 2026
 
 7.3.  Issuing the ID Token
 
-   If authentication succeeds, the Authorization Server SHOULD include a
-   client_context claim in the ID Token.  The value MUST be a JSON array
-   containing the context objects that were actually applied, which MAY
-   differ from the requested context due to normalization or policy.
+   If authentication succeeds and the request included client_context,
+   the Authorization Server MUST include a client_context claim in the
+   ID Token.  The value MUST be a JSON array reflecting the context as
+   evaluated and applied by the OP.  The OP MUST NOT include context
+   elements it did not validate and apply.  The returned value MAY
+   differ from the requested value due to normalization or OP policy
+   (e.g., resolved aliases, dropped optional fields), but it MUST
+   accurately represent what the OP acted upon — it MUST NOT be an
+   unevaluated echo of the request.
 
-   If the OP does not support client_context or chooses not to return
-   it, it MUST NOT include the claim.  Clients that required specific
-   context must treat its absence as a verification failure.
+   If the OP does not support client_context, it MUST NOT include the
+   claim and MUST reject requests that include client_context with
+   unsupported_client_context_type.  Clients that required specific
+   context MUST treat the absence of the client_context claim in the ID
+   Token as a verification failure and MUST NOT proceed with operations
+   that depend on that context.
 
    The following is an example ID Token payload containing an applied
    context:
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 20]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    {
      "iss": "https://op.example.com",
@@ -1168,15 +1101,6 @@ Internet-Draft             OIDC Client Context                March 2026
      { "type": "app", "id": "project_management" },
      { "type": "tenant", "id": "acme-corp.com" }
    ]
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 21]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    The OP uses the tenant context to route the user to Acme Corp's
    configured identity provider and apply Acme Corp's authentication
@@ -1227,13 +1151,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    4.  Record the purpose identifier and task details in its audit log.
 
-
-
-McGuinness              Expires 11 September 2026              [Page 22]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    5.  Notify a security team of the elevated access event.
 
    The Client then verifies the returned context before enabling the
@@ -1270,7 +1187,7 @@ Internet-Draft             OIDC Client Context                March 2026
          "description": "AI Assistant will access your calendar to schedule a team meeting for next Tuesday.",
          "locale": "en"
        },
-       "initiator": { "type": "agent", "id": "agent-session-7f3a2b1c" },
+       "actor": { "type": "agent", "id": "agent-session-7f3a2b1c" },
        "constraints": { "expires_at": "2026-03-10T23:00:00Z" }
      }
    ]
@@ -1282,13 +1199,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    2.  Issuing an ID Token with a short lifetime (e.g., 1 hour) matching
        the task scope.
-
-
-
-McGuinness              Expires 11 September 2026              [Page 23]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    3.  Including the purpose context in the ID Token so that the agent
        platform can verify the user authenticated specifically for this
@@ -1325,26 +1235,6 @@ Internet-Draft             OIDC Client Context                March 2026
    why authentication is being requested right now, so that the OP can
    apply the appropriate authentication policy and return a verifiable
    record of that context in the ID Token.  The key distinctions are:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 24]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    +==============+==========+=========================+==============+
    |              |Token     | RAR                     |client_context|
@@ -1394,14 +1284,6 @@ Internet-Draft             OIDC Client Context                March 2026
    event, RAR handles the access token shape, and Token Exchange handles
    downstream credential propagation.  They do not overlap.
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 25]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 9.  Third-Party Initiated Login
 
 9.1.  Overview
@@ -1450,14 +1332,6 @@ Internet-Draft             OIDC Client Context                March 2026
    *Example: An enterprise portal initiating a login for a specific
    tenant and application:*
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 26]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 GET /login-initiation?
   iss=https%3A%2F%2Fop.example.com
   &target_link_uri=https%3A%2F%2Fclient.example.org%2Fapp%2Fcalendar
@@ -1489,7 +1363,7 @@ Host: client.example.org
          "locale": "en"
        },
        "params": { "client_name": "invoice-service", "ticket_ref": "IT-4821" },
-       "initiator": { "type": "service", "id": "service-desk-app" },
+       "actor": { "type": "service", "id": "service-desk-app" },
        "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
      }
    ]
@@ -1504,15 +1378,6 @@ Host: client.example.org
    The Client receiving a client_context_hint at its login initiation
    endpoint MUST treat the hint as untrusted input from a third party.
    The following processing rules apply:
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 27]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    1.  *Parse.* The Client MUST parse the hint value as a JSON array.
        If parsing fails, the Client MUST ignore the hint and proceed
@@ -1537,11 +1402,11 @@ Internet-Draft             OIDC Client Context                March 2026
        Client determines from its own state, as the basis for the
        client_context parameter in the authorization request to the OP.
 
-       When a hint includes an initiator object, the Client MUST NOT
-       forward that value unchanged unless it has independently
-       authenticated and verified the initiating entity.  Otherwise, the
-       Client MUST remove the hinted initiator or replace it with a
-       locally derived value.
+       When a hint includes an actor object, the Client MUST NOT forward
+       that value unchanged unless it has independently authenticated
+       and verified the acting entity.  Otherwise, the Client MUST
+       remove the hinted actor or replace it with a locally derived
+       value.
 
    5.  *Authenticate the initiating party.* Clients SHOULD authenticate
        or verify the origin of the initiation request where possible
@@ -1560,15 +1425,6 @@ Internet-Draft             OIDC Client Context                March 2026
    Clients that accept client_context_hint at their login initiation
    endpoint SHOULD advertise this in their client metadata or in a well-
    known configuration endpoint if one is published.
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 28]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    The following Client metadata parameter is defined for use where
    Client metadata is published:
@@ -1618,14 +1474,6 @@ Internet-Draft             OIDC Client Context                March 2026
    authentication policy) and authorization_details with specific
    resource permissions (to scope the resulting access token).
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 29]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 10.3.  Relationship to Resource Indicators
 
    OAuth 2.0 Resource Indicators ([RFC8707]) allow a Client to identify
@@ -1653,8 +1501,10 @@ Internet-Draft             OIDC Client Context                March 2026
       describing the structure of that context type.
 
    client_context_par_required  OPTIONAL.  Boolean.  If true, the OP
-      requires that requests containing client_context be submitted as
-      Pushed Authorization Requests.  Default is false.
+      MUST reject any authorization request that includes client_context
+      but was not submitted as a Pushed Authorization Request
+      ([RFC9126]), returning invalid_request.  When this flag is set,
+      clients MUST submit client_context via PAR.  Default is false.
 
    *Example discovery document excerpt:*
 
@@ -1673,14 +1523,6 @@ Internet-Draft             OIDC Client Context                March 2026
      },
      "client_context_par_required": true
    }
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 30]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
 12.  Client Registration Metadata
 
@@ -1730,14 +1572,6 @@ Internet-Draft             OIDC Client Context                March 2026
       invalid field values (e.g., an expires_at in the past, an
       unrecognized id value for a constrained purpose type).
 
-
-
-
-McGuinness              Expires 11 September 2026              [Page 31]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    *Example error response:*
 
 HTTP/1.1 302 Found
@@ -1780,19 +1614,6 @@ Content-Type: application/json
    Clients MUST NOT transmit sensitive purpose context (e.g.,
    administrative workflow identifiers) as unprotected query parameters
    where it may be logged by servers, proxies, or browsers.
-
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 32]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
 14.2.  Context Injection
 
@@ -1838,18 +1659,6 @@ Internet-Draft             OIDC Client Context                March 2026
    Together with context verification, this prevents token replay across
    contexts and sessions.
 
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 33]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 14.5.  Over-Privileged Context Requests
 
    A compromised or malicious Client might attempt to request elevated
@@ -1893,18 +1702,6 @@ Internet-Draft             OIDC Client Context                March 2026
    policy decision to use that context.  Where possible, Clients SHOULD
    authenticate the source of the initiation request before accepting
    elevated context types such as purpose.
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 34]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
 14.8.  Confidentiality of Purpose Context
 
@@ -1955,13 +1752,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    *  *Change controller:* IETF
 
-
-
-McGuinness              Expires 11 September 2026              [Page 35]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    *  *Specification document(s):* This document
 
 16.2.  OAuth Authorization Server Metadata Registry
@@ -2011,13 +1801,6 @@ Internet-Draft             OIDC Client Context                March 2026
 
    *  Has a clear, stable semantics.
 
-
-
-McGuinness              Expires 11 September 2026              [Page 36]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    *  Does not overlap significantly with existing registered types.
 
    *  Is backed by a publicly available specification.
@@ -2064,16 +1847,6 @@ Internet-Draft             OIDC Client Context                March 2026
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 37]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
@@ -2118,17 +1891,6 @@ Internet-Draft             OIDC Client Context                March 2026
               and F. Skokan, "OAuth 2.0 Pushed Authorization Requests",
               RFC 9126, DOI 10.17487/RFC9126, September 2021,
               <https://www.rfc-editor.org/info/rfc9126>.
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 38]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    [RFC9396]  Lodderstedt, T., Richer, J., and B. Campbell, "OAuth 2.0
               Rich Authorization Requests", RFC 9396,
@@ -2179,13 +1941,6 @@ Appendix A.  Combined Request Example: client_context, acr_values, and
    *  Obtain an access token scoped precisely to the Client Registration
       API for that specific user (authorization_details).
 
-
-
-McGuinness              Expires 11 September 2026              [Page 39]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 A.1.  Authorization Request
 
    The following PAR request body carries all three parameters:
@@ -2230,18 +1985,6 @@ A.1.  Authorization Request
 
    The decoded authorization_details value:
 
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 40]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
    [
      {
        "type": "oauth_client_registration",
@@ -2275,28 +2018,6 @@ A.2.  What Each Parameter Does
       the OP's authentication engine.
 
 A.3.  Resulting ID Token
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 41]
-
-Internet-Draft             OIDC Client Context                March 2026
-
 
    {
      "iss": "https://op.example.com",
@@ -2347,62 +2068,7 @@ A.4.  Layered Model Summary
       (enforced at      (verified by      (enforced at
       auth time)         the client)       the API)
 
-
-
-McGuinness              Expires 11 September 2026              [Page 42]
-
-Internet-Draft             OIDC Client Context                March 2026
-
-
 Author's Address
 
    Karl McGuinness
    Independent
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGuinness              Expires 11 September 2026              [Page 43]
