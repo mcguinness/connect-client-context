@@ -467,10 +467,10 @@ The `actor` sub-object identifies the entity that triggered the purpose and requ
   : REQUIRED. String indicating the category of this chain member. Uses the same RECOMMENDED values as `actor.type` (`user`, `agent`, `service`).
 
   `id`
-  : OPTIONAL. String containing a stable identifier for this chain member, with the same semantics as `actor.id` relative to the member's `type`.
+  : OPTIONAL. String containing a stable identifier for the entity at this chain position. When `type` is `user`, `id` is a stable identifier for that human. When `type` is `agent`, `id` is a stable identifier for the agent instance or deployment (MUST NOT carry a human subject identifier). When `type` is `service`, `id` is a stable identifier for the service or application (MUST NOT carry a human subject identifier).
 
   `sub`
-  : OPTIONAL. String containing the subject identifier of the human principal at this chain position, with the same semantics as `actor.sub` relative to the member's `type`.
+  : OPTIONAL. String containing the subject identifier of the human principal at this chain position. `sub` always refers to a human, regardless of `type`. When `type` is `user`, `sub` is that user's stable subject identifier. When `type` is `agent`, `sub` MUST be the subject identifier of the human who authorized the agent at this delegation step; it MUST NOT be the agent's own identifier. When `type` is `service`, `sub` SHOULD be the human who authorized or owns this service invocation, if known.
 
   Unknown members in delegation chain objects MUST be ignored.
 
@@ -600,7 +600,11 @@ When receiving an ID Token in response to a request that included `client_contex
 
 1. Validate the ID Token per Section 3.1.3.7 of {{!OIDC.Core}}, including signature verification, issuer, audience, and expiration checks.
 2. Verify that the `nonce` claim in the ID Token matches the `nonce` sent in the request.
-3. If the request included `client_context`, examine the `client_context` claim in the ID Token. A Client that gates any operation on `client_context` MUST verify the `client_context` claim in the validated ID Token. The Client MUST NOT rely on the `client_context` it sent in the authorization request as confirmation that the OP evaluated or applied that context.
+3. If the request included `client_context` and a token response was successfully received, examine the `client_context` claim in the ID Token. There are two distinct cases when the claim is absent, and clients MUST handle them differently:
+   - **Absent because the OP does not support `client_context`:** This case does not arise at this step. An OP that does not support `client_context` MUST reject the request before issuing tokens (returning `unsupported_client_context_type` at the authorization or token endpoint). If the client received a successful token response, the OP did not reject the request, so this case does not apply here.
+   - **Absent from an otherwise valid ID Token:** If the ID Token was issued successfully but does not contain a `client_context` claim, this is a processing failure. The client MUST treat this as a verification failure, MUST NOT proceed with any operations that depend on the applied context, and SHOULD surface a distinct error to the caller indicating that the OP did not confirm the requested context. The client SHOULD NOT silently fall back to using the context it sent in the request.
+
+   A Client that gates any operation on `client_context` MUST verify the `client_context` claim in the validated ID Token. The Client MUST NOT rely on the `client_context` it sent in the authorization request as confirmation that the OP evaluated or applied that context.
 4. Compare the returned context to the requested context. The Client MUST detect and handle:
    - **Missing context:** A context type that was requested is absent from the returned value. The Client MUST apply local policy to determine whether this is acceptable. For security-critical context (e.g., purpose context for privileged operations), the Client MUST treat missing context as an error and reject the token.
    - **Modified context:** A context value was altered by the OP (e.g., due to normalization). The Client MUST evaluate whether the modification is acceptable.
