@@ -1061,7 +1061,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">OpenID Connect</dd>
+<dd class="workgroup">Network Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
 <dd class="internet-draft">draft-mcguinness-connect-client-context-latest</dd>
 <dt class="label-published">Published:</dt>
@@ -1094,13 +1094,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://mcguinness.github.io/draft-mcguinness-connect-client-context/draft-mcguinness-connect-client-context.html">https://mcguinness.github.io/draft-mcguinness-connect-client-context/draft-mcguinness-connect-client-context.html</a></span>.
+        The latest revision of this draft can be found at <span><a href="https://mcguinness.github.io/connect-client-context/draft-mcguinness-connect-client-context.html">https://mcguinness.github.io/connect-client-context/draft-mcguinness-connect-client-context.html</a></span>.
         Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-mcguinness-connect-client-context/">https://datatracker.ietf.org/doc/draft-mcguinness-connect-client-context/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
-<p id="section-note.1-3">
-        Discussion of this document takes place on the
-        OpenID Connect Working Group mailing list (<span><a href="mailto:openid-specs-ab@lists.openid.net">mailto:openid-specs-ab@lists.openid.net</a></span>).<a href="#section-note.1-3" class="pilcrow">¶</a></p>
-<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/mcguinness/draft-mcguinness-connect-client-context">https://github.com/mcguinness/draft-mcguinness-connect-client-context</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/mcguinness/connect-client-context">https://github.com/mcguinness/connect-client-context</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1458,7 +1455,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-1.4-2.1.1"><code>client_context</code> influences authentication behavior and ID Token content. It does not define access token permissions.<a href="#section-1.4-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.4-2.2">
-            <p id="section-1.4-2.2.1"><code>purpose.id</code> is the primary policy key for purpose-scoped authentication.<a href="#section-1.4-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.4-2.2.1"><code>purpose.kind</code> is the primary policy key for purpose-scoped authentication.<a href="#section-1.4-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.4-2.3">
             <p id="section-1.4-2.3.1"><code>params</code> contains purpose-specific, validated inputs for authentication policy, consent display, and audit. It is not a general-purpose extension bag.<a href="#section-1.4-2.3.1" class="pilcrow">¶</a></p>
@@ -1541,7 +1538,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
    |     { type: "tenant",               |
    |       id: "example.com" },          |
    |     { type: "purpose",              |
-   |       id: "add_oauth_client" }        |
+   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
    |   ]                                 |
    |   scope, acr_values, claims, ...    |
    |                                     |
@@ -1562,7 +1559,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
    |     { type: "tenant",               |
    |       id: "example.com" },          |
    |     { type: "purpose",              |
-   |       id: "add_oauth_client" }        |
+   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
    |   ]                                 |
    |   ...standard claims...             |
    |                                     |
@@ -1579,7 +1576,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
           <p id="section-3-4.2.1">The OP receives the request and validates the <code>client_context</code> parameter structure.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.3">
-          <p id="section-3-4.3.1">The OP evaluates the supplied context as input to its authentication policy, for example, determining that a <code>purpose</code> context with <code>id</code> <code>add_oauth_client</code> requires step-up MFA authentication, or that a <code>tenant</code> context restricts authentication to a specific identity provider.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.3.1">The OP evaluates the supplied context as input to its authentication policy, for example, determining that a <code>purpose</code> context with <code>kind</code> <code>https://example.com/purposes/deprovision-user-access</code> requires step-up MFA authentication, or that a <code>tenant</code> context restricts authentication to a specific identity provider.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.4">
           <p id="section-3-4.4.1">The OP authenticates the End-User according to the derived policy.<a href="#section-3-4.4.1" class="pilcrow">¶</a></p>
@@ -1678,13 +1675,13 @@ Host: server.example.com
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
+      "kind": "https://example.com/purposes/deprovision-user-access",
       "display": {
-        "title": "Register OAuth Client",
-        "description": "Register new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
         "locale": "en"
       },
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
@@ -1705,7 +1702,7 @@ response_type=code
 &amp;acr_values=urn%3Amace%3Aincommon%3Aiap%3Asilver
 &amp;client_context=%5B%7B%22type%22%3A%22app%22%2C%22id%22%3A%22admin_console%22%7D%2C
   %7B%22type%22%3A%22tenant%22%2C%22id%22%3A%22example.com%22%7D%2C
-  %7B%22type%22%3A%22purpose%22%2C%22id%22%3A%22add_oauth_client%22%7D%5D
+  %7B%22type%22%3A%22purpose%22%2C%22kind%22%3A%22https%3A%2F%2Fexample.com%2Fpurposes%2Fdeprovision-user-access%22%7D%5D
 </pre><a href="#section-4.3-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -1817,7 +1814,8 @@ response_type=code
             <p id="section-5.3-3.4.1"><strong>Delegated user actions</strong>: recording that a user is authenticating to authorize a specific action taken by another entity.<a href="#section-5.3-3.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.3-4">The purpose object is structured to serve two distinct audiences: a <strong>policy engine</strong> at the OP that evaluates authentication requirements, and a <strong>consent UI</strong> that presents the user with a clear description of what they are authorizing. These concerns are separated into distinct sub-objects to avoid ambiguity and enable each consumer to operate independently on its relevant fields.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">The purpose object uses a class/instance model. The <code>kind</code> URI identifies the <strong>purpose class</strong>: the type of operation being authorized (e.g., "deprovision user access", "summarize inbox"). The purpose class is stable, registered with the OP, and is the unit against which authentication policy is defined. Instance-specific data such as the specific subject being affected, the ticket number, or the reason code belongs in <code>params</code>. This separation is intentional: the OP's policy engine keys off <code>kind</code> to determine authentication requirements, while <code>params</code> carries the instance context that parameterizes this specific execution of that class.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-5">The purpose object is structured to serve two distinct audiences: a <strong>policy engine</strong> at the OP that evaluates authentication requirements, and a <strong>consent UI</strong> that presents the user with a clear description of what they are authorizing. These concerns are separated into distinct sub-objects to avoid ambiguity and enable each consumer to operate independently on its relevant fields.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
 <div id="top-level-members">
 <section id="section-5.3.1">
           <h4 id="name-top-level-members">
@@ -1830,17 +1828,17 @@ response_type=code
               <p id="section-5.3.1-2.2.1">MUST be <code>"purpose"</code>.<a href="#section-5.3.1-2.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.1-2.3"><code>id</code></dt>
+<dt id="section-5.3.1-2.3"><code>kind</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-2.4">
-              <p id="section-5.3.1-2.4.1">REQUIRED. String identifying the purpose type. This is the primary key against which the OP evaluates authentication policy, for example, looking up required ACR, session lifetime caps, or step-up requirements in its purpose catalog. The <code>id</code> value space is defined by the client and SHOULD be registered in the client's <code>client_context_values</code> metadata. Example values: <code>"add_oauth_client"</code>, <code>"approve_change_request"</code>, <code>"deploy_to_production"</code>, <code>"summarize_inbox"</code>.<a href="#section-5.3.1-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-2.4.1">REQUIRED. URI (absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>) identifying the purpose class. The URI names the type of operation being authorized, not this specific invocation of it. For example, <code>"https://example.com/purposes/deprovision-user-access"</code> identifies the class "deprovision user access" — a high-blast-radius operation that spans multiple resource servers (session revocation, directory, provisioning); the specific subject, reason, and ticket reference for this particular invocation are carried in <code>params</code>. The <code>kind</code> URI is the primary key against which the OP evaluates authentication policy, looking up required ACR, session lifetime caps, or step-up requirements from its purpose catalog. The URI MUST be stable across invocations of the same purpose class; clients MUST NOT encode instance-specific data into the URI. Using a URI provides inherent namespace ownership: the party controlling the URI prefix owns the purpose class definition, enabling interoperability without a central registry. OPs SHOULD validate that the URI is registered as a permitted purpose for this <code>client_id</code>. <code>https</code> URIs are RECOMMENDED. URNs MAY be used for private or standards-track purpose types. Example values: <code>"https://example.com/purposes/deprovision-user-access"</code>, <code>"https://example.com/purposes/approve-change-request"</code>, <code>"https://example.com/purposes/privileged-deployment"</code>, <code>"https://example.com/purposes/summarize-inbox"</code>.<a href="#section-5.3.1-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
 <p id="section-5.3.1-3"><strong>Optional members:</strong><a href="#section-5.3.1-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.3.1-4">
-            <dt id="section-5.3.1-4.1"><code>instance_id</code></dt>
+            <dt id="section-5.3.1-4.1"><code>id</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-4.2">
-              <p id="section-5.3.1-4.2.1">OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The <code>instance_id</code> MUST be unique within the scope of the issuing <code>client_id</code> and the <code>purpose.id</code>; clients MUST NOT reuse an <code>instance_id</code> value across different authorization requests for the same purpose type. When present, the OP SHOULD include the <code>instance_id</code> in the <code>client_context</code> claim of the issued ID Token without modification. Example value: <code>"01JNP8Q8W5W4K7QG0R9B3R2M6F"</code>.<a href="#section-5.3.1-4.2.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-4.2.1">OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The <code>id</code> MUST be unique within the scope of the issuing <code>client_id</code> and the <code>purpose.kind</code>; clients MUST NOT reuse an <code>id</code> value across different authorization requests for the same purpose class. When present, the OP SHOULD include the <code>id</code> in the <code>client_context</code> claim of the issued ID Token without modification. Example value: <code>"01JNP8Q8W5W4K7QG0R9B3R2M6F"</code>.<a href="#section-5.3.1-4.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.1-4.3"><code>display</code></dt>
@@ -1850,7 +1848,7 @@ response_type=code
             <dd class="break"></dd>
 <dt id="section-5.3.1-4.5"><code>params</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-4.6">
-              <p id="section-5.3.1-4.6.1">OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of <code>params</code> is defined per <code>id</code> value; different purpose types carry different parameters. See <a href="#params-object" class="auto internal xref">Section 5.3.3</a>.<a href="#section-5.3.1-4.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-4.6.1">OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of <code>params</code> is defined per <code>kind</code> value; different purpose types carry different parameters. See <a href="#params-object" class="auto internal xref">Section 5.3.3</a>.<a href="#section-5.3.1-4.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.1-4.7"><code>actor</code></dt>
@@ -1875,12 +1873,12 @@ response_type=code
 <span class="break"></span><dl class="dlParallel" id="section-5.3.2-2">
             <dt id="section-5.3.2-2.1"><code>title</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.2-2.2">
-              <p id="section-5.3.2-2.2.1">OPTIONAL. Short human-readable title for the purpose, suitable for a consent screen heading. Example: <code>"Register OAuth Client"</code>.<a href="#section-5.3.2-2.2.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.2-2.2.1">OPTIONAL. Short human-readable title for the purpose, suitable for a consent screen heading. Example: <code>"Deprovision User Access"</code>.<a href="#section-5.3.2-2.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.2-2.3"><code>description</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.2-2.4">
-              <p id="section-5.3.2-2.4.1">OPTIONAL. Human-readable explanation of the specific task instance, including any relevant context the user needs to make an informed decision. Example: <code>"You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821)."</code>. The description SHOULD be specific to the instance, not just the purpose type.<a href="#section-5.3.2-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.2-2.4.1">OPTIONAL. Human-readable explanation of the specific task instance, including any relevant context the user needs to make an informed decision. Example: <code>"You are authorizing deprovisioning of all access for bjensen@example.com (ticket HR-8823)."</code>. The description SHOULD be specific to the instance, not just the purpose type.<a href="#section-5.3.2-2.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.2-2.5"><code>locale</code></dt>
@@ -1896,18 +1894,18 @@ response_type=code
           <h4 id="name-the-params-object">
 <a href="#section-5.3.3" class="section-number selfRef">5.3.3. </a><a href="#name-the-params-object" class="section-name selfRef">The <code>params</code> Object</a>
           </h4>
-<p id="section-5.3.3-1">The <code>params</code> sub-object carries instance-level parameters for this specific purpose execution. Its members are defined by the purpose type identified by <code>id</code> and SHOULD be documented in the client's purpose catalog.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.3.3-2">Clients and OPs MUST validate <code>params</code> according to the schema and policy associated with the <code>purpose.id</code> value. Unknown parameter names, malformed values, or values outside the allowed policy for that <code>purpose.id</code> MUST cause the request to be rejected or the <code>purpose</code> object to be ignored according to local policy.<a href="#section-5.3.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-1">The <code>params</code> sub-object carries the instance-level parameters that distinguish this specific execution of the purpose class from other executions of the same class. Where <code>kind</code> says "what class of operation this is", <code>params</code> says "the specific details of this invocation". Its members are defined per purpose class (identified by <code>kind</code>), MUST be documented in the client's purpose catalog, and MUST NOT be used to carry data that belongs to the purpose class definition itself.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-2">Clients and OPs MUST validate <code>params</code> according to the schema and policy associated with the <code>purpose.kind</code> value. Unknown parameter names, malformed values, or values outside the allowed policy for that <code>purpose.kind</code> MUST cause the request to be rejected or the <code>purpose</code> object to be ignored according to local policy.<a href="#section-5.3.3-2" class="pilcrow">¶</a></p>
 <p id="section-5.3.3-3"><code>params</code> serves three purposes:<a href="#section-5.3.3-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.3.3-4.1">
-              <p id="section-5.3.3-4.1.1"><strong>Conditional policy evaluation.</strong> The OP can write policy rules that branch on parameter values. For example: an <code>add_oauth_client</code> purpose where <code>params.environment</code> is <code>production</code> may require a higher assurance level than one targeting a <code>staging</code> environment.<a href="#section-5.3.3-4.1.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.3-4.1.1"><strong>Conditional policy evaluation.</strong> The OP can write policy rules that branch on parameter values. For example: a purpose with <code>kind</code> <code>https://example.com/purposes/deprovision-user-access</code> where <code>params.reason</code> is <code>security-incident</code> may require a higher assurance level or mandatory re-authentication compared to <code>employment-terminated</code>.<a href="#section-5.3.3-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.3.3-4.2">
               <p id="section-5.3.3-4.2.1"><strong>Consent display.</strong> The OP can use parameter values to construct or supplement its own consent language when <code>display.description</code> is absent or insufficient.<a href="#section-5.3.3-4.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.3.3-4.3">
-              <p id="section-5.3.3-4.3.1"><strong>Structured audit.</strong> Because <code>params</code> is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all <code>add_oauth_client</code> registrations for <code>params.client_name</code> in the past 30 days."<a href="#section-5.3.3-4.3.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.3-4.3.1"><strong>Structured audit.</strong> Because <code>params</code> is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all <code>https://example.com/purposes/deprovision-user-access</code> invocations for <code>params.subject</code> in the past 30 days" or "all deprovisioning actions triggered by <code>params.reason</code> of <code>security-incident</code>."<a href="#section-5.3.3-4.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-5.3.3-5">Clients SHOULD include only policy-relevant instance attributes in <code>params</code>. <code>params</code> is not a general-purpose authorization descriptor and MUST NOT be used to express resource permissions or downstream access rights.<a href="#section-5.3.3-5" class="pilcrow">¶</a></p>
@@ -1940,31 +1938,57 @@ response_type=code
             <dd class="break"></dd>
 <dt id="section-5.3.4-2.3"><code>id</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.4-2.4">
-              <p id="section-5.3.4-2.4.1">OPTIONAL. String containing a stable identifier for the acting entity. For AI agents, this MAY be a session or agent instance identifier. For services, this MAY be a stable service identifier registered with the platform.<a href="#section-5.3.4-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.4-2.4.1">OPTIONAL. String containing a stable identifier for the acting entity itself — the agent session, service name, or user identifier that names the direct actor. <code>actor.id</code> identifies <em>what</em> is acting. Its interpretation depends on <code>actor.type</code>:
+* When <code>type</code> is <code>user</code>: <code>id</code> is a stable identifier for the human user acting as the direct actor (e.g., a platform user ID). If <code>sub</code> is also present, both MUST refer to the same individual.
+* When <code>type</code> is <code>agent</code>: <code>id</code> is a stable identifier for the agent instance or agent deployment (e.g., a session ID, model deployment name, or agent registration identifier). It MUST NOT be used to carry the identity of the human principal behind the agent; use <code>sub</code> for that purpose.
+* When <code>type</code> is <code>service</code>: <code>id</code> is a stable identifier for the service or application registered with the platform (e.g., a service account name or client ID). It MUST NOT carry a human user identifier.<a href="#section-5.3.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.4-2.5"><code>sub</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.4-2.6">
-              <p id="section-5.3.4-2.6.1">OPTIONAL. String containing the subject identifier of the human principal on whose behalf the acting entity is acting. When an AI agent or service is the direct initiator (<code>type</code> is <code>agent</code> or <code>service</code>) but a human user ultimately authorized or triggered the action, <code>sub</code> SHOULD be set to that user's stable identifier (e.g., their <code>sub</code> from a prior ID Token or a platform user ID). This enables the OP to apply policy based on the human principal behind an automated initiator and to produce audit records that trace actions to an accountable human. When <code>type</code> is <code>user</code>, <code>sub</code> SHOULD be set to that user's identifier.<a href="#section-5.3.4-2.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.4-2.6.1">OPTIONAL. String containing the subject identifier of the human principal on whose authority this actor is acting. <code>actor.sub</code> always refers to a human, regardless of <code>actor.type</code>:
+* When <code>type</code> is <code>user</code>: <code>sub</code> SHOULD be set to that user's stable subject identifier (e.g., their <code>sub</code> from a prior ID Token). <code>actor.id</code> and <code>actor.sub</code> MAY be the same value.
+* When <code>type</code> is <code>agent</code>: <code>sub</code> MUST be set to the subject identifier of the human user who authorized the agent to act. It MUST NOT contain the agent's own identifier. The distinction is: <code>id</code> names the agent, <code>sub</code> names the human behind it.
+* When <code>type</code> is <code>service</code>: <code>sub</code> SHOULD be set to the human user who authorized or owns the service invocation, if that relationship is known and relevant to OP policy.<a href="#section-5.3.4-2.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.4-2.7"><code>delegation</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.4-2.8">
-              <p id="section-5.3.4-2.8.1">OPTIONAL. Array of objects representing the delegation chain that led to this authentication request, ordered from the outermost delegator (closest to the human) to the immediate caller. Each element in the array MUST contain a <code>type</code> field (using the same RECOMMENDED values as <code>actor.type</code>) and SHOULD contain an <code>id</code> field. Elements MAY contain a <code>sub</code> field with the same semantics as <code>actor.sub</code>. The <code>delegation</code> structure follows the nesting model of the <code>act</code> claim in Token Exchange (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), adapted for the authentication layer.<a href="#section-5.3.4-2.8.1" class="pilcrow">¶</a></p>
-<p id="section-5.3.4-2.8.2">Example: a scheduler service (<code>service</code>) acting on behalf of an AI agent (<code>agent</code>) that was authorized by a user would produce:<a href="#section-5.3.4-2.8.2" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-5.3.4-2.8.3">
+              <p id="section-5.3.4-2.8.1">OPTIONAL. Array of delegation chain objects describing the sequence of intermediaries through which authority was delegated to the direct actor, ordered from the principal closest to the human (outermost, index 0) to the entity immediately preceding the direct actor (innermost, last element). The direct actor itself is expressed in the top-level <code>actor</code> object and MUST NOT be repeated in <code>delegation</code>. This ordering follows the direction of authority delegation: <code>delegation[0]</code> is the entity that originated or authorized the chain, and the last element delegated to the direct actor.<a href="#section-5.3.4-2.8.1" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.2">Each element of the <code>delegation</code> array MUST be a JSON object with the following members:<a href="#section-5.3.4-2.8.2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5.3.4-2.8.3">
+                <dt id="section-5.3.4-2.8.3.1"><code>type</code></dt>
+                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.2">
+                  <p id="section-5.3.4-2.8.3.2.1">REQUIRED. String indicating the category of this chain member. Uses the same RECOMMENDED values as <code>actor.type</code> (<code>user</code>, <code>agent</code>, <code>service</code>).<a href="#section-5.3.4-2.8.3.2.1" class="pilcrow">¶</a></p>
+</dd>
+                <dd class="break"></dd>
+<dt id="section-5.3.4-2.8.3.3"><code>id</code></dt>
+                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.4">
+                  <p id="section-5.3.4-2.8.3.4.1">OPTIONAL. String containing a stable identifier for the entity at this chain position. When <code>type</code> is <code>user</code>, <code>id</code> is a stable identifier for that human. When <code>type</code> is <code>agent</code>, <code>id</code> is a stable identifier for the agent instance or deployment (MUST NOT carry a human subject identifier). When <code>type</code> is <code>service</code>, <code>id</code> is a stable identifier for the service or application (MUST NOT carry a human subject identifier).<a href="#section-5.3.4-2.8.3.4.1" class="pilcrow">¶</a></p>
+</dd>
+                <dd class="break"></dd>
+<dt id="section-5.3.4-2.8.3.5"><code>sub</code></dt>
+                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.6">
+                  <p id="section-5.3.4-2.8.3.6.1">OPTIONAL. String containing the subject identifier of the human principal at this chain position. <code>sub</code> always refers to a human, regardless of <code>type</code>. When <code>type</code> is <code>user</code>, <code>sub</code> is that user's stable subject identifier. When <code>type</code> is <code>agent</code>, <code>sub</code> MUST be the subject identifier of the human who authorized the agent at this delegation step; it MUST NOT be the agent's own identifier. When <code>type</code> is <code>service</code>, <code>sub</code> SHOULD be the human who authorized or owns this service invocation, if known.<a href="#section-5.3.4-2.8.3.6.1" class="pilcrow">¶</a></p>
+</dd>
+              <dd class="break"></dd>
+</dl>
+<p id="section-5.3.4-2.8.4">Unknown members in delegation chain objects MUST be ignored.<a href="#section-5.3.4-2.8.4" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.5">The <code>delegation</code> structure follows the direction-of-delegation ordering of the <code>act</code> claim in Token Exchange (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), adapted for the authentication layer.<a href="#section-5.3.4-2.8.5" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.6">Example: a scheduler service (<code>service</code>) acting on behalf of an AI agent (<code>agent</code>) that was authorized by a user produces the following <code>actor</code> object. The user is <code>delegation[0]</code> (outermost), the agent is <code>delegation[1]</code> (intermediate), and the scheduler service is the direct actor at the top level:<a href="#section-5.3.4-2.8.6" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-5.3.4-2.8.7">
 <pre>
 {
   "type": "service",
   "id": "scheduler-svc",
   "delegation": [
-    { "type": "agent", "id": "assistant-v2", "sub": "user-42" },
-    { "type": "user", "sub": "user-42" }
+    { "type": "user", "sub": "user-42" },
+    { "type": "agent", "id": "assistant-v2", "sub": "user-42" }
   ]
 }
-</pre><a href="#section-5.3.4-2.8.3" class="pilcrow">¶</a>
+</pre><a href="#section-5.3.4-2.8.7" class="pilcrow">¶</a>
 </div>
-<p id="section-5.3.4-2.8.4">The <code>delegation</code> array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been granted explicit trust for delegation claims.<a href="#section-5.3.4-2.8.4" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.8">The <code>delegation</code> array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been separately authorized to assert delegation claims (see <a href="#actor-verification" class="auto internal xref">Section 5.3.4.1</a>).<a href="#section-5.3.4-2.8.8" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -1976,7 +2000,7 @@ response_type=code
 <p id="section-5.3.4.1-1">The <code>actor</code> value and its sub-fields are client-supplied assertions; they are not authenticated by this parameter alone. This means:<a href="#section-5.3.4.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.3.4.1-2.1">
-                <p id="section-5.3.4.1-2.1.1">The OP MUST NOT treat <code>actor.type</code>, <code>actor.id</code>, <code>actor.sub</code>, or <code>actor.delegation</code> as verified facts unless the client has been separately authorized to make such assertions (e.g., via client credentials issued to a trusted service, or a platform-level trust grant in the client's registration metadata).<a href="#section-5.3.4.1-2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-5.3.4.1-2.1.1">The OP MUST NOT treat <code>actor.type</code>, <code>actor.id</code>, <code>actor.sub</code>, or <code>actor.delegation</code> as verified facts unless the client holds an explicit delegation trust grant for those claims. The mechanism for establishing delegation trust grants is to be defined in a future version of this specification (TBD).<a href="#section-5.3.4.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.3.4.1-2.2">
                 <p id="section-5.3.4.1-2.2.1">When the OP cannot verify <code>actor</code> claims, it SHOULD treat them as advisory context — useful for policy hints and UI display — but MUST NOT rely on them as the sole basis for elevated trust or reduced authentication requirements.<a href="#section-5.3.4.1-2.2.1" class="pilcrow">¶</a></p>
@@ -1985,7 +2009,7 @@ response_type=code
                 <p id="section-5.3.4.1-2.3.1">When <code>actor.type</code> is <code>agent</code> or <code>service</code>, the OP SHOULD apply more stringent authentication requirements (e.g., mandatory re-authentication, higher ACR) rather than relaxing them, since the presence of a non-human actor represents increased automation risk.<a href="#section-5.3.4.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.3.4.1-2.4">
-                <p id="section-5.3.4.1-2.4.1">Clients SHOULD authenticate the acting entity through independent means (e.g., service-to-service OAuth credentials, platform identity tokens) and convey verified initiator identity through those channels before asserting it in <code>actor</code>. Clients MUST NOT fabricate <code>actor.sub</code> values.<a href="#section-5.3.4.1-2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-5.3.4.1-2.4.1">Clients SHOULD authenticate the acting entity through independent means (e.g., service-to-service OAuth credentials, platform identity tokens) and convey verified actor identity through those channels before asserting it in <code>actor</code>. Clients MUST NOT fabricate <code>actor.sub</code> values.<a href="#section-5.3.4.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 <p id="section-5.3.4.1-3">Clients SHOULD omit <code>actor</code> when the End-User directly starts the authentication within the Client itself with no intermediary.<a href="#section-5.3.4.1-3" class="pilcrow">¶</a></p>
@@ -2012,7 +2036,7 @@ response_type=code
             <dd class="break"></dd>
 <dt id="section-5.3.5-2.5"><code>max_uses</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.5-2.6">
-              <p id="section-5.3.5-2.6.1">OPTIONAL. Positive integer indicating the maximum number of times the resulting authorization may be used to perform the purpose. When present, the OP SHOULD track use-count against the <code>instance_id</code> and reject subsequent attempts once the limit is reached.<a href="#section-5.3.5-2.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.5-2.6.1">OPTIONAL. Positive integer indicating the maximum number of successful token issuances that may result from this authorization request. A <strong>use</strong> is defined as one successful completion of the authorization code exchange (or equivalent token endpoint call) that results in the issuance of tokens carrying the <code>client_context</code> claim for this <code>id</code>. Re-authentication flows that produce a new ID Token each count as one use. Token refresh operations against an already-issued token do NOT count as additional uses. When <code>max_uses</code> is <code>1</code>, the purpose is single-use: once tokens have been issued, the OP MUST reject any further authorization attempts that present the same <code>id</code> with <code>invalid_client_context</code>. When <code>max_uses</code> is greater than <code>1</code>, the OP SHOULD track use-count against the <code>id</code> and return <code>invalid_client_context</code> once the limit is reached. Use of <code>max_uses</code> without <code>id</code> is NOT RECOMMENDED; without <code>id</code>, the OP has no stable key against which to track use-count.<a href="#section-5.3.5-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -2023,9 +2047,9 @@ response_type=code
           <h4 id="name-op-policy-guidance">
 <a href="#section-5.3.6" class="section-number selfRef">5.3.6. </a><a href="#name-op-policy-guidance" class="section-name selfRef">OP Policy Guidance</a>
           </h4>
-<p id="section-5.3.6-1">The OP SHOULD use <code>id</code> as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.<a href="#section-5.3.6-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.6-1">The OP SHOULD use <code>kind</code> as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.<a href="#section-5.3.6-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.6-2">The OP SHOULD present <code>display.title</code> and <code>display.description</code> to the End-User during authentication to provide a complete picture of what the user is authorizing.<a href="#section-5.3.6-2" class="pilcrow">¶</a></p>
-<p id="section-5.3.6-3">The OP SHOULD evaluate <code>actor.type</code> when <code>id</code> alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when <code>actor.type</code> is <code>agent</code>, regardless of existing session state.<a href="#section-5.3.6-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.6-3">The OP SHOULD evaluate <code>actor.type</code> when <code>kind</code> alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when <code>actor.type</code> is <code>agent</code>, regardless of existing session state.<a href="#section-5.3.6-3" class="pilcrow">¶</a></p>
 <p id="section-5.3.6-4">The OP MAY bind a validated <code>purpose</code> object to the authenticated subject and, when available, to a resulting session identifier such as OIDC <code>sid</code> or a SAML <code>SessionIndex</code>. This allows the returned context to serve as a verifiable record of which subject authenticated for which purpose instance and, where supported, which session carries that authorization.<a href="#section-5.3.6-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2039,7 +2063,7 @@ response_type=code
 <pre>
 {
   "type": "purpose",
-  "id": "summarize_inbox",
+  "kind": "https://example.com/purposes/summarize-inbox",
   "display": {
     "title": "Summarize Inbox",
     "description": "AI Assistant will read your unread emails from the past 7 days and generate a summary.",
@@ -2065,16 +2089,17 @@ response_type=code
 <pre>
 {
   "type": "purpose",
-  "id": "add_oauth_client",
-  "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+  "kind": "https://example.com/purposes/deprovision-user-access",
+  "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
   "display": {
-    "title": "Register OAuth Client",
-    "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+    "title": "Deprovision User Access",
+    "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
     "locale": "en"
   },
   "params": {
-    "client_name": "invoice-service",
-    "environment": "production"
+    "subject": "bjensen@example.com",
+    "reason": "employment-terminated",
+    "ticket_ref": "HR-8823"
   },
   "constraints": {
     "expires_at": "2026-03-10T18:00:00Z",
@@ -2135,7 +2160,17 @@ response_type=code
             <p id="section-6.2-2.2.1">Verify that the <code>nonce</code> claim in the ID Token matches the <code>nonce</code> sent in the request.<a href="#section-6.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-6.2-2.3">
-            <p id="section-6.2-2.3.1">If the request included <code>client_context</code>, examine the <code>client_context</code> claim in the ID Token. A Client that gates any operation on <code>client_context</code> MUST verify the <code>client_context</code> claim in the validated ID Token. The Client MUST NOT rely on the <code>client_context</code> it sent in the authorization request as confirmation that the OP evaluated or applied that context.<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-6.2-2.3.1">If the request included <code>client_context</code> and a token response was successfully received, examine the <code>client_context</code> claim in the ID Token. There are two distinct cases when the claim is absent, and clients MUST handle them differently:<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.2-2.3.2.1">
+                <p id="section-6.2-2.3.2.1.1"><strong>Absent because the OP does not support <code>client_context</code>:</strong> This case does not arise at this step. An OP that does not support <code>client_context</code> MUST reject the request before issuing tokens (returning <code>unsupported_client_context_type</code> at the authorization or token endpoint). If the client received a successful token response, the OP did not reject the request, so this case does not apply here.<a href="#section-6.2-2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-6.2-2.3.2.2">
+                <p id="section-6.2-2.3.2.2.1"><strong>Absent from an otherwise valid ID Token:</strong> If the ID Token was issued successfully but does not contain a <code>client_context</code> claim, this is a processing failure. The client MUST treat this as a verification failure, MUST NOT proceed with any operations that depend on the applied context, and SHOULD surface a distinct error to the caller indicating that the OP did not confirm the requested context. The client SHOULD NOT silently fall back to using the context it sent in the request.<a href="#section-6.2-2.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-6.2-2.3.3">
+A Client that gates any operation on <code>client_context</code> MUST verify the <code>client_context</code> claim in the validated ID Token. The Client MUST NOT rely on the <code>client_context</code> it sent in the authorization request as confirmation that the OP evaluated or applied that context.<a href="#section-6.2-2.3.3" class="pilcrow">¶</a></p>
 </li>
           <li id="section-6.2-2.4">
             <p id="section-6.2-2.4.1">Compare the returned context to the requested context. The Client MUST detect and handle:<a href="#section-6.2-2.4.1" class="pilcrow">¶</a></p>
@@ -2178,7 +2213,7 @@ returned_context = id_token.client_context  # array of objects
 purpose = find(returned_context, type="purpose")
 if purpose is None:
     raise SecurityError("Purpose context missing from ID Token")
-if purpose.id != requested_purpose_id:
+if purpose.kind != requested_purpose_kind:
     raise SecurityError("Purpose context mismatch")
 
 tenant = find(returned_context, type="tenant")
@@ -2186,7 +2221,7 @@ if tenant is None or tenant.id != expected_tenant:
     raise SecurityError("Tenant context invalid")
 
 # All checks passed; enable purpose-scoped operations
-enable_operations(purpose.id)
+enable_operations(purpose.kind)
 </pre><a href="#section-6.3-2" class="pilcrow">¶</a>
 </div>
 </section>
@@ -2220,7 +2255,8 @@ enable_operations(purpose.id)
           <li id="section-7.1-2.5">
             <p id="section-7.1-2.5.1">For each context type in the request:
 a. If the type is not recognized and the OP does not support unknown types, return <code>unsupported_client_context_type</code>.
-b. If the type is recognized, validate the object against the registered schema for that type. If validation fails, return <code>invalid_client_context_value</code>.<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
+b. If the type is recognized, validate the object against the registered schema for that type. If validation fails, return <code>invalid_client_context_value</code>.
+c. If the type is <code>purpose</code>, verify that the <code>kind</code> field is present and is a syntactically valid absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. If the <code>kind</code> is missing or not a valid absolute URI, return <code>invalid_client_context_value</code>.<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.6">
             <p id="section-7.1-2.6.1">If the client's registration metadata includes <code>client_context_types</code>, verify that all requested context types are in the registered list. If not, return <code>unsupported_client_context_type</code>.<a href="#section-7.1-2.6.1" class="pilcrow">¶</a></p>
@@ -2251,7 +2287,7 @@ b. If the type is recognized, validate the object against the registered schema 
             <p id="section-7.2-2.3.1"><strong>Purpose context</strong> MAY trigger step-up authentication, require explicit re-authentication regardless of existing session, reduce session and token lifetimes, or require additional approval.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.2-3">The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier) before evaluating policy and returning the context in the ID Token.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier, expanding a short tenant code to a fully qualified domain name) before evaluating policy. When normalization occurs, the OP MUST return the canonical value it acted upon in the <code>client_context</code> claim of the ID Token, not the alias or abbreviated form the client submitted. For example, if the client sends <code>{ "type": "app", "id": "admin" }</code> and the OP resolves <code>"admin"</code> to the canonical identifier <code>"admin_console"</code>, the ID Token MUST contain <code>{ "type": "app", "id": "admin_console" }</code>. Clients MUST be prepared to receive canonical values that differ from what they submitted and MUST evaluate normalization acceptability as part of their response validation (see <a href="#validating-the-response" class="auto internal xref">Section 6.2</a>).<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issuing-the-id-token">
@@ -2260,9 +2296,18 @@ b. If the type is recognized, validate the object against the registered schema 
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-issuing-the-id-token" class="section-name selfRef">Issuing the ID Token</a>
         </h3>
 <p id="section-7.3-1">If authentication succeeds and the request included <code>client_context</code>, the Authorization Server MUST include a <code>client_context</code> claim in the ID Token. The value MUST be a JSON array reflecting the context as evaluated and applied by the OP. The OP MUST NOT include context elements it did not validate and apply. The returned value MAY differ from the requested value due to normalization or OP policy (e.g., resolved aliases, dropped optional fields), but it MUST accurately represent what the OP acted upon — it MUST NOT be an unevaluated echo of the request.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">If the OP does not support <code>client_context</code>, it MUST NOT include the claim and MUST reject requests that include <code>client_context</code> with <code>unsupported_client_context_type</code>. Clients that required specific context MUST treat the absence of the <code>client_context</code> claim in the ID Token as a verification failure and MUST NOT proceed with operations that depend on that context.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
-<p id="section-7.3-3">The following is an example ID Token payload containing an applied context:<a href="#section-7.3-3" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-7.3-4">
+<p id="section-7.3-2">There are two distinct cases in which the <code>client_context</code> claim may be absent from an ID Token, and clients MUST handle them differently:<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7.3-3">
+<li id="section-7.3-3.1">
+            <p id="section-7.3-3.1.1"><strong>OP does not support the feature.</strong> If the OP does not support <code>client_context</code>, it MUST reject the authorization request with <code>unsupported_client_context_type</code> before issuing any tokens. An ID Token will not be issued in this case. Clients encountering this error SHOULD NOT retry with the same parameter against the same OP; they SHOULD consult the OP's discovery metadata to determine whether any context types are supported.<a href="#section-7.3-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.3-3.2">
+            <p id="section-7.3-3.2.1"><strong>OP supports the feature but the claim is absent from an issued ID Token.</strong> If the OP advertises <code>client_context_types_supported</code> (indicating it supports the feature) but the issued ID Token does not contain a <code>client_context</code> claim, this is a processing failure. Clients MUST treat this as a verification failure. Clients MUST NOT proceed with operations that depend on the applied context, and SHOULD surface an error indicating that the expected context was not confirmed by the OP.<a href="#section-7.3-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-7.3-4">The two cases are distinguishable: case 1 results in an error response at the authorization or token endpoint; case 2 results in a successful token response containing an ID Token without the expected claim.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
+<p id="section-7.3-5">The following is an example ID Token payload containing an applied context:<a href="#section-7.3-5" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-7.3-6">
 <pre>
 {
   "iss": "https://op.example.com",
@@ -2279,18 +2324,18 @@ b. If the type is recognized, validate the object against the registered schema 
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
+      "kind": "https://example.com/purposes/deprovision-user-access",
       "display": {
-        "title": "Register OAuth Client",
-        "description": "Register new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
         "locale": "en"
       },
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
 }
-</pre><a href="#section-7.3-4" class="pilcrow">¶</a>
+</pre><a href="#section-7.3-6" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2336,7 +2381,7 @@ b. If the type is recognized, validate the object against the registered schema 
 <a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-just-in-time-administrative" class="section-name selfRef">Just-in-Time Administrative Access</a>
         </h3>
 <p id="section-8.2-1">Just-in-time access is a pattern, not a product category. Any application can adopt it: rather than relying on a broad administrative session established at login, the client requests a fresh authentication scoped to the specific operation the user is about to perform. This reduces the window of exposure if a session is compromised and creates a clear audit trail linking each privileged action to a deliberate authentication event.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
-<p id="section-8.2-2"><strong>Example: An admin panel requesting authentication to register a new OAuth client:</strong><a href="#section-8.2-2" class="pilcrow">¶</a></p>
+<p id="section-8.2-2"><strong>Example: An admin panel requesting authentication to deprovision a terminated user:</strong><a href="#section-8.2-2" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.2-3">
 <pre>
 "client_context": [
@@ -2344,14 +2389,14 @@ b. If the type is recognized, validate the object against the registered schema 
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
-    "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+    "kind": "https://example.com/purposes/deprovision-user-access",
+    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
-    "params": { "client_name": "invoice-service", "environment": "production" },
+    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
     "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
   }
 ]
@@ -2375,7 +2420,7 @@ b. If the type is recognized, validate the object against the registered schema 
             <p id="section-8.2-5.5.1">Notify a security team of the elevated access event.<a href="#section-8.2-5.5.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-8.2-6">The Client then verifies the returned context before enabling the client registration action, ensuring the user cannot perform this action if the OP did not acknowledge the purpose context.<a href="#section-8.2-6" class="pilcrow">¶</a></p>
+<p id="section-8.2-6">The Client then verifies the returned context before enabling the deprovisioning action, ensuring the user cannot perform this action if the OP did not acknowledge the purpose context.<a href="#section-8.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ai-agent-authorization">
@@ -2405,7 +2450,7 @@ b. If the type is recognized, validate the object against the registered schema 
   { "type": "app", "id": "ai_assistant" },
   {
     "type": "purpose",
-    "id": "schedule_meeting",
+    "kind": "https://example.com/purposes/schedule-meeting",
     "display": {
       "title": "Schedule a Meeting",
       "description": "AI Assistant will access your calendar to schedule a team meeting for next Tuesday.",
@@ -2579,14 +2624,14 @@ Host: client.example.org
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
+    "kind": "https://example.com/purposes/deprovision-user-access",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
-    "params": { "client_name": "invoice-service", "ticket_ref": "IT-4821" },
-    "actor": { "type": "service", "id": "service-desk-app" },
+    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+    "actor": { "type": "service", "id": "hr-offboarding-system" },
     "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
   }
 ]
@@ -2609,7 +2654,7 @@ Host: client.example.org
             <p id="section-9.3-2.2.1"><strong>Validate context types.</strong> The Client MUST verify that each context type in the hint is one the Client supports and is permitted for this Client's registration. The Client MUST discard or reject any object whose <code>type</code> is not in the Client's permitted set.<a href="#section-9.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.3">
-            <p id="section-9.3-2.3.1"><strong>Validate context values.</strong> The Client MUST validate each field value against its own configuration, for example, confirming that a <code>tenant.id</code> value is a tenant the Client is configured to serve, and that a <code>purpose.id</code> value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.<a href="#section-9.3-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.3.1"><strong>Validate context values.</strong> The Client MUST validate each field value against its own configuration, for example, confirming that a <code>tenant.id</code> value is a tenant the Client is configured to serve, and that a <code>purpose.kind</code> value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.<a href="#section-9.3-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.4">
             <p id="section-9.3-2.4.1"><strong>Construct <code>client_context</code>.</strong> After validation, the Client uses the validated hint, possibly enriched with additional context the Client determines from its own state, as the basis for the <code>client_context</code> parameter in the authorization request to the OP.<a href="#section-9.3-2.4.1" class="pilcrow">¶</a></p>
@@ -2652,7 +2697,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-relationship-to-authenticat" class="section-name selfRef">Relationship to Authentication Context (<code>acr</code>)</a>
         </h3>
 <p id="section-10.1-1">The <code>client_context</code> parameter and the <code>acr</code> claim serve complementary but distinct roles. <code>client_context</code> is a <em>request input</em> describing the business context of the authentication. The <code>acr</code> claim is an <em>output</em> describing the authentication assurance that was actually satisfied.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
-<p id="section-10.1-2">The OP MAY use <code>client_context</code> as an input when determining the authentication assurance required. For example, an OP might define policy such as: "any request with a <code>purpose</code> context whose <code>id</code> matches a high-privilege operation list requires <code>acr</code> <code>phishing-resistant-mfa</code>."<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">The OP MAY use <code>client_context</code> as an input when determining the authentication assurance required. For example, an OP might define policy such as: "any request with a <code>purpose</code> context whose <code>kind</code> matches a high-privilege operation list requires <code>acr</code> <code>phishing-resistant-mfa</code>."<a href="#section-10.1-2" class="pilcrow">¶</a></p>
 <p id="section-10.1-3">Clients SHOULD evaluate both the returned <code>client_context</code> and the <code>acr</code> claim when determining whether to permit privileged operations. A matching <code>client_context</code> with insufficient <code>acr</code> should not be sufficient to authorize a high-privilege action.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2755,7 +2800,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
   "client_context_types": ["app", "tenant", "purpose"],
   "client_context_values": {
     "app": ["calendar", "email", "admin_console"],
-    "purpose": ["add_oauth_client", "approve_change_request"]
+    "purpose": ["https://example.com/purposes/deprovision-user-access", "https://example.com/purposes/approve-change-request"]
   }
 }
 </pre><a href="#section-12-3" class="pilcrow">¶</a>
@@ -2783,7 +2828,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
         <dd class="break"></dd>
 <dt id="section-13-3.5"><code>invalid_client_context_value</code></dt>
         <dd style="margin-left: 1.5em" id="section-13-3.6">
-          <p id="section-13-3.6.1">A context object contains one or more invalid field values (e.g., an <code>expires_at</code> in the past, an unrecognized <code>id</code> value for a constrained purpose type).<a href="#section-13-3.6.1" class="pilcrow">¶</a></p>
+          <p id="section-13-3.6.1">A context object contains one or more invalid field values (e.g., an <code>expires_at</code> in the past, an unrecognized <code>kind</code> value for an unsupported purpose type).<a href="#section-13-3.6.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -3139,6 +3184,10 @@ Content-Type: application/json
       <dd>
 <span class="refAuthor">Klyne, G.</span> and <span class="refAuthor">C. Newman</span>, <span class="refTitle">"Date and Time on the Internet: Timestamps"</span>, <span class="seriesInfo">RFC 3339</span>, <span class="seriesInfo">DOI 10.17487/RFC3339</span>, <time datetime="2002-07" class="refDate">July 2002</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3339">https://www.rfc-editor.org/info/rfc3339</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC3986">[RFC3986]</dt>
+      <dd>
+<span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3986">https://www.rfc-editor.org/info/rfc3986</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC6749">[RFC6749]</dt>
       <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6749">https://www.rfc-editor.org/info/rfc6749</a>&gt;</span>. </dd>
@@ -3200,16 +3249,16 @@ Content-Type: application/json
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-combined-request-example-cl" class="section-name selfRef">Combined Request Example: <code>client_context</code>, <code>acr_values</code>, and <code>authorization_details</code></a>
       </h2>
 <p id="appendix-A-1">This appendix illustrates how <code>client_context</code>, <code>acr_values</code>, and <code>authorization_details</code> (<span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>) work together in a single authorization request. Each parameter operates at a distinct layer and carries information for a different consumer.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">The scenario: a user of an admin console is about to register a new OAuth client application. The application needs to:<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">The scenario: a security operations tool has detected that an employee has been terminated. It initiates a deprovisioning workflow that needs to:<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-A-3.1">
-          <p id="appendix-A-3.1.1">Ensure the user authenticates with phishing-resistant MFA for this specific operation (<code>acr_values</code>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.1.1">Ensure the operator authenticates with phishing-resistant MFA before the action is taken (<code>acr_values</code>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-A-3.2">
-          <p id="appendix-A-3.2.1">Record in the ID Token that this authentication was for the <code>add_oauth_client</code> purpose, bound to the target client name and environment (<code>client_context</code>).<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.2.1">Record in the ID Token that this authentication was specifically for deprovisioning <code>bjensen@example.com</code>, bound to the HR ticket and reason, so the client can confirm the OP evaluated the purpose before enabling any action (<code>client_context</code>).<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-A-3.3">
-          <p id="appendix-A-3.3.1">Obtain an access token scoped precisely to the Client Registration API for that specific user (<code>authorization_details</code>).<a href="#appendix-A-3.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.3.1">Obtain access tokens scoped to the three resource servers that must be updated: the AS (revoke sessions), the directory service (disable account), and the SCIM provisioning service (remove application assignments) (<code>authorization_details</code>).<a href="#appendix-A-3.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <div id="authorization-request">
@@ -3243,16 +3292,17 @@ response_type=code
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
-    "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+    "kind": "https://example.com/purposes/deprovision-user-access",
+    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
     "params": {
-      "client_name": "invoice-service",
-      "environment": "production"
+      "subject": "bjensen@example.com",
+      "reason": "employment-terminated",
+      "ticket_ref": "HR-8823"
     },
     "constraints": {
       "expires_at": "2026-03-10T18:00:00Z"
@@ -3266,10 +3316,22 @@ response_type=code
 <pre>
 [
   {
-    "type": "oauth_client_registration",
-    "locations": ["https://as.example.com/register"],
-    "actions": ["client:create"],
-    "environment": "production"
+    "type": "https://example.com/authz/session-management",
+    "locations": ["https://as.example.com"],
+    "actions": ["sessions:revoke-all"],
+    "subject": "bjensen@example.com"
+  },
+  {
+    "type": "https://example.com/authz/directory-write",
+    "locations": ["https://directory.example.com"],
+    "actions": ["account:disable"],
+    "subject": "bjensen@example.com"
+  },
+  {
+    "type": "https://example.com/authz/scim-write",
+    "locations": ["https://scim.example.com"],
+    "actions": ["membership:remove-all"],
+    "subject": "bjensen@example.com"
   }
 ]
 </pre><a href="#appendix-A.1-6" class="pilcrow">¶</a>
@@ -3289,12 +3351,12 @@ response_type=code
           <dd class="break"></dd>
 <dt id="appendix-A.2-1.3"><code>client_context</code></dt>
           <dd style="margin-left: 1.5em" id="appendix-A.2-1.4">
-            <p id="appendix-A.2-1.4.1">Tells the OP <em>why</em> this authentication is occurring. The OP uses the <code>purpose</code> object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window for acting on the authenticated purpose via <code>expires_at</code>, and record the purpose, params, and initiator in its audit log. The applied context is returned in the ID Token for the client to verify.<a href="#appendix-A.2-1.4.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.2-1.4.1">Tells the OP <em>why</em> this authentication is occurring. The OP uses the <code>purpose</code> object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window for acting on the authenticated purpose via <code>expires_at</code>, and record the purpose, params, and actor in its audit log. The applied context is returned in the ID Token for the client to verify.<a href="#appendix-A.2-1.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.2-1.5"><code>authorization_details</code></dt>
           <dd style="margin-left: 1.5em" id="appendix-A.2-1.6">
-            <p id="appendix-A.2-1.6.1">Tells the authorization server what permissions to encode in the access token. The resulting access token is scoped to <code>client:create</code> action on the Admin API for the target tenant. This is enforced at the resource server, not by the OP's authentication engine.<a href="#appendix-A.2-1.6.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.2-1.6.1">Tells the authorization server what permissions to encode in the access tokens. Three separate resource servers are targeted: the AS (revoke sessions), the directory service (disable account), and the SCIM provisioning service (remove assignments). Each resource server receives a scoped access token carrying only the permissions it needs. This is enforced at each resource server independently, not by the OP's authentication engine.<a href="#appendix-A.2-1.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -3322,16 +3384,16 @@ response_type=code
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
-      "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "kind": "https://example.com/purposes/deprovision-user-access",
+      "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
 }
 </pre><a href="#appendix-A.3-1" class="pilcrow">¶</a>
 </div>
-<p id="appendix-A.3-2">The <code>acr</code> claim confirms phishing-resistant MFA was satisfied. The <code>client_context</code> claim confirms the authentication was bound to the <code>add_oauth_client</code> purpose for the specified target. The client verifies both before enabling the client registration.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
+<p id="appendix-A.3-2">The <code>acr</code> claim confirms phishing-resistant MFA was satisfied. The <code>client_context</code> claim confirms the authentication was bound to the <code>deprovision-user-access</code> purpose for <code>bjensen@example.com</code> under ticket HR-8823. The client verifies both before invoking any of the three resource servers. Each resource server independently enforces its scoped access token.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="layered-model-summary">
