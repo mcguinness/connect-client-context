@@ -27,6 +27,7 @@ normative:
   RFC2119:
   RFC8174:
   RFC3339:
+  RFC3986:
   RFC6749:
   RFC7519:
   RFC7591:
@@ -123,7 +124,7 @@ This specification introduces the `client_context` request parameter to address 
 This specification is guided by the following principles:
 
 * `client_context` influences authentication behavior and ID Token content. It does not define access token permissions.
-* `purpose.id` is the primary policy key for purpose-scoped authentication.
+* `purpose.kind` is the primary policy key for purpose-scoped authentication.
 * `params` contains purpose-specific, validated inputs for authentication policy, consent display, and audit. It is not a general-purpose extension bag.
 
 # Conventions
@@ -171,7 +172,7 @@ The following diagram illustrates the flow of a `client_context`-bearing authori
    |     { type: "tenant",               |
    |       id: "example.com" },          |
    |     { type: "purpose",              |
-   |       id: "add_oauth_client" }        |
+   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
    |   ]                                 |
    |   scope, acr_values, claims, ...    |
    |                                     |
@@ -192,7 +193,7 @@ The following diagram illustrates the flow of a `client_context`-bearing authori
    |     { type: "tenant",               |
    |       id: "example.com" },          |
    |     { type: "purpose",              |
-   |       id: "add_oauth_client" }        |
+   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
    |   ]                                 |
    |   ...standard claims...             |
    |                                     |
@@ -206,7 +207,7 @@ The protocol proceeds as follows:
 
 2. The OP receives the request and validates the `client_context` parameter structure.
 
-3. The OP evaluates the supplied context as input to its authentication policy, for example, determining that a `purpose` context with `id` `add_oauth_client` requires step-up MFA authentication, or that a `tenant` context restricts authentication to a specific identity provider.
+3. The OP evaluates the supplied context as input to its authentication policy, for example, determining that a `purpose` context with `kind` `https://example.com/purposes/deprovision-user-access` requires step-up MFA authentication, or that a `tenant` context restricts authentication to a specific identity provider.
 
 4. The OP authenticates the End-User according to the derived policy.
 
@@ -273,13 +274,13 @@ The `client_context` parameter MAY be transmitted in any of the following ways:
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
+      "kind": "https://example.com/purposes/deprovision-user-access",
       "display": {
-        "title": "Register OAuth Client",
-        "description": "Register new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
         "locale": "en"
       },
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
@@ -300,7 +301,7 @@ response_type=code
 &acr_values=urn%3Amace%3Aincommon%3Aiap%3Asilver
 &client_context=%5B%7B%22type%22%3A%22app%22%2C%22id%22%3A%22admin_console%22%7D%2C
   %7B%22type%22%3A%22tenant%22%2C%22id%22%3A%22example.com%22%7D%2C
-  %7B%22type%22%3A%22purpose%22%2C%22id%22%3A%22add_oauth_client%22%7D%5D
+  %7B%22type%22%3A%22purpose%22%2C%22kind%22%3A%22https%3A%2F%2Fexample.com%2Fpurposes%2Fdeprovision-user-access%22%7D%5D
 ~~~
 
 # Registered Context Types
@@ -373,6 +374,8 @@ Purpose context is the primary mechanism for:
 * **Automated workflow authorization**: identifying a machine-to-machine workflow requiring human authentication for a specific step.
 * **Delegated user actions**: recording that a user is authenticating to authorize a specific action taken by another entity.
 
+The purpose object uses a class/instance model. The `kind` URI identifies the **purpose class**: the type of operation being authorized (e.g., "deprovision user access", "summarize inbox"). The purpose class is stable, registered with the OP, and is the unit against which authentication policy is defined. Instance-specific data such as the specific subject being affected, the ticket number, or the reason code belongs in `params`. This separation is intentional: the OP's policy engine keys off `kind` to determine authentication requirements, while `params` carries the instance context that parameterizes this specific execution of that class.
+
 The purpose object is structured to serve two distinct audiences: a **policy engine** at the OP that evaluates authentication requirements, and a **consent UI** that presents the user with a clear description of what they are authorizing. These concerns are separated into distinct sub-objects to avoid ambiguity and enable each consumer to operate independently on its relevant fields.
 
 ### Top-Level Members
@@ -382,19 +385,19 @@ The purpose object is structured to serve two distinct audiences: a **policy eng
 `type`
 : MUST be `"purpose"`.
 
-`id`
-: REQUIRED. String identifying the purpose type. This is the primary key against which the OP evaluates authentication policy, for example, looking up required ACR, session lifetime caps, or step-up requirements in its purpose catalog. The `id` value space is defined by the client and SHOULD be registered in the client's `client_context_values` metadata. Example values: `"add_oauth_client"`, `"approve_change_request"`, `"deploy_to_production"`, `"summarize_inbox"`.
+`kind`
+: REQUIRED. URI (absolute URI per {{!RFC3986}}) identifying the purpose class. The URI names the type of operation being authorized, not this specific invocation of it. For example, `"https://example.com/purposes/deprovision-user-access"` identifies the class "deprovision user access" — a high-blast-radius operation that spans multiple resource servers (session revocation, directory, provisioning); the specific subject, reason, and ticket reference for this particular invocation are carried in `params`. The `kind` URI is the primary key against which the OP evaluates authentication policy, looking up required ACR, session lifetime caps, or step-up requirements from its purpose catalog. The URI MUST be stable across invocations of the same purpose class; clients MUST NOT encode instance-specific data into the URI. Using a URI provides inherent namespace ownership: the party controlling the URI prefix owns the purpose class definition, enabling interoperability without a central registry. OPs SHOULD validate that the URI is registered as a permitted purpose for this `client_id`. `https` URIs are RECOMMENDED. URNs MAY be used for private or standards-track purpose types. Example values: `"https://example.com/purposes/deprovision-user-access"`, `"https://example.com/purposes/approve-change-request"`, `"https://example.com/purposes/privileged-deployment"`, `"https://example.com/purposes/summarize-inbox"`.
 
 **Optional members:**
 
-`instance_id`
-: OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The `instance_id` MUST be unique within the scope of the issuing `client_id` and the `purpose.id`; clients MUST NOT reuse an `instance_id` value across different authorization requests for the same purpose type. When present, the OP SHOULD include the `instance_id` in the `client_context` claim of the issued ID Token without modification. Example value: `"01JNP8Q8W5W4K7QG0R9B3R2M6F"`.
+`id`
+: OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The `id` MUST be unique within the scope of the issuing `client_id` and the `purpose.kind`; clients MUST NOT reuse an `id` value across different authorization requests for the same purpose class. When present, the OP SHOULD include the `id` in the `client_context` claim of the issued ID Token without modification. Example value: `"01JNP8Q8W5W4K7QG0R9B3R2M6F"`.
 
 `display`
 : OPTIONAL. Object providing human-readable labels for display in the OP's consent and authentication UI. See {{display-object}}.
 
 `params`
-: OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of `params` is defined per `id` value; different purpose types carry different parameters. See {{params-object}}.
+: OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of `params` is defined per `kind` value; different purpose types carry different parameters. See {{params-object}}.
 
 `actor`
 : OPTIONAL. Object identifying the entity that triggered this purpose and is requesting the authentication on behalf of the End-User. See {{actor-object}}.
@@ -407,27 +410,27 @@ The purpose object is structured to serve two distinct audiences: a **policy eng
 The `display` sub-object carries information for the OP's consent and authentication UI. Its contents are treated as client-supplied labels that the OP SHOULD present to the End-User.
 
 `title`
-: OPTIONAL. Short human-readable title for the purpose, suitable for a consent screen heading. Example: `"Register OAuth Client"`.
+: OPTIONAL. Short human-readable title for the purpose, suitable for a consent screen heading. Example: `"Deprovision User Access"`.
 
 `description`
-: OPTIONAL. Human-readable explanation of the specific task instance, including any relevant context the user needs to make an informed decision. Example: `"You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821)."`. The description SHOULD be specific to the instance, not just the purpose type.
+: OPTIONAL. Human-readable explanation of the specific task instance, including any relevant context the user needs to make an informed decision. Example: `"You are authorizing deprovisioning of all access for bjensen@example.com (ticket HR-8823)."`. The description SHOULD be specific to the instance, not just the purpose type.
 
 `locale`
 : OPTIONAL. BCP 47 language tag indicating the language of `title` and `description`. Example: `"en"`, `"fr-CA"`.
 
 ### The `params` Object {#params-object}
 
-The `params` sub-object carries instance-level parameters for this specific purpose execution. Its members are defined by the purpose type identified by `id` and SHOULD be documented in the client's purpose catalog.
+The `params` sub-object carries the instance-level parameters that distinguish this specific execution of the purpose class from other executions of the same class. Where `kind` says "what class of operation this is", `params` says "the specific details of this invocation". Its members are defined per purpose class (identified by `kind`), MUST be documented in the client's purpose catalog, and MUST NOT be used to carry data that belongs to the purpose class definition itself.
 
-Clients and OPs MUST validate `params` according to the schema and policy associated with the `purpose.id` value. Unknown parameter names, malformed values, or values outside the allowed policy for that `purpose.id` MUST cause the request to be rejected or the `purpose` object to be ignored according to local policy.
+Clients and OPs MUST validate `params` according to the schema and policy associated with the `purpose.kind` value. Unknown parameter names, malformed values, or values outside the allowed policy for that `purpose.kind` MUST cause the request to be rejected or the `purpose` object to be ignored according to local policy.
 
 `params` serves three purposes:
 
-* **Conditional policy evaluation.** The OP can write policy rules that branch on parameter values. For example: an `add_oauth_client` purpose where `params.environment` is `production` may require a higher assurance level than one targeting a `staging` environment.
+* **Conditional policy evaluation.** The OP can write policy rules that branch on parameter values. For example: a purpose with `kind` `https://example.com/purposes/deprovision-user-access` where `params.reason` is `security-incident` may require a higher assurance level or mandatory re-authentication compared to `employment-terminated`.
 
 * **Consent display.** The OP can use parameter values to construct or supplement its own consent language when `display.description` is absent or insufficient.
 
-* **Structured audit.** Because `params` is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all `add_oauth_client` registrations for `params.client_name` in the past 30 days."
+* **Structured audit.** Because `params` is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all `https://example.com/purposes/deprovision-user-access` invocations for `params.subject` in the past 30 days" or "all deprovisioning actions triggered by `params.reason` of `security-incident`."
 
 Clients SHOULD include only policy-relevant instance attributes in `params`. `params` is not a general-purpose authorization descriptor and MUST NOT be used to express resource permissions or downstream access rights.
 
@@ -516,15 +519,15 @@ The `constraints` sub-object groups conditions that bound the resulting authenti
 : OPTIONAL. Non-negative integer expressing the maximum permitted lifetime of the resulting session and tokens, in seconds, measured from the time of token issuance. When present, the OP SHOULD cap the lifetime of the issued ID Token, access token, and any refresh tokens to this value. If both `expires_at` and `max_duration` are present, the OP MUST enforce whichever bound is more restrictive (i.e., whichever results in the earlier expiration). `max_duration` is a relative constraint and is appropriate when the client cannot predict the exact issuance time; `expires_at` is appropriate when the authorization is tied to an external deadline (e.g., end of a business day or ticket expiry). Both MAY be present simultaneously to express "no longer than X seconds and no later than Y".
 
 `max_uses`
-: OPTIONAL. Positive integer indicating the maximum number of successful token issuances that may result from this authorization request. A **use** is defined as one successful completion of the authorization code exchange (or equivalent token endpoint call) that results in the issuance of tokens carrying the `client_context` claim for this `instance_id`. Re-authentication flows that produce a new ID Token each count as one use. Token refresh operations against an already-issued token do NOT count as additional uses. When `max_uses` is `1`, the purpose is single-use: once tokens have been issued, the OP MUST reject any further authorization attempts that present the same `instance_id` with `invalid_client_context`. When `max_uses` is greater than `1`, the OP SHOULD track use-count against the `instance_id` and return `invalid_client_context` once the limit is reached. Use of `max_uses` without `instance_id` is NOT RECOMMENDED; without `instance_id`, the OP has no stable key against which to track use-count.
+: OPTIONAL. Positive integer indicating the maximum number of successful token issuances that may result from this authorization request. A **use** is defined as one successful completion of the authorization code exchange (or equivalent token endpoint call) that results in the issuance of tokens carrying the `client_context` claim for this `id`. Re-authentication flows that produce a new ID Token each count as one use. Token refresh operations against an already-issued token do NOT count as additional uses. When `max_uses` is `1`, the purpose is single-use: once tokens have been issued, the OP MUST reject any further authorization attempts that present the same `id` with `invalid_client_context`. When `max_uses` is greater than `1`, the OP SHOULD track use-count against the `id` and return `invalid_client_context` once the limit is reached. Use of `max_uses` without `id` is NOT RECOMMENDED; without `id`, the OP has no stable key against which to track use-count.
 
 ### OP Policy Guidance
 
-The OP SHOULD use `id` as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.
+The OP SHOULD use `kind` as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.
 
 The OP SHOULD present `display.title` and `display.description` to the End-User during authentication to provide a complete picture of what the user is authorizing.
 
-The OP SHOULD evaluate `actor.type` when `id` alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when `actor.type` is `agent`, regardless of existing session state.
+The OP SHOULD evaluate `actor.type` when `kind` alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when `actor.type` is `agent`, regardless of existing session state.
 
 The OP MAY bind a validated `purpose` object to the authenticated subject and, when available, to a resulting session identifier such as OIDC `sid` or a SAML `SessionIndex`. This allows the returned context to serve as a verifiable record of which subject authenticated for which purpose instance and, where supported, which session carries that authorization.
 
@@ -535,7 +538,7 @@ The OP MAY bind a validated `purpose` object to the authenticated subject and, w
 ~~~json
 {
   "type": "purpose",
-  "id": "summarize_inbox",
+  "kind": "https://example.com/purposes/summarize-inbox",
   "display": {
     "title": "Summarize Inbox",
     "description": "AI Assistant will read your unread emails from the past 7 days and generate a summary.",
@@ -561,16 +564,17 @@ The OP MAY bind a validated `purpose` object to the authenticated subject and, w
 ~~~json
 {
   "type": "purpose",
-  "id": "add_oauth_client",
-  "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+  "kind": "https://example.com/purposes/deprovision-user-access",
+  "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
   "display": {
-    "title": "Register OAuth Client",
-    "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+    "title": "Deprovision User Access",
+    "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
     "locale": "en"
   },
   "params": {
-    "client_name": "invoice-service",
-    "environment": "production"
+    "subject": "bjensen@example.com",
+    "reason": "employment-terminated",
+    "ticket_ref": "HR-8823"
   },
   "constraints": {
     "expires_at": "2026-03-10T18:00:00Z",
@@ -629,7 +633,7 @@ returned_context = id_token.client_context  # array of objects
 purpose = find(returned_context, type="purpose")
 if purpose is None:
     raise SecurityError("Purpose context missing from ID Token")
-if purpose.id != requested_purpose_id:
+if purpose.kind != requested_purpose_kind:
     raise SecurityError("Purpose context mismatch")
 
 tenant = find(returned_context, type="tenant")
@@ -637,7 +641,7 @@ if tenant is None or tenant.id != expected_tenant:
     raise SecurityError("Tenant context invalid")
 
 # All checks passed; enable purpose-scoped operations
-enable_operations(purpose.id)
+enable_operations(purpose.kind)
 ~~~
 
 # Authorization Server Processing Rules
@@ -653,6 +657,7 @@ If the `client_context` parameter is present in an authorization request, the Au
 5. For each context type in the request:
    a. If the type is not recognized and the OP does not support unknown types, return `unsupported_client_context_type`.
    b. If the type is recognized, validate the object against the registered schema for that type. If validation fails, return `invalid_client_context_value`.
+   c. If the type is `purpose`, verify that the `kind` field is present and is a syntactically valid absolute URI per {{!RFC3986}}. If the `kind` is missing or not a valid absolute URI, return `invalid_client_context_value`.
 6. If the client's registration metadata includes `client_context_types`, verify that all requested context types are in the registered list. If not, return `unsupported_client_context_type`.
 7. If `client_context_par_required` is `true` in the OP's discovery metadata and the request was not submitted as a Pushed Authorization Request ({{!RFC9126}}), return `invalid_request`. The OP MUST NOT process `client_context` received outside of a PAR request when this flag is set.
 8. If any context object fails validation or is unsupported (steps 2–6), the Authorization Server MUST reject the entire authorization request. Partial application of valid context objects from an otherwise invalid request is not permitted.
@@ -697,13 +702,13 @@ The following is an example ID Token payload containing an applied context:
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
+      "kind": "https://example.com/purposes/deprovision-user-access",
       "display": {
-        "title": "Register OAuth Client",
-        "description": "Register new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
         "locale": "en"
       },
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
@@ -735,7 +740,7 @@ The OP uses the tenant context to route the user to Acme Corp's configured ident
 
 Just-in-time access is a pattern, not a product category. Any application can adopt it: rather than relying on a broad administrative session established at login, the client requests a fresh authentication scoped to the specific operation the user is about to perform. This reduces the window of exposure if a session is compromised and creates a clear audit trail linking each privileged action to a deliberate authentication event.
 
-**Example: An admin panel requesting authentication to register a new OAuth client:**
+**Example: An admin panel requesting authentication to deprovision a terminated user:**
 
 ~~~json
 "client_context": [
@@ -743,14 +748,14 @@ Just-in-time access is a pattern, not a product category. Any application can ad
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
-    "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+    "kind": "https://example.com/purposes/deprovision-user-access",
+    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
-    "params": { "client_name": "invoice-service", "environment": "production" },
+    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
     "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
   }
 ]
@@ -764,7 +769,7 @@ The OP receiving this request might:
 4. Record the purpose identifier and task details in its audit log.
 5. Notify a security team of the elevated access event.
 
-The Client then verifies the returned context before enabling the client registration action, ensuring the user cannot perform this action if the OP did not acknowledge the purpose context.
+The Client then verifies the returned context before enabling the deprovisioning action, ensuring the user cannot perform this action if the OP did not acknowledge the purpose context.
 
 ## AI Agent Authorization
 
@@ -782,7 +787,7 @@ AI agents act on behalf of users to perform specific tasks. An agent platform re
   { "type": "app", "id": "ai_assistant" },
   {
     "type": "purpose",
-    "id": "schedule_meeting",
+    "kind": "https://example.com/purposes/schedule-meeting",
     "display": {
       "title": "Schedule a Meeting",
       "description": "AI Assistant will access your calendar to schedule a team meeting for next Tuesday.",
@@ -883,14 +888,14 @@ The decoded `client_context_hint` value is:
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
+    "kind": "https://example.com/purposes/deprovision-user-access",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
-    "params": { "client_name": "invoice-service", "ticket_ref": "IT-4821" },
-    "actor": { "type": "service", "id": "service-desk-app" },
+    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+    "actor": { "type": "service", "id": "hr-offboarding-system" },
     "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
   }
 ]
@@ -906,7 +911,7 @@ The Client receiving a `client_context_hint` at its login initiation endpoint MU
 
 2. **Validate context types.** The Client MUST verify that each context type in the hint is one the Client supports and is permitted for this Client's registration. The Client MUST discard or reject any object whose `type` is not in the Client's permitted set.
 
-3. **Validate context values.** The Client MUST validate each field value against its own configuration, for example, confirming that a `tenant.id` value is a tenant the Client is configured to serve, and that a `purpose.id` value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.
+3. **Validate context values.** The Client MUST validate each field value against its own configuration, for example, confirming that a `tenant.id` value is a tenant the Client is configured to serve, and that a `purpose.kind` value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.
 
 4. **Construct `client_context`.** After validation, the Client uses the validated hint, possibly enriched with additional context the Client determines from its own state, as the basis for the `client_context` parameter in the authorization request to the OP.
 
@@ -931,7 +936,7 @@ The following Client metadata parameter is defined for use where Client metadata
 
 The `client_context` parameter and the `acr` claim serve complementary but distinct roles. `client_context` is a *request input* describing the business context of the authentication. The `acr` claim is an *output* describing the authentication assurance that was actually satisfied.
 
-The OP MAY use `client_context` as an input when determining the authentication assurance required. For example, an OP might define policy such as: "any request with a `purpose` context whose `id` matches a high-privilege operation list requires `acr` `phishing-resistant-mfa`."
+The OP MAY use `client_context` as an input when determining the authentication assurance required. For example, an OP might define policy such as: "any request with a `purpose` context whose `kind` matches a high-privilege operation list requires `acr` `phishing-resistant-mfa`."
 
 Clients SHOULD evaluate both the returned `client_context` and the `acr` claim when determining whether to permit privileged operations. A matching `client_context` with insufficient `acr` should not be sufficient to authorize a high-privilege action.
 
@@ -1002,7 +1007,7 @@ The following client registration metadata parameter is defined for use with the
   "client_context_types": ["app", "tenant", "purpose"],
   "client_context_values": {
     "app": ["calendar", "email", "admin_console"],
-    "purpose": ["add_oauth_client", "approve_change_request"]
+    "purpose": ["https://example.com/purposes/deprovision-user-access", "https://example.com/purposes/approve-change-request"]
   }
 }
 ~~~
@@ -1022,7 +1027,7 @@ The following error codes are defined:
 : The request includes a context type that is not supported by this Authorization Server or not permitted for this client's registration.
 
 `invalid_client_context_value`
-: A context object contains one or more invalid field values (e.g., an `expires_at` in the past, an unrecognized `id` value for a constrained purpose type).
+: A context object contains one or more invalid field values (e.g., an `expires_at` in the past, an unrecognized `kind` value for an unsupported purpose type).
 
 **Example error response:**
 
@@ -1185,11 +1190,11 @@ This specification requests registration of the following claim in the "JSON Web
 
 This appendix illustrates how `client_context`, `acr_values`, and `authorization_details` ({{!RFC9396}}) work together in a single authorization request. Each parameter operates at a distinct layer and carries information for a different consumer.
 
-The scenario: a user of an admin console is about to register a new OAuth client application. The application needs to:
+The scenario: a security operations tool has detected that an employee has been terminated. It initiates a deprovisioning workflow that needs to:
 
-* Ensure the user authenticates with phishing-resistant MFA for this specific operation (`acr_values`).
-* Record in the ID Token that this authentication was for the `add_oauth_client` purpose, bound to the target client name and environment (`client_context`).
-* Obtain an access token scoped precisely to the Client Registration API for that specific user (`authorization_details`).
+* Ensure the operator authenticates with phishing-resistant MFA before the action is taken (`acr_values`).
+* Record in the ID Token that this authentication was specifically for deprovisioning `bjensen@example.com`, bound to the HR ticket and reason, so the client can confirm the OP evaluated the purpose before enabling any action (`client_context`).
+* Obtain access tokens scoped to the three resource servers that must be updated: the AS (revoke sessions), the directory service (disable account), and the SCIM provisioning service (remove application assignments) (`authorization_details`).
 
 ## Authorization Request
 
@@ -1219,16 +1224,17 @@ The decoded `client_context` value:
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
-    "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+    "kind": "https://example.com/purposes/deprovision-user-access",
+    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
     "params": {
-      "client_name": "invoice-service",
-      "environment": "production"
+      "subject": "bjensen@example.com",
+      "reason": "employment-terminated",
+      "ticket_ref": "HR-8823"
     },
     "constraints": {
       "expires_at": "2026-03-10T18:00:00Z"
@@ -1242,10 +1248,22 @@ The decoded `authorization_details` value:
 ~~~json
 [
   {
-    "type": "oauth_client_registration",
-    "locations": ["https://as.example.com/register"],
-    "actions": ["client:create"],
-    "environment": "production"
+    "type": "https://example.com/authz/session-management",
+    "locations": ["https://as.example.com"],
+    "actions": ["sessions:revoke-all"],
+    "subject": "bjensen@example.com"
+  },
+  {
+    "type": "https://example.com/authz/directory-write",
+    "locations": ["https://directory.example.com"],
+    "actions": ["account:disable"],
+    "subject": "bjensen@example.com"
+  },
+  {
+    "type": "https://example.com/authz/scim-write",
+    "locations": ["https://scim.example.com"],
+    "actions": ["membership:remove-all"],
+    "subject": "bjensen@example.com"
   }
 ]
 ~~~
@@ -1259,7 +1277,7 @@ The decoded `authorization_details` value:
 : Tells the OP *why* this authentication is occurring. The OP uses the `purpose` object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window for acting on the authenticated purpose via `expires_at`, and record the purpose, params, and actor in its audit log. The applied context is returned in the ID Token for the client to verify.
 
 `authorization_details`
-: Tells the authorization server what permissions to encode in the access token. The resulting access token is scoped to `client:create` action on the Admin API for the target tenant. This is enforced at the resource server, not by the OP's authentication engine.
+: Tells the authorization server what permissions to encode in the access tokens. Three separate resource servers are targeted: the AS (revoke sessions), the directory service (disable account), and the SCIM provisioning service (remove assignments). Each resource server receives a scoped access token carrying only the permissions it needs. This is enforced at each resource server independently, not by the OP's authentication engine.
 
 ## Resulting ID Token
 
@@ -1279,16 +1297,16 @@ The decoded `authorization_details` value:
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
-      "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "kind": "https://example.com/purposes/deprovision-user-access",
+      "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
 }
 ~~~
 
-The `acr` claim confirms phishing-resistant MFA was satisfied. The `client_context` claim confirms the authentication was bound to the `add_oauth_client` purpose for the specified target. The client verifies both before enabling the client registration.
+The `acr` claim confirms phishing-resistant MFA was satisfied. The `client_context` claim confirms the authentication was bound to the `deprovision-user-access` purpose for `bjensen@example.com` under ticket HR-8823. The client verifies both before invoking any of the three resource servers. Each resource server independently enforces its scoped access token.
 
 ## Layered Model Summary
 

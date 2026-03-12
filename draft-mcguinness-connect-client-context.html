@@ -11,139 +11,343 @@
        The mechanism is designed for deployments where a single  client_id  represents multiple logical applications, tenants, or operational purposes, such as AI agents acting on behalf of users or just-in-time administrative workflows requiring privilege elevation. 
        The OP returns the applied context in the ID Token, allowing the Client to verify that authentication occurred under the intended context and to bind subsequent operations accordingly. 
     " name="description">
-<meta content="xml2rfc 3.31.0" name="generator">
+<meta content="xml2rfc 3.32.0" name="generator">
 <meta content="OpenID Connect" name="keyword">
 <meta content="OAuth 2.0" name="keyword">
 <meta content="Client Context" name="keyword">
 <meta content="draft-mcguinness-connect-client-context-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.31.0
+  xml2rfc 3.32.0
     Python 3.14.2
-    ConfigArgParse 1.7.1
+    ConfigArgParse 1.7.5
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.0.2
-    platformdirs 4.5.1
-    pycountry 24.6.1
+    platformdirs 4.9.4
+    pycountry 26.2.16
     PyYAML 6.0.3
     requests 2.32.5
-    wcwidth 0.2.14
+    wcwidth 0.6.0
 -->
 <link href="draft-mcguinness-connect-client-context.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
-<style type="text/css">/*
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
-  NOTE: Changes at the bottom of this file overrides some earlier settings.
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
-  Once the style has stabilized and has been adopted as an official RFC style,
-  this can be consolidated so that style settings occur only in one place, but
-  for now the contents of this file consists first of the initial CSS work as
-  provided to the RFC Formatter (xml2rfc) work, followed by itemized and
-  commented changes found necessary during the development of the v3
-  formatters.
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
-*/
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+}
 
-/* fonts */
-@import url('https://static.ietf.org/fonts/noto-sans/import.css'); /* Sans-serif */
-@import url('https://static.ietf.org/fonts/noto-serif/import.css'); /* Serif (print) */
-@import url('https://static.ietf.org/fonts/roboto-mono/import.css'); /* Monospace */
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
-  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
-  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
-  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
-}
-
-@viewport {
-  zoom: 1.0;
-}
-@-ms-viewport {
-  width: extend-to-zoom;
-  zoom: 1.0;
-}
-/* general and mobile first */
-html {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
 }
 body {
-  max-width: 90%;
-  margin: 1.5em auto;
-  color: #222;
-  background-color: #fff;
-  font-size: 14px;
-  font-family: var(--font-sans);
-  line-height: 1.6;
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
   scroll-behavior: smooth;
-  overflow-wrap: break-word;
 }
+
 .ears {
   display: none;
 }
 
 /* headings */
-#title, h1, h2, h3, h4, h5, h6 {
-  margin: 1em 0 0.5em;
-  font-weight: bold;
-  line-height: 1.3;
-}
-#title {
+section {
   clear: both;
-  border-bottom: 1px solid #ddd;
-  margin: 0 0 0.5em 0;
-  padding: 1em 0 0.5em;
 }
-.author {
-  padding-bottom: 4px;
+.section-number {
+  padding-right: 0.5em;
 }
-h1 {
-  font-size: 26px;
-  margin: 1em 0;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
 }
-h2 {
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
   font-size: 22px;
-  margin-top: -20px;  /* provide offset for in-page anchors */
-  padding-top: 33px;
+  line-height: 27px;
 }
-h3 {
-  font-size: 18px;
-  margin-top: -36px;  /* provide offset for in-page anchors */
-  padding-top: 42px;
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
 }
-h4 {
-  font-size: 16px;
-  margin-top: -36px;  /* provide offset for in-page anchors */
-  padding-top: 42px;
-}
-h5, h6 {
-  font-size: 14px;
-}
-#n-copyright-notice {
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 1em;
-  margin-bottom: 1em;
-}
+
 /* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
 p {
   padding: 0;
-  margin: 0 0 1em 0;
+  margin: 0.5em 0;
   text-align: left;
-}
-div, span {
-  position: relative;
 }
 div {
   margin: 0;
 }
 .alignRight.art-text {
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
   border-radius: 3px;
-  padding: 1em 1em 0;
-  margin-bottom: 1.5em;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
 }
 .alignRight.art-text pre {
   padding: 0;
+  width: auto;
 }
 .alignRight {
   margin: 1em 0;
@@ -162,484 +366,569 @@ div {
 svg {
   display: block;
 }
-@media print {
-  svg {
-    max-height: 850px;
-    max-width: 660px;
-  }
-}
-svg[font-family~="serif" i], svg [font-family~="serif" i] {
-  font-family: var(--font-serif);
-}
-svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
-  font-family: var(--font-sans);
-}
+/* font-family isn't space-separated, but =~ will have to do */
 svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
   font-family: var(--font-mono);
 }
 .alignCenter.art-text {
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
   border-radius: 3px;
-  padding: 1em 1em 0;
-  margin-bottom: 1.5em;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
 }
 .alignCenter.art-text pre {
   padding: 0;
+  width: auto;
 }
 .alignCenter {
   margin: 1em 0;
 }
 .alignCenter > *:first-child {
-  display: table;
   border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
   margin: 0 auto;
 }
 
 /* lists */
 ol, ul {
   padding: 0;
-  margin: 0 0 1em 2em;
-}
-ol ol, ul ul, ol ul, ul ol {
-  margin-left: 1em;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
 }
 li {
   margin: 0 0 0.25em 0;
 }
-.ulCompact li {
-  margin: 0;
-}
 ul.empty, .ulEmpty {
   list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
 }
-ul.empty li, .ulEmpty li {
-  margin-top: 0.5em;
-}
-ul.ulBare, li.ulBare {
-  margin-left: 0em !important;
-}
-ul.compact, .ulCompact,
-ol.compact, .olCompact {
-  line-height: 100%;
+:is(ul, ol).compact, .ulCompact, .olCompact {
   margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
 }
 
 /* definition lists */
 dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+    }
+  }
+  &.olPercent > dt {
+    float: none;
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
 }
-dl > dt {
+dl:not(.dlNewline) > dt {
   float: left;
-  margin-right: 1em;
+  margin-right: 2ch;
+  min-width: 8ch;
 }
-/* 
-dl.nohang > dt {
-  float: none;
-}
-*/
 dl > dd {
   margin-bottom: .8em;
-  min-height: 1.3em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
 }
-dl.compact > dd, .dlCompact > dd {
-  margin-bottom: 0em;
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
 }
-dl > dd > dl {
-  margin-top: 0.5em;
-  margin-bottom: 0em;
+:is(dd, span).break {
+  display: none;
 }
 
 /* links */
-a {
+a, a[href].selfRef:hover {
   text-decoration: none;
 }
 a[href] {
-  color: #22e; /* Arlen: WCAG 2019 */
+  color: var(--link-color);
+}
+a[href].selfRef, .iref + a[href].internal {
+  color: var(--text-color);
 }
 a[href]:hover {
-  background-color: #f2f2f2;
+  text-decoration: underline;
 }
-figcaption a[href],
-a[href].selfRef {
-  color: #222;
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
 }
-/* XXX probably not this:
-a.selfRef:hover {
-  background-color: transparent;
-  cursor: default;
-} */
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
 
 /* Figures */
 tt, code, pre {
-  background-color: #f9f9f9;
-  font-family: var(--font-mono);
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
 }
 pre {
-  border: 1px solid #eee;
-  margin: 0;
-  padding: 1em;
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
 }
 img {
   max-width: 100%;
 }
 figure {
-  margin: 0;
+  margin: 0.5em 0;
+  padding: 0;
 }
 figure blockquote {
   margin: 0.8em 0.4em 0.4em;
 }
-figcaption {
+figcaption, caption {
   font-style: italic;
-  margin: 0 0 1em 0;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
 }
 @media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
   pre {
-    overflow-x: auto;
     max-width: 100%;
-    max-width: calc(100% - 22px);
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
   }
 }
 
 /* aside, blockquote */
 aside, blockquote {
   margin-left: 0;
-  padding: 1.2em 2em;
+  padding: 0 2em;
+  font-style: italic;
 }
 blockquote {
-  background-color: #f9f9f9;
-  color: #111; /* Arlen: WCAG 2019 */
-  border: 1px solid #ddd;
-  border-radius: 3px;
   margin: 1em 0;
-}
-blockquote > *:last-child {
-  margin-bottom: 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
   text-align: right;
   font-style: italic;
 }
-.xref {
-  overflow-wrap: normal;
-}
 
 /* tables */
 table {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
-  border: 1px solid #eee;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
 }
 th, td {
   text-align: left;
   vertical-align: top;
-  padding: 0.5em 0.75em;
+  padding: 5px 10px;
 }
 th {
-  text-align: left;
-  background-color: #e9e9e9;
+  background-color: var(--line-color);
 }
-tr:nth-child(2n+1) > td {
-  background-color: #f5f5f5;
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
 }
 table caption {
-  font-style: italic;
   margin: 0;
-  padding: 0;
-  text-align: left;
+  padding: 3px 0 3px 1em;
 }
 table p {
-  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
-     be allowed within tables more generally, it would be far better to select on a class. */
   margin: 0;
 }
 
 /* pilcrow */
 a.pilcrow {
-  color: #666; /* Arlen: AHDJ 2019 */
-  text-decoration: none;
-  visibility: hidden;
+  margin-left: 3px;
+  opacity: 0.2;
   user-select: none;
-  -ms-user-select: none;
-  -o-user-select:none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-@media screen {
-  aside:hover > a.pilcrow,
-  p:hover > a.pilcrow,
-  blockquote:hover > a.pilcrow,
-  div:hover > a.pilcrow,
-  li:hover > a.pilcrow,
-  pre:hover > a.pilcrow {
-    visibility: visible;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
   }
-  a.pilcrow:hover {
+}
+@media not print {
+  :hover > a.pilcrow, a.pilcrow:focus {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
     background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
   }
 }
 
 /* misc */
 hr {
   border: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--line-color);
 }
 .bcp14 {
   font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
 }
-
 .role {
   font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
 }
 
 /* info block */
 #identifiers {
   margin: 0;
-  font-size: 0.9em;
-}
-#identifiers dt {
-  width: 3em;
-  clear: left;
-}
-#identifiers dd {
-  float: left;
-  margin-bottom: 0;
-}
-/* Fix PDF info block run off issue */
-@media print {
-  #identifiers dd {
-    max-width: 100%;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
   }
-}
-#identifiers .authors .author {
-  display: inline-block;
-  margin-right: 1.5em;
-}
-#identifiers .authors .org {
-  font-style: italic;
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
 }
 
 /* The prepared/rendered info at the very bottom of the page */
 .docInfo {
-  color: #666; /* Arlen: WCAG 2019 */
+  color: #999;
   font-size: 0.9em;
   font-style: italic;
   margin-top: 2em;
-}
-.docInfo .prepared {
-  float: left;
 }
 .docInfo .prepared {
   float: right;
 }
 
 /* table of contents */
-#toc  {
+#toc {
   padding: 0.75em 0 2em 0;
   margin-bottom: 1em;
-}
-nav.toc ul {
-  margin: 0 0.5em 0 0;
-  padding: 0;
-  list-style: none;
-}
-nav.toc li {
-  line-height: 1.3em;
-  margin: 0.75em 0;
-  padding-left: 1.2em;
-  text-indent: -1.2em;
-}
-/* references */
-.references dt {
-  text-align: right;
-  font-weight: bold;
-  min-width: 7em;
-}
-.references dd {
-  margin-left: 8em;
-  overflow: auto;
-}
 
-.refInstance {
-  margin-bottom: 1.25em;
-}
-
-.refSubseries {
-  margin-bottom: 1.25em;
-}
-
-.references .ascii {
-  margin-bottom: 0.25em;
-}
-
-/* index */
-.index ul {
-  margin: 0 0 0 1em;
-  padding: 0;
-  list-style: none;
-}
-.index ul ul {
-  margin: 0;
-}
-.index li {
-  margin: 0;
-  text-indent: -2em;
-  padding-left: 2em;
-  padding-bottom: 5px;
-}
-.indexIndex {
-  margin: 0.5em 0 1em;
-}
-.index a {
-  font-weight: 700;
-}
-/* make the index two-column on all but the smallest screens */
-@media (min-width: 600px) {
-  .index ul {
-    -moz-column-count: 2;
-    -moz-column-gap: 20px;
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
   }
-  .index ul ul {
-    -moz-column-count: 1;
-    -moz-column-gap: 0;
+  & a.xref {
+    white-space: normal;
   }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
 }
 
 /* authors */
 address.vcard {
   font-style: normal;
-  margin: 1em 0;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
 }
 
-address.vcard .nameRole {
-  font-weight: 700;
-  margin-left: 0;
-}
-address.vcard .label {
-  font-family: var(--font-sans);
-  margin: 0.5em 0;
-}
-address.vcard .type {
-  display: none;
-}
-.alternative-contact {
-  margin: 1.5em 0 1em;
-}
 hr.addr {
   border-top: 1px dashed;
   margin: 0;
   color: #ddd;
   max-width: calc(100% - 16px);
 }
-
-/* temporary notes */
-.rfcEditorRemove::before {
-  position: absolute;
-  top: 0.2em;
-  right: 0.2em;
-  padding: 0.2em;
-  content: "The RFC Editor will remove this note";
-  color: #9e2a00; /* Arlen: WCAG 2019 */
-  background-color: #ffd; /* Arlen: WCAG 2019 */
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
 }
-.rfcEditorRemove {
-  position: relative;
-  padding-top: 1.8em;
-  background-color: #ffd; /* Arlen: WCAG 2019 */
-  border-radius: 3px;
+
+/* Comments */
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
 }
 .cref {
-  background-color: #ffd; /* Arlen: WCAG 2019 */
+  background-color: rgba(249, 232, 105, 0.3);
   padding: 2px 4px;
 }
 .crefSource {
   font-style: italic;
 }
-/* alternative layout for smaller screens */
-@media screen and (max-width: 1023px) {
-  body {
-    padding-top: 2em;
+
+@media screen {
+  #toc nav {
+    font-family: var(--font-title);
+    font-weight: 360;
+    & > ul { margin-bottom: 2em; }
+    & ul {
+      margin: 0 0 0 4px;
+      & :is(p, li) {
+        margin: 2px 0;
+      }
+    }
   }
-  #title {
-    padding: 1em 0;
+  #toc a.toplink {
+    float: right;
   }
-  h1 {
-    font-size: 24px;
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
   }
-  h2 {
-    font-size: 20px;
-    margin-top: -18px;  /* provide offset for in-page anchors */
-    padding-top: 38px;
-  }
-  #identifiers dd {
-    max-width: 60%;
-  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
   #toc {
     position: fixed;
     z-index: 2;
     top: 0;
     right: 0;
-    padding: 0;
+    padding: 1px 0 0 0;
     margin: 0;
-    background-color: inherit;
     border-bottom: 1px solid #ccc;
+    opacity: 0.6;
   }
   #toc h2 {
-    margin: -1px 0 0 0;
-    padding: 4px 0 4px 6px;
+    margin: 0;
+    padding: 2px 0 2px 6px;
     padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
     min-width: 190px;
-    font-size: 1.1em;
     text-align: right;
     background-color: #444;
     color: white;
     cursor: pointer;
-  }
-  #toc h2::before { /* css hamburger */
-    float: right;
-    position: relative;
-    width: 1em;
-    height: 1px;
-    left: -164px;
-    margin: 6px 0 0 0;
-    background: white none repeat scroll 0 0;
-    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-    content: "";
+    &::before { /* css hamburger */
+      float: right;
+      position: relative;
+      width: 1em;
+      height: 1px;
+      left: -164px;
+      margin: 8px 0 0 0;
+      background: white none repeat scroll 0 0;
+      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+      content: "";
+    }
   }
   #toc nav {
     display: none;
+    background-color: var(--background-color);
     padding: 0.5em 1em 1em;
     overflow: auto;
+    overscroll-behavior: contain;
     height: calc(100vh - 48px);
     border-left: 1px solid #ddd;
   }
+  #toc.active {
+    opacity: 1;
+    & nav { display: block; }
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:is(:link, :focus, :hover),
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin: 2px 0.5em 0;
+  }
 }
 
-/* alternative layout for wide screens */
-@media screen and (min-width: 1024px) {
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
   body {
-    max-width: 724px;
-    margin: 42px auto;
-    padding-left: 1.5em;
-    padding-right: 29em;
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
   }
   #toc {
     position: fixed;
-    top: 42px;
-    right: 42px;
-    width: 25%;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
     margin: 0;
-    padding: 0 1em;
+    padding: 0;
     z-index: 1;
   }
   #toc h2 {
-    border-top: none;
-    border-bottom: 1px solid #ddd;
-    font-size: 1em;
-    font-weight: normal;
     margin: 0;
     padding: 0.25em 1em 1em 0;
   }
@@ -647,12 +936,17 @@ hr.addr {
     display: block;
     height: calc(90vh - 84px);
     bottom: 0;
-    padding: 0.5em 0 0;
+    padding: 0.5em 0 2em;
     overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
   }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
+  }
+  #toc a.toplink {
+    margin: 8px 0.5em 0;
   }
 }
 
@@ -675,19 +969,13 @@ hr.addr {
     border-top: none;
     padding-top: 0;
   }
-  figure, pre {
+  figure, pre, .vcard {
     page-break-inside: avoid;
-  }
-  figure {
-    overflow: scroll;
-  }
-  .breakable pre {
-    break-inside: auto;
   }
   h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
   }
-  h2+*, h3+*, h4+*, h5+*, h6+* {
+  :is(h2, h3, h4, h5, h6)+*, dd {
     page-break-before: avoid;
   }
   pre {
@@ -702,34 +990,6 @@ hr.addr {
     border-top: 1px solid #ddd;
   }
 }
-
-/* This is commented out here, as the string-set: doesn't
-   pass W3C validation currently */
-/*
-.ears thead .left {
-  string-set: ears-top-left content();
-}
-
-.ears thead .center {
-  string-set: ears-top-center content();
-}
-
-.ears thead .right {
-  string-set: ears-top-right content();
-}
-
-.ears tfoot .left {
-  string-set: ears-bottom-left content();
-}
-
-.ears tfoot .center {
-  string-set: ears-bottom-center content();
-}
-
-.ears tfoot .right {
-  string-set: ears-bottom-right content();
-}
-*/
 
 @page :first {
   padding-top: 0;
@@ -751,468 +1011,38 @@ hr.addr {
   size: A4;
   margin-bottom: 45mm;
   padding-top: 20px;
-  /* The following is commented out here, but set appropriately by in code, as
-     the content depends on the document */
-  /*
-  @top-left {
-    content: 'Internet-Draft';
-    vertical-align: bottom;
-    border-bottom: solid 1px #ccc;
-  }
-  @top-left {
-    content: string(ears-top-left);
-    vertical-align: bottom;
-    border-bottom: solid 1px #ccc;
-  }
-  @top-center {
-    content: string(ears-top-center);
-    vertical-align: bottom;
-    border-bottom: solid 1px #ccc;
-  }
-  @top-right {
-    content: string(ears-top-right);
-    vertical-align: bottom;
-    border-bottom: solid 1px #ccc;
-  }
-  @bottom-left {
-    content: string(ears-bottom-left);
-    vertical-align: top;
-    border-top: solid 1px #ccc;
-  }
-  @bottom-center {
-    content: string(ears-bottom-center);
-    vertical-align: top;
-    border-top: solid 1px #ccc;
-  }
-  @bottom-right {
-      content: '[Page ' counter(page) ']';
-      vertical-align: top;
-      border-top: solid 1px #ccc;
-  }
-  */
-
 }
 
-/* Changes introduced to fix issues found during implementation */
-/* Make sure links are clickable even if overlapped by following H* */
-a {
-  z-index: 2;
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
 }
-/* Separate body from document info even without intervening H1 */
-section {
-  clear: both;
-}
-
-
-/* Top align author divs, to avoid names without organization dropping level with org names */
-.author {
-  vertical-align: top;
-}
-
-/* Leave room in document info to show Internet-Draft on one line */
-#identifiers dt {
-  width: 8em;
 }
 
-/* Don't waste quite as much whitespace between label and value in doc info */
-#identifiers dd {
-  margin-left: 1em;
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
 }
-
-/* Give floating toc a background color (needed when it's a div inside section */
-#toc {
-  background-color: white;
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
 }
-
-/* Make the collapsed ToC header render white on gray also when it's a link */
-@media screen and (max-width: 1023px) {
-  #toc h2 a,
-  #toc h2 a:link,
-  #toc h2 a:focus,
-  #toc h2 a:hover,
-  #toc a.toplink,
-  #toc a.toplink:hover {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-  }
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
 }
-
-/* Give the bottom of the ToC some whitespace */
-@media screen and (min-width: 1024px) {
-  #toc {
-    padding: 0 0 1em 1em;
-  }
-}
-
-/* Style section numbers with more space between number and title */
-.section-number {
-  padding-right: 0.5em;
-}
-
-/* prevent monospace from becoming overly large */
-tt, code, pre {
-  font-size: 95%;
-}
-
-/* Fix the height/width aspect for ascii art*/
-.sourcecode pre,
-.art-text pre {
-  line-height: 1.12;
-}
-
-
-/* Add styling for a link in the ToC that points to the top of the document */
-a.toplink {
-  float: right;
-  margin-right: 0.5em;
-}
-
-/* Fix the dl styling to match the RFC 7992 attributes */
-dl > dt,
-dl.dlParallel > dt {
-  float: left;
-  margin-right: 1em;
-}
-dl.dlNewline > dt {
-  float: none;
-}
-
-/* Provide styling for table cell text alignment */
-table td.text-left,
-table th.text-left {
-  text-align: left;
-}
-table td.text-center,
-table th.text-center {
-  text-align: center;
-}
-table td.text-right,
-table th.text-right {
-  text-align: right;
-}
-
-/* Make the alternative author contact information look less like just another
-   author, and group it closer with the primary author contact information */
-.alternative-contact {
-  margin: 0.5em 0 0.25em 0;
-}
-address .non-ascii {
-  margin: 0 0 0 2em;
-}
-
-/* With it being possible to set tables with alignment
-  left, center, and right, { width: 100%; } does not make sense */
-table {
-  width: auto;
-}
-
-/* Avoid reference text that sits in a block with very wide left margin,
-   because of a long floating dt label.*/
-.references dd {
-  overflow: visible;
-}
-
-/* Control caption placement */
-caption {
-  caption-side: bottom;
-}
-
-/* Limit the width of the author address vcard, so names in right-to-left
-   script don't end up on the other side of the page. */
-
-address.vcard {
-  max-width: 30em;
-  margin-right: auto;
-}
-
-/* For address alignment dependent on LTR or RTL scripts */
-address div.left {
-  text-align: left;
-}
-address div.right {
-  text-align: right;
-}
-
-/* Provide table alignment support.  We can't use the alignX classes above
-   since they do unwanted things with caption and other styling. */
-table.right {
- margin-left: auto;
- margin-right: 0;
-}
-table.center {
- margin-left: auto;
- margin-right: auto;
-}
-table.left {
- margin-left: 0;
- margin-right: auto;
-}
-
-/* Give the table caption label the same styling as the figcaption */
-caption a[href] {
-  color: #222;
-}
-
-@media print {
-  .toplink {
-    display: none;
-  }
-
-  /* avoid overwriting the top border line with the ToC header */
-  #toc {
-    padding-top: 1px;
-  }
-
-  /* Avoid page breaks inside dl and author address entries */
-  .vcard {
-    page-break-inside: avoid;
-  }
-
-}
-/* Tweak the bcp14 keyword presentation */
-.bcp14 {
-  font-variant: small-caps;
-  font-weight: bold;
-  font-size: 0.9em;
-}
-/* Tweak the invisible space above H* in order not to overlay links in text above */
- h2 {
-  margin-top: -18px;  /* provide offset for in-page anchors */
-  padding-top: 31px;
- }
- h3 {
-  margin-top: -18px;  /* provide offset for in-page anchors */
-  padding-top: 24px;
- }
- h4 {
-  margin-top: -18px;  /* provide offset for in-page anchors */
-  padding-top: 24px;
- }
-/* Float artwork pilcrow to the right */
-@media screen {
-  .artwork a.pilcrow {
-    display: block;
-    line-height: 0.7;
-    margin-top: 0.15em;
-  }
-}
-/* Make pilcrows on dd visible */
-@media screen {
-  dd:hover > a.pilcrow {
-    visibility: visible;
-  }
-}
-/* Make the placement of figcaption match that of a table's caption
-   by removing the figure's added bottom margin */
-.alignLeft.art-text,
-.alignCenter.art-text,
-.alignRight.art-text {
-   margin-bottom: 0;
-}
-.alignLeft,
-.alignCenter,
-.alignRight {
-  margin: 1em 0 0 0;
-}
-/* In print, the pilcrow won't show on hover, so prevent it from taking up space,
-   possibly even requiring a new line */
-@media print {
-  a.pilcrow {
-    display: none;
-  }
-}
-/* Styling for the external metadata */
-div#external-metadata {
-  background-color: #eee;
-  padding: 0.5em;
-  margin-bottom: 0.5em;
-  display: none;
-}
-div#internal-metadata {
-  padding: 0.5em;                       /* to match the external-metadata padding */
-}
-/* Styling for title RFC Number */
-h1#rfcnum {
-  clear: both;
-  margin: 0 0 -1em;
-  padding: 1em 0 0 0;
-}
-/* Make .olPercent look the same as <ol><li> */
-dl.olPercent > dd {
-  margin-bottom: 0.25em;
-  min-height: initial;
-}
-/* Give aside some styling to set it apart */
-aside {
-  border-left: 1px solid #ddd;
-  margin: 1em 0 1em 2em;
-  padding: 0.2em 2em;
-}
-aside > dl,
-aside > ol,
-aside > ul,
-aside > table,
-aside > p {
-  margin-bottom: 0.5em;
-}
-/* Additional page break settings */
-@media print {
-  figcaption, table caption {
-    page-break-before: avoid;
-  }
-}
-/* Font size adjustments for print */
-@media print {
-  body  { font-size: 10pt;      line-height: normal; max-width: 96%; }
-  h1    { font-size: 1.72em;    padding-top: 1.5em; } /* 1*1.2*1.2*1.2 */
-  h2    { font-size: 1.44em;    padding-top: 1.5em; } /* 1*1.2*1.2 */
-  h3    { font-size: 1.2em;     padding-top: 1.5em; } /* 1*1.2 */
-  h4    { font-size: 1em;       padding-top: 1.5em; }
-  h5, h6 { font-size: 1em;      margin: initial; padding: 0.5em 0 0.3em; }
-}
-/* Sourcecode margin in print, when there's no pilcrow */
-@media print {
-  .artwork,
-  .artwork > pre,
-  .sourcecode {
-    margin-bottom: 1em;
-  }
-}
-/* Avoid narrow tables forcing too narrow table captions, which may render badly */
-table {
-  min-width: 20em;
-}
-/* ol type a */
-ol.type-a { list-style-type: lower-alpha; }
-ol.type-A { list-style-type: upper-alpha; }
-ol.type-i { list-style-type: lower-roman; }
-ol.type-I { list-style-type: upper-roman; }
-/* Apply the print table and row borders in general, on request from the RPC,
-and increase the contrast between border and odd row background slightly */
-table {
-  border: 1px solid #ddd;
-}
-td {
-  border-top: 1px solid #ddd;
-}
-tr {
-  break-inside: avoid;
-}
-tr:nth-child(2n+1) > td {
-  background-color: #f8f8f8;
-}
-/* Use style rules to govern display of the TOC. */
-@media screen and (max-width: 1023px) {
-  #toc nav { display: none; }
-  #toc.active nav { display: block; }
-}
-/* Add support for keepWithNext */
-.keepWithNext {
-  break-after: avoid-page;
-  break-after: avoid-page;
-}
-/* Add support for keepWithPrevious */
-.keepWithPrevious {
-  break-before: avoid-page;
-}
-/* Change the approach to avoiding breaks inside artwork etc. */
-figure, pre, table, .artwork, .sourcecode  {
-  break-before: auto;
-  break-after: auto;
-}
-/* Avoid breaks between <dt> and <dd> */
-dl {
-  break-before: auto;
-  break-inside: auto;
-}
-dt {
-  break-before: auto;
-  break-after: avoid-page;
-}
-dd {
-  break-before: avoid-page;
-  break-after: auto;
-  orphans: 3;
-  widows: 3
-}
-span.break, dd.break {
-  margin-bottom: 0;
-  min-height: 0;
-  break-before: auto;
-  break-inside: auto;
-  break-after: auto;
-}
-/* Undo break-before ToC */
-@media print {
-  #toc {
-    break-before: auto;
-  }
-}
-/* Text in compact lists should not get extra bottom margin space,
-   since that would makes the list not compact */
-ul.compact p, .ulCompact p,
-ol.compact p, .olCompact p {
- margin: 0;
-}
-/* But the list as a whole needs the extra space at the end */
-section ul.compact,
-section .ulCompact,
-section ol.compact,
-section .olCompact {
-  margin-bottom: 1em;                    /* same as p not within ul.compact etc. */
-}
-/* The tt and code background above interferes with for instance table cell
-   backgrounds.  Changed to something a bit more selective. */
-tt, code {
-  background-color: transparent;
-}
-p tt, p code, li tt, li code, dt tt, dt code {
-  background-color: #f8f8f8;
-}
-/* Tweak the pre margin -- 0px doesn't come out well */
-pre {
-   margin-top: 0.5px;
-}
-/* Tweak the compact list text */
-ul.compact, .ulCompact,
-ol.compact, .olCompact,
-dl.compact, .dlCompact {
-  line-height: normal;
-}
-/* Don't add top margin for nested lists */
-li > ul, li > ol, li > dl,
-dd > ul, dd > ol, dd > dl,
-dl > dd > dl {
-  margin-top: initial;
-}
-/* Elements that should not be rendered on the same line as a <dt> */
-/* This should match the element list in writer.text.TextWriter.render_dl() */
-dd > div.artwork:first-child,
-dd > aside:first-child,
-dd > blockquote:first-child,
-dd > figure:first-child,
-dd > ol:first-child,
-dd > div.sourcecode:first-child,
-dd > table:first-child,
-dd > ul:first-child {
-  clear: left;
-}
-/* fix for weird browser behaviour when <dd/> is empty */
-dt+dd:empty::before{
-  content: "\00a0";
-}
-/* Make paragraph spacing inside <li> smaller than in body text, to fit better within the list */
-li > p {
-  margin-bottom: 0.5em
-}
-/* Don't let p margin spill out from inside list items */
-li > p:last-of-type:only-child {
-  margin-bottom: 0;
+svg :is([fill="white"], [fill^="#fff"]) {
+  fill: var(--background-color);
 }
 </style>
-<link href="rfc-local.css" rel="stylesheet" type="text/css">
-<script type="application/javascript">async function addMetadata(){try{const e=document.styleSheets[0].cssRules;for(let t=0;t<e.length;t++)if(/#identifiers/.exec(e[t].selectorText)){const a=e[t].cssText.replace("#identifiers","#external-updates");document.styleSheets[0].insertRule(a,document.styleSheets[0].cssRules.length)}}catch(e){console.log(e)}const e=document.getElementById("external-metadata");if(e)try{var t,a="",o=function(e){const t=document.getElementsByTagName("meta");for(let a=0;a<t.length;a++)if(t[a].getAttribute("name")===e)return t[a].getAttribute("content");return""}("rfc.number");if(o){t="https://www.rfc-editor.org/rfc/rfc"+o+".json";try{const e=await fetch(t);a=await e.json()}catch(e){t=document.URL.indexOf("html")>=0?document.URL.replace(/html$/,"json"):document.URL+".json";const o=await fetch(t);a=await o.json()}}if(!a)return;e.style.display="block";const s="",d="https://datatracker.ietf.org/doc",n="https://datatracker.ietf.org/ipr/search",c="https://www.rfc-editor.org/info",l=a.doc_id.toLowerCase(),i=a.doc_id.slice(0,3).toLowerCase(),f=a.doc_id.slice(3).replace(/^0+/,""),u={status:"Status",obsoletes:"Obsoletes",obsoleted_by:"Obsoleted By",updates:"Updates",updated_by:"Updated By",see_also:"See Also",errata_url:"Errata"};let h="<dl style='overflow:hidden' id='external-updates'>";["status","obsoletes","obsoleted_by","updates","updated_by","see_also","errata_url"].forEach(e=>{if("status"==e){a[e]=a[e].toLowerCase();var t=a[e].split(" "),o=t.length,w="",p=1;for(let e=0;e<o;e++)p<o?w=w+r(t[e])+" ":w+=r(t[e]),p++;a[e]=w}else if("obsoletes"==e||"obsoleted_by"==e||"updates"==e||"updated_by"==e){var g,m="",b=1;g=a[e].length;for(let t=0;t<g;t++)a[e][t]&&(a[e][t]=String(a[e][t]).toLowerCase(),m=b<g?m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>, ":m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>",b++);a[e]=m}else if("see_also"==e){var y,L="",C=1;y=a[e].length;for(let t=0;t<y;t++)if(a[e][t]){a[e][t]=String(a[e][t]);var _=a[e][t].slice(0,3),v=a[e][t].slice(3).replace(/^0+/,"");L=C<y?"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>, ":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>, ":"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>",C++}a[e]=L}else if("errata_url"==e){var R="";R=a[e]?R+"<a href='"+a[e]+"'>Errata exist</a> | <a href='"+d+"/"+l+"'>Datatracker</a>| <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>":"<a href='"+d+"/"+l+"'>Datatracker</a> | <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>",a[e]=R}""!=a[e]?"Errata"==u[e]?h+=`<dt>More info:</dt><dd>${a[e]}</dd>`:h+=`<dt>${u[e]}:</dt><dd>${a[e]}</dd>`:"Errata"==u[e]&&(h+=`<dt>More info:</dt><dd>${a[e]}</dd>`)}),h+="</dl>",e.innerHTML=h}catch(e){console.log(e)}else console.log("Could not locate metadata <div> element");function r(e){return e.charAt(0).toUpperCase()+e.slice(1)}}window.removeEventListener("load",addMetadata),window.addEventListener("load",addMetadata);</script>
+
 </head>
 <body class="xml2rfc">
 <table class="ears">
@@ -1231,7 +1061,7 @@ li > p:last-of-type:only-child {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">OpenID Connect</dd>
+<dd class="workgroup">Network Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
 <dd class="internet-draft">draft-mcguinness-connect-client-context-latest</dd>
 <dt class="label-published">Published:</dt>
@@ -1264,13 +1094,10 @@ li > p:last-of-type:only-child {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://mcguinness.github.io/draft-mcguinness-connect-client-context/draft-mcguinness-connect-client-context.html">https://mcguinness.github.io/draft-mcguinness-connect-client-context/draft-mcguinness-connect-client-context.html</a></span>.
+        The latest revision of this draft can be found at <span><a href="https://mcguinness.github.io/connect-client-context/draft-mcguinness-connect-client-context.html">https://mcguinness.github.io/connect-client-context/draft-mcguinness-connect-client-context.html</a></span>.
         Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-mcguinness-connect-client-context/">https://datatracker.ietf.org/doc/draft-mcguinness-connect-client-context/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
-<p id="section-note.1-3">
-        Discussion of this document takes place on the
-        OpenID Connect Working Group mailing list (<span><a href="mailto:openid-specs-ab@lists.openid.net">mailto:openid-specs-ab@lists.openid.net</a></span>).<a href="#section-note.1-3" class="pilcrow">¶</a></p>
-<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/mcguinness/draft-mcguinness-connect-client-context">https://github.com/mcguinness/draft-mcguinness-connect-client-context</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/mcguinness/connect-client-context">https://github.com/mcguinness/connect-client-context</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1628,7 +1455,7 @@ li > p:last-of-type:only-child {
             <p id="section-1.4-2.1.1"><code>client_context</code> influences authentication behavior and ID Token content. It does not define access token permissions.<a href="#section-1.4-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.4-2.2">
-            <p id="section-1.4-2.2.1"><code>purpose.id</code> is the primary policy key for purpose-scoped authentication.<a href="#section-1.4-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.4-2.2.1"><code>purpose.kind</code> is the primary policy key for purpose-scoped authentication.<a href="#section-1.4-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.4-2.3">
             <p id="section-1.4-2.3.1"><code>params</code> contains purpose-specific, validated inputs for authentication policy, consent display, and audit. It is not a general-purpose extension bag.<a href="#section-1.4-2.3.1" class="pilcrow">¶</a></p>
@@ -1711,7 +1538,7 @@ li > p:last-of-type:only-child {
    |     { type: "tenant",               |
    |       id: "example.com" },          |
    |     { type: "purpose",              |
-   |       id: "add_oauth_client" }        |
+   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
    |   ]                                 |
    |   scope, acr_values, claims, ...    |
    |                                     |
@@ -1732,7 +1559,7 @@ li > p:last-of-type:only-child {
    |     { type: "tenant",               |
    |       id: "example.com" },          |
    |     { type: "purpose",              |
-   |       id: "add_oauth_client" }        |
+   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
    |   ]                                 |
    |   ...standard claims...             |
    |                                     |
@@ -1749,7 +1576,7 @@ li > p:last-of-type:only-child {
           <p id="section-3-4.2.1">The OP receives the request and validates the <code>client_context</code> parameter structure.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.3">
-          <p id="section-3-4.3.1">The OP evaluates the supplied context as input to its authentication policy, for example, determining that a <code>purpose</code> context with <code>id</code> <code>add_oauth_client</code> requires step-up MFA authentication, or that a <code>tenant</code> context restricts authentication to a specific identity provider.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.3.1">The OP evaluates the supplied context as input to its authentication policy, for example, determining that a <code>purpose</code> context with <code>kind</code> <code>https://example.com/purposes/deprovision-user-access</code> requires step-up MFA authentication, or that a <code>tenant</code> context restricts authentication to a specific identity provider.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.4">
           <p id="section-3-4.4.1">The OP authenticates the End-User according to the derived policy.<a href="#section-3-4.4.1" class="pilcrow">¶</a></p>
@@ -1848,13 +1675,13 @@ Host: server.example.com
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
+      "kind": "https://example.com/purposes/deprovision-user-access",
       "display": {
-        "title": "Register OAuth Client",
-        "description": "Register new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
         "locale": "en"
       },
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
@@ -1875,7 +1702,7 @@ response_type=code
 &amp;acr_values=urn%3Amace%3Aincommon%3Aiap%3Asilver
 &amp;client_context=%5B%7B%22type%22%3A%22app%22%2C%22id%22%3A%22admin_console%22%7D%2C
   %7B%22type%22%3A%22tenant%22%2C%22id%22%3A%22example.com%22%7D%2C
-  %7B%22type%22%3A%22purpose%22%2C%22id%22%3A%22add_oauth_client%22%7D%5D
+  %7B%22type%22%3A%22purpose%22%2C%22kind%22%3A%22https%3A%2F%2Fexample.com%2Fpurposes%2Fdeprovision-user-access%22%7D%5D
 </pre><a href="#section-4.3-6" class="pilcrow">¶</a>
 </div>
 </section>
@@ -1987,7 +1814,8 @@ response_type=code
             <p id="section-5.3-3.4.1"><strong>Delegated user actions</strong>: recording that a user is authenticating to authorize a specific action taken by another entity.<a href="#section-5.3-3.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.3-4">The purpose object is structured to serve two distinct audiences: a <strong>policy engine</strong> at the OP that evaluates authentication requirements, and a <strong>consent UI</strong> that presents the user with a clear description of what they are authorizing. These concerns are separated into distinct sub-objects to avoid ambiguity and enable each consumer to operate independently on its relevant fields.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">The purpose object uses a class/instance model. The <code>kind</code> URI identifies the <strong>purpose class</strong>: the type of operation being authorized (e.g., "deprovision user access", "summarize inbox"). The purpose class is stable, registered with the OP, and is the unit against which authentication policy is defined. Instance-specific data such as the specific subject being affected, the ticket number, or the reason code belongs in <code>params</code>. This separation is intentional: the OP's policy engine keys off <code>kind</code> to determine authentication requirements, while <code>params</code> carries the instance context that parameterizes this specific execution of that class.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-5">The purpose object is structured to serve two distinct audiences: a <strong>policy engine</strong> at the OP that evaluates authentication requirements, and a <strong>consent UI</strong> that presents the user with a clear description of what they are authorizing. These concerns are separated into distinct sub-objects to avoid ambiguity and enable each consumer to operate independently on its relevant fields.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
 <div id="top-level-members">
 <section id="section-5.3.1">
           <h4 id="name-top-level-members">
@@ -2000,17 +1828,17 @@ response_type=code
               <p id="section-5.3.1-2.2.1">MUST be <code>"purpose"</code>.<a href="#section-5.3.1-2.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.1-2.3"><code>id</code></dt>
+<dt id="section-5.3.1-2.3"><code>kind</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-2.4">
-              <p id="section-5.3.1-2.4.1">REQUIRED. String identifying the purpose type. This is the primary key against which the OP evaluates authentication policy, for example, looking up required ACR, session lifetime caps, or step-up requirements in its purpose catalog. The <code>id</code> value space is defined by the client and SHOULD be registered in the client's <code>client_context_values</code> metadata. Example values: <code>"add_oauth_client"</code>, <code>"approve_change_request"</code>, <code>"deploy_to_production"</code>, <code>"summarize_inbox"</code>.<a href="#section-5.3.1-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-2.4.1">REQUIRED. URI (absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>) identifying the purpose class. The URI names the type of operation being authorized, not this specific invocation of it. For example, <code>"https://example.com/purposes/deprovision-user-access"</code> identifies the class "deprovision user access" — a high-blast-radius operation that spans multiple resource servers (session revocation, directory, provisioning); the specific subject, reason, and ticket reference for this particular invocation are carried in <code>params</code>. The <code>kind</code> URI is the primary key against which the OP evaluates authentication policy, looking up required ACR, session lifetime caps, or step-up requirements from its purpose catalog. The URI MUST be stable across invocations of the same purpose class; clients MUST NOT encode instance-specific data into the URI. Using a URI provides inherent namespace ownership: the party controlling the URI prefix owns the purpose class definition, enabling interoperability without a central registry. OPs SHOULD validate that the URI is registered as a permitted purpose for this <code>client_id</code>. <code>https</code> URIs are RECOMMENDED. URNs MAY be used for private or standards-track purpose types. Example values: <code>"https://example.com/purposes/deprovision-user-access"</code>, <code>"https://example.com/purposes/approve-change-request"</code>, <code>"https://example.com/purposes/privileged-deployment"</code>, <code>"https://example.com/purposes/summarize-inbox"</code>.<a href="#section-5.3.1-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
 <p id="section-5.3.1-3"><strong>Optional members:</strong><a href="#section-5.3.1-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.3.1-4">
-            <dt id="section-5.3.1-4.1"><code>instance_id</code></dt>
+            <dt id="section-5.3.1-4.1"><code>id</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-4.2">
-              <p id="section-5.3.1-4.2.1">OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The <code>instance_id</code> MUST be unique within the scope of the issuing <code>client_id</code> and the <code>purpose.id</code>; clients MUST NOT reuse an <code>instance_id</code> value across different authorization requests for the same purpose type. When present, the OP SHOULD include the <code>instance_id</code> in the <code>client_context</code> claim of the issued ID Token without modification. Example value: <code>"01JNP8Q8W5W4K7QG0R9B3R2M6F"</code>.<a href="#section-5.3.1-4.2.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-4.2.1">OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The <code>id</code> MUST be unique within the scope of the issuing <code>client_id</code> and the <code>purpose.kind</code>; clients MUST NOT reuse an <code>id</code> value across different authorization requests for the same purpose class. When present, the OP SHOULD include the <code>id</code> in the <code>client_context</code> claim of the issued ID Token without modification. Example value: <code>"01JNP8Q8W5W4K7QG0R9B3R2M6F"</code>.<a href="#section-5.3.1-4.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.1-4.3"><code>display</code></dt>
@@ -2020,7 +1848,7 @@ response_type=code
             <dd class="break"></dd>
 <dt id="section-5.3.1-4.5"><code>params</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-4.6">
-              <p id="section-5.3.1-4.6.1">OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of <code>params</code> is defined per <code>id</code> value; different purpose types carry different parameters. See <a href="#params-object" class="auto internal xref">Section 5.3.3</a>.<a href="#section-5.3.1-4.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-4.6.1">OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of <code>params</code> is defined per <code>kind</code> value; different purpose types carry different parameters. See <a href="#params-object" class="auto internal xref">Section 5.3.3</a>.<a href="#section-5.3.1-4.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.1-4.7"><code>actor</code></dt>
@@ -2045,12 +1873,12 @@ response_type=code
 <span class="break"></span><dl class="dlParallel" id="section-5.3.2-2">
             <dt id="section-5.3.2-2.1"><code>title</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.2-2.2">
-              <p id="section-5.3.2-2.2.1">OPTIONAL. Short human-readable title for the purpose, suitable for a consent screen heading. Example: <code>"Register OAuth Client"</code>.<a href="#section-5.3.2-2.2.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.2-2.2.1">OPTIONAL. Short human-readable title for the purpose, suitable for a consent screen heading. Example: <code>"Deprovision User Access"</code>.<a href="#section-5.3.2-2.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.2-2.3"><code>description</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.2-2.4">
-              <p id="section-5.3.2-2.4.1">OPTIONAL. Human-readable explanation of the specific task instance, including any relevant context the user needs to make an informed decision. Example: <code>"You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821)."</code>. The description SHOULD be specific to the instance, not just the purpose type.<a href="#section-5.3.2-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.2-2.4.1">OPTIONAL. Human-readable explanation of the specific task instance, including any relevant context the user needs to make an informed decision. Example: <code>"You are authorizing deprovisioning of all access for bjensen@example.com (ticket HR-8823)."</code>. The description SHOULD be specific to the instance, not just the purpose type.<a href="#section-5.3.2-2.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.2-2.5"><code>locale</code></dt>
@@ -2066,18 +1894,18 @@ response_type=code
           <h4 id="name-the-params-object">
 <a href="#section-5.3.3" class="section-number selfRef">5.3.3. </a><a href="#name-the-params-object" class="section-name selfRef">The <code>params</code> Object</a>
           </h4>
-<p id="section-5.3.3-1">The <code>params</code> sub-object carries instance-level parameters for this specific purpose execution. Its members are defined by the purpose type identified by <code>id</code> and SHOULD be documented in the client's purpose catalog.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.3.3-2">Clients and OPs MUST validate <code>params</code> according to the schema and policy associated with the <code>purpose.id</code> value. Unknown parameter names, malformed values, or values outside the allowed policy for that <code>purpose.id</code> MUST cause the request to be rejected or the <code>purpose</code> object to be ignored according to local policy.<a href="#section-5.3.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-1">The <code>params</code> sub-object carries the instance-level parameters that distinguish this specific execution of the purpose class from other executions of the same class. Where <code>kind</code> says "what class of operation this is", <code>params</code> says "the specific details of this invocation". Its members are defined per purpose class (identified by <code>kind</code>), MUST be documented in the client's purpose catalog, and MUST NOT be used to carry data that belongs to the purpose class definition itself.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-2">Clients and OPs MUST validate <code>params</code> according to the schema and policy associated with the <code>purpose.kind</code> value. Unknown parameter names, malformed values, or values outside the allowed policy for that <code>purpose.kind</code> MUST cause the request to be rejected or the <code>purpose</code> object to be ignored according to local policy.<a href="#section-5.3.3-2" class="pilcrow">¶</a></p>
 <p id="section-5.3.3-3"><code>params</code> serves three purposes:<a href="#section-5.3.3-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.3.3-4.1">
-              <p id="section-5.3.3-4.1.1"><strong>Conditional policy evaluation.</strong> The OP can write policy rules that branch on parameter values. For example: an <code>add_oauth_client</code> purpose where <code>params.environment</code> is <code>production</code> may require a higher assurance level than one targeting a <code>staging</code> environment.<a href="#section-5.3.3-4.1.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.3-4.1.1"><strong>Conditional policy evaluation.</strong> The OP can write policy rules that branch on parameter values. For example: a purpose with <code>kind</code> <code>https://example.com/purposes/deprovision-user-access</code> where <code>params.reason</code> is <code>security-incident</code> may require a higher assurance level or mandatory re-authentication compared to <code>employment-terminated</code>.<a href="#section-5.3.3-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.3.3-4.2">
               <p id="section-5.3.3-4.2.1"><strong>Consent display.</strong> The OP can use parameter values to construct or supplement its own consent language when <code>display.description</code> is absent or insufficient.<a href="#section-5.3.3-4.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.3.3-4.3">
-              <p id="section-5.3.3-4.3.1"><strong>Structured audit.</strong> Because <code>params</code> is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all <code>add_oauth_client</code> registrations for <code>params.client_name</code> in the past 30 days."<a href="#section-5.3.3-4.3.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.3-4.3.1"><strong>Structured audit.</strong> Because <code>params</code> is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all <code>https://example.com/purposes/deprovision-user-access</code> invocations for <code>params.subject</code> in the past 30 days" or "all deprovisioning actions triggered by <code>params.reason</code> of <code>security-incident</code>."<a href="#section-5.3.3-4.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-5.3.3-5">Clients SHOULD include only policy-relevant instance attributes in <code>params</code>. <code>params</code> is not a general-purpose authorization descriptor and MUST NOT be used to express resource permissions or downstream access rights.<a href="#section-5.3.3-5" class="pilcrow">¶</a></p>
@@ -2110,31 +1938,57 @@ response_type=code
             <dd class="break"></dd>
 <dt id="section-5.3.4-2.3"><code>id</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.4-2.4">
-              <p id="section-5.3.4-2.4.1">OPTIONAL. String containing a stable identifier for the acting entity. For AI agents, this MAY be a session or agent instance identifier. For services, this MAY be a stable service identifier registered with the platform.<a href="#section-5.3.4-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.4-2.4.1">OPTIONAL. String containing a stable identifier for the acting entity itself — the agent session, service name, or user identifier that names the direct actor. <code>actor.id</code> identifies <em>what</em> is acting. Its interpretation depends on <code>actor.type</code>:
+* When <code>type</code> is <code>user</code>: <code>id</code> is a stable identifier for the human user acting as the direct actor (e.g., a platform user ID). If <code>sub</code> is also present, both MUST refer to the same individual.
+* When <code>type</code> is <code>agent</code>: <code>id</code> is a stable identifier for the agent instance or agent deployment (e.g., a session ID, model deployment name, or agent registration identifier). It MUST NOT be used to carry the identity of the human principal behind the agent; use <code>sub</code> for that purpose.
+* When <code>type</code> is <code>service</code>: <code>id</code> is a stable identifier for the service or application registered with the platform (e.g., a service account name or client ID). It MUST NOT carry a human user identifier.<a href="#section-5.3.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.4-2.5"><code>sub</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.4-2.6">
-              <p id="section-5.3.4-2.6.1">OPTIONAL. String containing the subject identifier of the human principal on whose behalf the acting entity is acting. When an AI agent or service is the direct initiator (<code>type</code> is <code>agent</code> or <code>service</code>) but a human user ultimately authorized or triggered the action, <code>sub</code> SHOULD be set to that user's stable identifier (e.g., their <code>sub</code> from a prior ID Token or a platform user ID). This enables the OP to apply policy based on the human principal behind an automated initiator and to produce audit records that trace actions to an accountable human. When <code>type</code> is <code>user</code>, <code>sub</code> SHOULD be set to that user's identifier.<a href="#section-5.3.4-2.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.4-2.6.1">OPTIONAL. String containing the subject identifier of the human principal on whose authority this actor is acting. <code>actor.sub</code> always refers to a human, regardless of <code>actor.type</code>:
+* When <code>type</code> is <code>user</code>: <code>sub</code> SHOULD be set to that user's stable subject identifier (e.g., their <code>sub</code> from a prior ID Token). <code>actor.id</code> and <code>actor.sub</code> MAY be the same value.
+* When <code>type</code> is <code>agent</code>: <code>sub</code> MUST be set to the subject identifier of the human user who authorized the agent to act. It MUST NOT contain the agent's own identifier. The distinction is: <code>id</code> names the agent, <code>sub</code> names the human behind it.
+* When <code>type</code> is <code>service</code>: <code>sub</code> SHOULD be set to the human user who authorized or owns the service invocation, if that relationship is known and relevant to OP policy.<a href="#section-5.3.4-2.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-5.3.4-2.7"><code>delegation</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.4-2.8">
-              <p id="section-5.3.4-2.8.1">OPTIONAL. Array of objects representing the delegation chain that led to this authentication request, ordered from the outermost delegator (closest to the human) to the immediate caller. Each element in the array MUST contain a <code>type</code> field (using the same RECOMMENDED values as <code>actor.type</code>) and SHOULD contain an <code>id</code> field. Elements MAY contain a <code>sub</code> field with the same semantics as <code>actor.sub</code>. The <code>delegation</code> structure follows the nesting model of the <code>act</code> claim in Token Exchange (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), adapted for the authentication layer.<a href="#section-5.3.4-2.8.1" class="pilcrow">¶</a></p>
-<p id="section-5.3.4-2.8.2">Example: a scheduler service (<code>service</code>) acting on behalf of an AI agent (<code>agent</code>) that was authorized by a user would produce:<a href="#section-5.3.4-2.8.2" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-5.3.4-2.8.3">
+              <p id="section-5.3.4-2.8.1">OPTIONAL. Array of delegation chain objects describing the sequence of intermediaries through which authority was delegated to the direct actor, ordered from the principal closest to the human (outermost, index 0) to the entity immediately preceding the direct actor (innermost, last element). The direct actor itself is expressed in the top-level <code>actor</code> object and MUST NOT be repeated in <code>delegation</code>. This ordering follows the direction of authority delegation: <code>delegation[0]</code> is the entity that originated or authorized the chain, and the last element delegated to the direct actor.<a href="#section-5.3.4-2.8.1" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.2">Each element of the <code>delegation</code> array MUST be a JSON object with the following members:<a href="#section-5.3.4-2.8.2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5.3.4-2.8.3">
+                <dt id="section-5.3.4-2.8.3.1"><code>type</code></dt>
+                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.2">
+                  <p id="section-5.3.4-2.8.3.2.1">REQUIRED. String indicating the category of this chain member. Uses the same RECOMMENDED values as <code>actor.type</code> (<code>user</code>, <code>agent</code>, <code>service</code>).<a href="#section-5.3.4-2.8.3.2.1" class="pilcrow">¶</a></p>
+</dd>
+                <dd class="break"></dd>
+<dt id="section-5.3.4-2.8.3.3"><code>id</code></dt>
+                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.4">
+                  <p id="section-5.3.4-2.8.3.4.1">OPTIONAL. String containing a stable identifier for the entity at this chain position. When <code>type</code> is <code>user</code>, <code>id</code> is a stable identifier for that human. When <code>type</code> is <code>agent</code>, <code>id</code> is a stable identifier for the agent instance or deployment (MUST NOT carry a human subject identifier). When <code>type</code> is <code>service</code>, <code>id</code> is a stable identifier for the service or application (MUST NOT carry a human subject identifier).<a href="#section-5.3.4-2.8.3.4.1" class="pilcrow">¶</a></p>
+</dd>
+                <dd class="break"></dd>
+<dt id="section-5.3.4-2.8.3.5"><code>sub</code></dt>
+                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.6">
+                  <p id="section-5.3.4-2.8.3.6.1">OPTIONAL. String containing the subject identifier of the human principal at this chain position. <code>sub</code> always refers to a human, regardless of <code>type</code>. When <code>type</code> is <code>user</code>, <code>sub</code> is that user's stable subject identifier. When <code>type</code> is <code>agent</code>, <code>sub</code> MUST be the subject identifier of the human who authorized the agent at this delegation step; it MUST NOT be the agent's own identifier. When <code>type</code> is <code>service</code>, <code>sub</code> SHOULD be the human who authorized or owns this service invocation, if known.<a href="#section-5.3.4-2.8.3.6.1" class="pilcrow">¶</a></p>
+</dd>
+              <dd class="break"></dd>
+</dl>
+<p id="section-5.3.4-2.8.4">Unknown members in delegation chain objects MUST be ignored.<a href="#section-5.3.4-2.8.4" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.5">The <code>delegation</code> structure follows the direction-of-delegation ordering of the <code>act</code> claim in Token Exchange (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), adapted for the authentication layer.<a href="#section-5.3.4-2.8.5" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.6">Example: a scheduler service (<code>service</code>) acting on behalf of an AI agent (<code>agent</code>) that was authorized by a user produces the following <code>actor</code> object. The user is <code>delegation[0]</code> (outermost), the agent is <code>delegation[1]</code> (intermediate), and the scheduler service is the direct actor at the top level:<a href="#section-5.3.4-2.8.6" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-5.3.4-2.8.7">
 <pre>
 {
   "type": "service",
   "id": "scheduler-svc",
   "delegation": [
-    { "type": "agent", "id": "assistant-v2", "sub": "user-42" },
-    { "type": "user", "sub": "user-42" }
+    { "type": "user", "sub": "user-42" },
+    { "type": "agent", "id": "assistant-v2", "sub": "user-42" }
   ]
 }
-</pre><a href="#section-5.3.4-2.8.3" class="pilcrow">¶</a>
+</pre><a href="#section-5.3.4-2.8.7" class="pilcrow">¶</a>
 </div>
-<p id="section-5.3.4-2.8.4">The <code>delegation</code> array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been granted explicit trust for delegation claims.<a href="#section-5.3.4-2.8.4" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2.8.8">The <code>delegation</code> array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been separately authorized to assert delegation claims (see <a href="#actor-verification" class="auto internal xref">Section 5.3.4.1</a>).<a href="#section-5.3.4-2.8.8" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -2146,7 +2000,7 @@ response_type=code
 <p id="section-5.3.4.1-1">The <code>actor</code> value and its sub-fields are client-supplied assertions; they are not authenticated by this parameter alone. This means:<a href="#section-5.3.4.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.3.4.1-2.1">
-                <p id="section-5.3.4.1-2.1.1">The OP MUST NOT treat <code>actor.type</code>, <code>actor.id</code>, <code>actor.sub</code>, or <code>actor.delegation</code> as verified facts unless the client has been separately authorized to make such assertions (e.g., via client credentials issued to a trusted service, or a platform-level trust grant in the client's registration metadata).<a href="#section-5.3.4.1-2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-5.3.4.1-2.1.1">The OP MUST NOT treat <code>actor.type</code>, <code>actor.id</code>, <code>actor.sub</code>, or <code>actor.delegation</code> as verified facts unless the client holds an explicit delegation trust grant for those claims. The mechanism for establishing delegation trust grants is to be defined in a future version of this specification (TBD).<a href="#section-5.3.4.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.3.4.1-2.2">
                 <p id="section-5.3.4.1-2.2.1">When the OP cannot verify <code>actor</code> claims, it SHOULD treat them as advisory context — useful for policy hints and UI display — but MUST NOT rely on them as the sole basis for elevated trust or reduced authentication requirements.<a href="#section-5.3.4.1-2.2.1" class="pilcrow">¶</a></p>
@@ -2155,7 +2009,7 @@ response_type=code
                 <p id="section-5.3.4.1-2.3.1">When <code>actor.type</code> is <code>agent</code> or <code>service</code>, the OP SHOULD apply more stringent authentication requirements (e.g., mandatory re-authentication, higher ACR) rather than relaxing them, since the presence of a non-human actor represents increased automation risk.<a href="#section-5.3.4.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.3.4.1-2.4">
-                <p id="section-5.3.4.1-2.4.1">Clients SHOULD authenticate the acting entity through independent means (e.g., service-to-service OAuth credentials, platform identity tokens) and convey verified initiator identity through those channels before asserting it in <code>actor</code>. Clients MUST NOT fabricate <code>actor.sub</code> values.<a href="#section-5.3.4.1-2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-5.3.4.1-2.4.1">Clients SHOULD authenticate the acting entity through independent means (e.g., service-to-service OAuth credentials, platform identity tokens) and convey verified actor identity through those channels before asserting it in <code>actor</code>. Clients MUST NOT fabricate <code>actor.sub</code> values.<a href="#section-5.3.4.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 <p id="section-5.3.4.1-3">Clients SHOULD omit <code>actor</code> when the End-User directly starts the authentication within the Client itself with no intermediary.<a href="#section-5.3.4.1-3" class="pilcrow">¶</a></p>
@@ -2182,7 +2036,7 @@ response_type=code
             <dd class="break"></dd>
 <dt id="section-5.3.5-2.5"><code>max_uses</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.5-2.6">
-              <p id="section-5.3.5-2.6.1">OPTIONAL. Positive integer indicating the maximum number of times the resulting authorization may be used to perform the purpose. When present, the OP SHOULD track use-count against the <code>instance_id</code> and reject subsequent attempts once the limit is reached.<a href="#section-5.3.5-2.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.5-2.6.1">OPTIONAL. Positive integer indicating the maximum number of successful token issuances that may result from this authorization request. A <strong>use</strong> is defined as one successful completion of the authorization code exchange (or equivalent token endpoint call) that results in the issuance of tokens carrying the <code>client_context</code> claim for this <code>id</code>. Re-authentication flows that produce a new ID Token each count as one use. Token refresh operations against an already-issued token do NOT count as additional uses. When <code>max_uses</code> is <code>1</code>, the purpose is single-use: once tokens have been issued, the OP MUST reject any further authorization attempts that present the same <code>id</code> with <code>invalid_client_context</code>. When <code>max_uses</code> is greater than <code>1</code>, the OP SHOULD track use-count against the <code>id</code> and return <code>invalid_client_context</code> once the limit is reached. Use of <code>max_uses</code> without <code>id</code> is NOT RECOMMENDED; without <code>id</code>, the OP has no stable key against which to track use-count.<a href="#section-5.3.5-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -2193,9 +2047,9 @@ response_type=code
           <h4 id="name-op-policy-guidance">
 <a href="#section-5.3.6" class="section-number selfRef">5.3.6. </a><a href="#name-op-policy-guidance" class="section-name selfRef">OP Policy Guidance</a>
           </h4>
-<p id="section-5.3.6-1">The OP SHOULD use <code>id</code> as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.<a href="#section-5.3.6-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.6-1">The OP SHOULD use <code>kind</code> as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.<a href="#section-5.3.6-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.6-2">The OP SHOULD present <code>display.title</code> and <code>display.description</code> to the End-User during authentication to provide a complete picture of what the user is authorizing.<a href="#section-5.3.6-2" class="pilcrow">¶</a></p>
-<p id="section-5.3.6-3">The OP SHOULD evaluate <code>actor.type</code> when <code>id</code> alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when <code>actor.type</code> is <code>agent</code>, regardless of existing session state.<a href="#section-5.3.6-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.6-3">The OP SHOULD evaluate <code>actor.type</code> when <code>kind</code> alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when <code>actor.type</code> is <code>agent</code>, regardless of existing session state.<a href="#section-5.3.6-3" class="pilcrow">¶</a></p>
 <p id="section-5.3.6-4">The OP MAY bind a validated <code>purpose</code> object to the authenticated subject and, when available, to a resulting session identifier such as OIDC <code>sid</code> or a SAML <code>SessionIndex</code>. This allows the returned context to serve as a verifiable record of which subject authenticated for which purpose instance and, where supported, which session carries that authorization.<a href="#section-5.3.6-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2209,7 +2063,7 @@ response_type=code
 <pre>
 {
   "type": "purpose",
-  "id": "summarize_inbox",
+  "kind": "https://example.com/purposes/summarize-inbox",
   "display": {
     "title": "Summarize Inbox",
     "description": "AI Assistant will read your unread emails from the past 7 days and generate a summary.",
@@ -2235,16 +2089,17 @@ response_type=code
 <pre>
 {
   "type": "purpose",
-  "id": "add_oauth_client",
-  "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+  "kind": "https://example.com/purposes/deprovision-user-access",
+  "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
   "display": {
-    "title": "Register OAuth Client",
-    "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+    "title": "Deprovision User Access",
+    "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
     "locale": "en"
   },
   "params": {
-    "client_name": "invoice-service",
-    "environment": "production"
+    "subject": "bjensen@example.com",
+    "reason": "employment-terminated",
+    "ticket_ref": "HR-8823"
   },
   "constraints": {
     "expires_at": "2026-03-10T18:00:00Z",
@@ -2305,7 +2160,17 @@ response_type=code
             <p id="section-6.2-2.2.1">Verify that the <code>nonce</code> claim in the ID Token matches the <code>nonce</code> sent in the request.<a href="#section-6.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-6.2-2.3">
-            <p id="section-6.2-2.3.1">If the request included <code>client_context</code>, examine the <code>client_context</code> claim in the ID Token. A Client that gates any operation on <code>client_context</code> MUST verify the <code>client_context</code> claim in the validated ID Token. The Client MUST NOT rely on the <code>client_context</code> it sent in the authorization request as confirmation that the OP evaluated or applied that context.<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-6.2-2.3.1">If the request included <code>client_context</code> and a token response was successfully received, examine the <code>client_context</code> claim in the ID Token. There are two distinct cases when the claim is absent, and clients MUST handle them differently:<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.2-2.3.2.1">
+                <p id="section-6.2-2.3.2.1.1"><strong>Absent because the OP does not support <code>client_context</code>:</strong> This case does not arise at this step. An OP that does not support <code>client_context</code> MUST reject the request before issuing tokens (returning <code>unsupported_client_context_type</code> at the authorization or token endpoint). If the client received a successful token response, the OP did not reject the request, so this case does not apply here.<a href="#section-6.2-2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-6.2-2.3.2.2">
+                <p id="section-6.2-2.3.2.2.1"><strong>Absent from an otherwise valid ID Token:</strong> If the ID Token was issued successfully but does not contain a <code>client_context</code> claim, this is a processing failure. The client MUST treat this as a verification failure, MUST NOT proceed with any operations that depend on the applied context, and SHOULD surface a distinct error to the caller indicating that the OP did not confirm the requested context. The client SHOULD NOT silently fall back to using the context it sent in the request.<a href="#section-6.2-2.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-6.2-2.3.3">
+A Client that gates any operation on <code>client_context</code> MUST verify the <code>client_context</code> claim in the validated ID Token. The Client MUST NOT rely on the <code>client_context</code> it sent in the authorization request as confirmation that the OP evaluated or applied that context.<a href="#section-6.2-2.3.3" class="pilcrow">¶</a></p>
 </li>
           <li id="section-6.2-2.4">
             <p id="section-6.2-2.4.1">Compare the returned context to the requested context. The Client MUST detect and handle:<a href="#section-6.2-2.4.1" class="pilcrow">¶</a></p>
@@ -2348,7 +2213,7 @@ returned_context = id_token.client_context  # array of objects
 purpose = find(returned_context, type="purpose")
 if purpose is None:
     raise SecurityError("Purpose context missing from ID Token")
-if purpose.id != requested_purpose_id:
+if purpose.kind != requested_purpose_kind:
     raise SecurityError("Purpose context mismatch")
 
 tenant = find(returned_context, type="tenant")
@@ -2356,7 +2221,7 @@ if tenant is None or tenant.id != expected_tenant:
     raise SecurityError("Tenant context invalid")
 
 # All checks passed; enable purpose-scoped operations
-enable_operations(purpose.id)
+enable_operations(purpose.kind)
 </pre><a href="#section-6.3-2" class="pilcrow">¶</a>
 </div>
 </section>
@@ -2390,7 +2255,8 @@ enable_operations(purpose.id)
           <li id="section-7.1-2.5">
             <p id="section-7.1-2.5.1">For each context type in the request:
 a. If the type is not recognized and the OP does not support unknown types, return <code>unsupported_client_context_type</code>.
-b. If the type is recognized, validate the object against the registered schema for that type. If validation fails, return <code>invalid_client_context_value</code>.<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
+b. If the type is recognized, validate the object against the registered schema for that type. If validation fails, return <code>invalid_client_context_value</code>.
+c. If the type is <code>purpose</code>, verify that the <code>kind</code> field is present and is a syntactically valid absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. If the <code>kind</code> is missing or not a valid absolute URI, return <code>invalid_client_context_value</code>.<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.6">
             <p id="section-7.1-2.6.1">If the client's registration metadata includes <code>client_context_types</code>, verify that all requested context types are in the registered list. If not, return <code>unsupported_client_context_type</code>.<a href="#section-7.1-2.6.1" class="pilcrow">¶</a></p>
@@ -2421,7 +2287,7 @@ b. If the type is recognized, validate the object against the registered schema 
             <p id="section-7.2-2.3.1"><strong>Purpose context</strong> MAY trigger step-up authentication, require explicit re-authentication regardless of existing session, reduce session and token lifetimes, or require additional approval.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.2-3">The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier) before evaluating policy and returning the context in the ID Token.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier, expanding a short tenant code to a fully qualified domain name) before evaluating policy. When normalization occurs, the OP MUST return the canonical value it acted upon in the <code>client_context</code> claim of the ID Token, not the alias or abbreviated form the client submitted. For example, if the client sends <code>{ "type": "app", "id": "admin" }</code> and the OP resolves <code>"admin"</code> to the canonical identifier <code>"admin_console"</code>, the ID Token MUST contain <code>{ "type": "app", "id": "admin_console" }</code>. Clients MUST be prepared to receive canonical values that differ from what they submitted and MUST evaluate normalization acceptability as part of their response validation (see <a href="#validating-the-response" class="auto internal xref">Section 6.2</a>).<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issuing-the-id-token">
@@ -2430,9 +2296,18 @@ b. If the type is recognized, validate the object against the registered schema 
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-issuing-the-id-token" class="section-name selfRef">Issuing the ID Token</a>
         </h3>
 <p id="section-7.3-1">If authentication succeeds and the request included <code>client_context</code>, the Authorization Server MUST include a <code>client_context</code> claim in the ID Token. The value MUST be a JSON array reflecting the context as evaluated and applied by the OP. The OP MUST NOT include context elements it did not validate and apply. The returned value MAY differ from the requested value due to normalization or OP policy (e.g., resolved aliases, dropped optional fields), but it MUST accurately represent what the OP acted upon — it MUST NOT be an unevaluated echo of the request.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">If the OP does not support <code>client_context</code>, it MUST NOT include the claim and MUST reject requests that include <code>client_context</code> with <code>unsupported_client_context_type</code>. Clients that required specific context MUST treat the absence of the <code>client_context</code> claim in the ID Token as a verification failure and MUST NOT proceed with operations that depend on that context.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
-<p id="section-7.3-3">The following is an example ID Token payload containing an applied context:<a href="#section-7.3-3" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-7.3-4">
+<p id="section-7.3-2">There are two distinct cases in which the <code>client_context</code> claim may be absent from an ID Token, and clients MUST handle them differently:<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7.3-3">
+<li id="section-7.3-3.1">
+            <p id="section-7.3-3.1.1"><strong>OP does not support the feature.</strong> If the OP does not support <code>client_context</code>, it MUST reject the authorization request with <code>unsupported_client_context_type</code> before issuing any tokens. An ID Token will not be issued in this case. Clients encountering this error SHOULD NOT retry with the same parameter against the same OP; they SHOULD consult the OP's discovery metadata to determine whether any context types are supported.<a href="#section-7.3-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.3-3.2">
+            <p id="section-7.3-3.2.1"><strong>OP supports the feature but the claim is absent from an issued ID Token.</strong> If the OP advertises <code>client_context_types_supported</code> (indicating it supports the feature) but the issued ID Token does not contain a <code>client_context</code> claim, this is a processing failure. Clients MUST treat this as a verification failure. Clients MUST NOT proceed with operations that depend on the applied context, and SHOULD surface an error indicating that the expected context was not confirmed by the OP.<a href="#section-7.3-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-7.3-4">The two cases are distinguishable: case 1 results in an error response at the authorization or token endpoint; case 2 results in a successful token response containing an ID Token without the expected claim.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
+<p id="section-7.3-5">The following is an example ID Token payload containing an applied context:<a href="#section-7.3-5" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-7.3-6">
 <pre>
 {
   "iss": "https://op.example.com",
@@ -2449,18 +2324,18 @@ b. If the type is recognized, validate the object against the registered schema 
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
+      "kind": "https://example.com/purposes/deprovision-user-access",
       "display": {
-        "title": "Register OAuth Client",
-        "description": "Register new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
         "locale": "en"
       },
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
 }
-</pre><a href="#section-7.3-4" class="pilcrow">¶</a>
+</pre><a href="#section-7.3-6" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2506,7 +2381,7 @@ b. If the type is recognized, validate the object against the registered schema 
 <a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-just-in-time-administrative" class="section-name selfRef">Just-in-Time Administrative Access</a>
         </h3>
 <p id="section-8.2-1">Just-in-time access is a pattern, not a product category. Any application can adopt it: rather than relying on a broad administrative session established at login, the client requests a fresh authentication scoped to the specific operation the user is about to perform. This reduces the window of exposure if a session is compromised and creates a clear audit trail linking each privileged action to a deliberate authentication event.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
-<p id="section-8.2-2"><strong>Example: An admin panel requesting authentication to register a new OAuth client:</strong><a href="#section-8.2-2" class="pilcrow">¶</a></p>
+<p id="section-8.2-2"><strong>Example: An admin panel requesting authentication to deprovision a terminated user:</strong><a href="#section-8.2-2" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.2-3">
 <pre>
 "client_context": [
@@ -2514,14 +2389,14 @@ b. If the type is recognized, validate the object against the registered schema 
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
-    "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+    "kind": "https://example.com/purposes/deprovision-user-access",
+    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
-    "params": { "client_name": "invoice-service", "environment": "production" },
+    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
     "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
   }
 ]
@@ -2545,7 +2420,7 @@ b. If the type is recognized, validate the object against the registered schema 
             <p id="section-8.2-5.5.1">Notify a security team of the elevated access event.<a href="#section-8.2-5.5.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-8.2-6">The Client then verifies the returned context before enabling the client registration action, ensuring the user cannot perform this action if the OP did not acknowledge the purpose context.<a href="#section-8.2-6" class="pilcrow">¶</a></p>
+<p id="section-8.2-6">The Client then verifies the returned context before enabling the deprovisioning action, ensuring the user cannot perform this action if the OP did not acknowledge the purpose context.<a href="#section-8.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ai-agent-authorization">
@@ -2575,7 +2450,7 @@ b. If the type is recognized, validate the object against the registered schema 
   { "type": "app", "id": "ai_assistant" },
   {
     "type": "purpose",
-    "id": "schedule_meeting",
+    "kind": "https://example.com/purposes/schedule-meeting",
     "display": {
       "title": "Schedule a Meeting",
       "description": "AI Assistant will access your calendar to schedule a team meeting for next Tuesday.",
@@ -2749,14 +2624,14 @@ Host: client.example.org
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
+    "kind": "https://example.com/purposes/deprovision-user-access",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
-    "params": { "client_name": "invoice-service", "ticket_ref": "IT-4821" },
-    "actor": { "type": "service", "id": "service-desk-app" },
+    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+    "actor": { "type": "service", "id": "hr-offboarding-system" },
     "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
   }
 ]
@@ -2779,7 +2654,7 @@ Host: client.example.org
             <p id="section-9.3-2.2.1"><strong>Validate context types.</strong> The Client MUST verify that each context type in the hint is one the Client supports and is permitted for this Client's registration. The Client MUST discard or reject any object whose <code>type</code> is not in the Client's permitted set.<a href="#section-9.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.3">
-            <p id="section-9.3-2.3.1"><strong>Validate context values.</strong> The Client MUST validate each field value against its own configuration, for example, confirming that a <code>tenant.id</code> value is a tenant the Client is configured to serve, and that a <code>purpose.id</code> value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.<a href="#section-9.3-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.3.1"><strong>Validate context values.</strong> The Client MUST validate each field value against its own configuration, for example, confirming that a <code>tenant.id</code> value is a tenant the Client is configured to serve, and that a <code>purpose.kind</code> value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.<a href="#section-9.3-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.4">
             <p id="section-9.3-2.4.1"><strong>Construct <code>client_context</code>.</strong> After validation, the Client uses the validated hint, possibly enriched with additional context the Client determines from its own state, as the basis for the <code>client_context</code> parameter in the authorization request to the OP.<a href="#section-9.3-2.4.1" class="pilcrow">¶</a></p>
@@ -2822,7 +2697,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-relationship-to-authenticat" class="section-name selfRef">Relationship to Authentication Context (<code>acr</code>)</a>
         </h3>
 <p id="section-10.1-1">The <code>client_context</code> parameter and the <code>acr</code> claim serve complementary but distinct roles. <code>client_context</code> is a <em>request input</em> describing the business context of the authentication. The <code>acr</code> claim is an <em>output</em> describing the authentication assurance that was actually satisfied.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
-<p id="section-10.1-2">The OP MAY use <code>client_context</code> as an input when determining the authentication assurance required. For example, an OP might define policy such as: "any request with a <code>purpose</code> context whose <code>id</code> matches a high-privilege operation list requires <code>acr</code> <code>phishing-resistant-mfa</code>."<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">The OP MAY use <code>client_context</code> as an input when determining the authentication assurance required. For example, an OP might define policy such as: "any request with a <code>purpose</code> context whose <code>kind</code> matches a high-privilege operation list requires <code>acr</code> <code>phishing-resistant-mfa</code>."<a href="#section-10.1-2" class="pilcrow">¶</a></p>
 <p id="section-10.1-3">Clients SHOULD evaluate both the returned <code>client_context</code> and the <code>acr</code> claim when determining whether to permit privileged operations. A matching <code>client_context</code> with insufficient <code>acr</code> should not be sufficient to authorize a high-privilege action.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2925,7 +2800,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
   "client_context_types": ["app", "tenant", "purpose"],
   "client_context_values": {
     "app": ["calendar", "email", "admin_console"],
-    "purpose": ["add_oauth_client", "approve_change_request"]
+    "purpose": ["https://example.com/purposes/deprovision-user-access", "https://example.com/purposes/approve-change-request"]
   }
 }
 </pre><a href="#section-12-3" class="pilcrow">¶</a>
@@ -2953,7 +2828,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
         <dd class="break"></dd>
 <dt id="section-13-3.5"><code>invalid_client_context_value</code></dt>
         <dd style="margin-left: 1.5em" id="section-13-3.6">
-          <p id="section-13-3.6.1">A context object contains one or more invalid field values (e.g., an <code>expires_at</code> in the past, an unrecognized <code>id</code> value for a constrained purpose type).<a href="#section-13-3.6.1" class="pilcrow">¶</a></p>
+          <p id="section-13-3.6.1">A context object contains one or more invalid field values (e.g., an <code>expires_at</code> in the past, an unrecognized <code>kind</code> value for an unsupported purpose type).<a href="#section-13-3.6.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -3309,6 +3184,10 @@ Content-Type: application/json
       <dd>
 <span class="refAuthor">Klyne, G.</span> and <span class="refAuthor">C. Newman</span>, <span class="refTitle">"Date and Time on the Internet: Timestamps"</span>, <span class="seriesInfo">RFC 3339</span>, <span class="seriesInfo">DOI 10.17487/RFC3339</span>, <time datetime="2002-07" class="refDate">July 2002</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3339">https://www.rfc-editor.org/info/rfc3339</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC3986">[RFC3986]</dt>
+      <dd>
+<span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3986">https://www.rfc-editor.org/info/rfc3986</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC6749">[RFC6749]</dt>
       <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6749">https://www.rfc-editor.org/info/rfc6749</a>&gt;</span>. </dd>
@@ -3370,16 +3249,16 @@ Content-Type: application/json
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-combined-request-example-cl" class="section-name selfRef">Combined Request Example: <code>client_context</code>, <code>acr_values</code>, and <code>authorization_details</code></a>
       </h2>
 <p id="appendix-A-1">This appendix illustrates how <code>client_context</code>, <code>acr_values</code>, and <code>authorization_details</code> (<span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>) work together in a single authorization request. Each parameter operates at a distinct layer and carries information for a different consumer.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">The scenario: a user of an admin console is about to register a new OAuth client application. The application needs to:<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">The scenario: a security operations tool has detected that an employee has been terminated. It initiates a deprovisioning workflow that needs to:<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-A-3.1">
-          <p id="appendix-A-3.1.1">Ensure the user authenticates with phishing-resistant MFA for this specific operation (<code>acr_values</code>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.1.1">Ensure the operator authenticates with phishing-resistant MFA before the action is taken (<code>acr_values</code>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-A-3.2">
-          <p id="appendix-A-3.2.1">Record in the ID Token that this authentication was for the <code>add_oauth_client</code> purpose, bound to the target client name and environment (<code>client_context</code>).<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.2.1">Record in the ID Token that this authentication was specifically for deprovisioning <code>bjensen@example.com</code>, bound to the HR ticket and reason, so the client can confirm the OP evaluated the purpose before enabling any action (<code>client_context</code>).<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-A-3.3">
-          <p id="appendix-A-3.3.1">Obtain an access token scoped precisely to the Client Registration API for that specific user (<code>authorization_details</code>).<a href="#appendix-A-3.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.3.1">Obtain access tokens scoped to the three resource servers that must be updated: the AS (revoke sessions), the directory service (disable account), and the SCIM provisioning service (remove application assignments) (<code>authorization_details</code>).<a href="#appendix-A-3.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <div id="authorization-request">
@@ -3413,16 +3292,17 @@ response_type=code
   { "type": "tenant", "id": "example.com" },
   {
     "type": "purpose",
-    "id": "add_oauth_client",
-    "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+    "kind": "https://example.com/purposes/deprovision-user-access",
+    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
     "display": {
-      "title": "Register OAuth Client",
-      "description": "You are authorizing registration of a new OAuth client 'invoice-service' in the example.com tenant (ticket IT-4821).",
+      "title": "Deprovision User Access",
+      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
       "locale": "en"
     },
     "params": {
-      "client_name": "invoice-service",
-      "environment": "production"
+      "subject": "bjensen@example.com",
+      "reason": "employment-terminated",
+      "ticket_ref": "HR-8823"
     },
     "constraints": {
       "expires_at": "2026-03-10T18:00:00Z"
@@ -3436,10 +3316,22 @@ response_type=code
 <pre>
 [
   {
-    "type": "oauth_client_registration",
-    "locations": ["https://as.example.com/register"],
-    "actions": ["client:create"],
-    "environment": "production"
+    "type": "https://example.com/authz/session-management",
+    "locations": ["https://as.example.com"],
+    "actions": ["sessions:revoke-all"],
+    "subject": "bjensen@example.com"
+  },
+  {
+    "type": "https://example.com/authz/directory-write",
+    "locations": ["https://directory.example.com"],
+    "actions": ["account:disable"],
+    "subject": "bjensen@example.com"
+  },
+  {
+    "type": "https://example.com/authz/scim-write",
+    "locations": ["https://scim.example.com"],
+    "actions": ["membership:remove-all"],
+    "subject": "bjensen@example.com"
   }
 ]
 </pre><a href="#appendix-A.1-6" class="pilcrow">¶</a>
@@ -3459,12 +3351,12 @@ response_type=code
           <dd class="break"></dd>
 <dt id="appendix-A.2-1.3"><code>client_context</code></dt>
           <dd style="margin-left: 1.5em" id="appendix-A.2-1.4">
-            <p id="appendix-A.2-1.4.1">Tells the OP <em>why</em> this authentication is occurring. The OP uses the <code>purpose</code> object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window for acting on the authenticated purpose via <code>expires_at</code>, and record the purpose, params, and initiator in its audit log. The applied context is returned in the ID Token for the client to verify.<a href="#appendix-A.2-1.4.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.2-1.4.1">Tells the OP <em>why</em> this authentication is occurring. The OP uses the <code>purpose</code> object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window for acting on the authenticated purpose via <code>expires_at</code>, and record the purpose, params, and actor in its audit log. The applied context is returned in the ID Token for the client to verify.<a href="#appendix-A.2-1.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.2-1.5"><code>authorization_details</code></dt>
           <dd style="margin-left: 1.5em" id="appendix-A.2-1.6">
-            <p id="appendix-A.2-1.6.1">Tells the authorization server what permissions to encode in the access token. The resulting access token is scoped to <code>client:create</code> action on the Admin API for the target tenant. This is enforced at the resource server, not by the OP's authentication engine.<a href="#appendix-A.2-1.6.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.2-1.6.1">Tells the authorization server what permissions to encode in the access tokens. Three separate resource servers are targeted: the AS (revoke sessions), the directory service (disable account), and the SCIM provisioning service (remove assignments). Each resource server receives a scoped access token carrying only the permissions it needs. This is enforced at each resource server independently, not by the OP's authentication engine.<a href="#appendix-A.2-1.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -3492,16 +3384,16 @@ response_type=code
     { "type": "tenant", "id": "example.com" },
     {
       "type": "purpose",
-      "id": "add_oauth_client",
-      "instance_id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
-      "params": { "client_name": "invoice-service", "environment": "production" },
+      "kind": "https://example.com/purposes/deprovision-user-access",
+      "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
       "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
     }
   ]
 }
 </pre><a href="#appendix-A.3-1" class="pilcrow">¶</a>
 </div>
-<p id="appendix-A.3-2">The <code>acr</code> claim confirms phishing-resistant MFA was satisfied. The <code>client_context</code> claim confirms the authentication was bound to the <code>add_oauth_client</code> purpose for the specified target. The client verifies both before enabling the client registration.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
+<p id="appendix-A.3-2">The <code>acr</code> claim confirms phishing-resistant MFA was satisfied. The <code>client_context</code> claim confirms the authentication was bound to the <code>deprovision-user-access</code> purpose for <code>bjensen@example.com</code> under ticket HR-8823. The client verifies both before invoking any of the three resource servers. Each resource server independently enforces its scoped access token.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="layered-model-summary">
