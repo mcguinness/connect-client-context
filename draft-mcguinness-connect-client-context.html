@@ -7,9 +7,9 @@
 <title>OpenID Connect Client Context Parameter</title>
 <meta content="Karl McGuinness" name="author">
 <meta content="
-       This specification defines the  client_context  authorization request parameter for OpenID Connect. The parameter enables a Client to convey structured contextual information to the OpenID Provider (OP) so that the OP can apply context-specific authentication policy and claim release when issuing an ID Token. 
+       This specification defines the  client_context  authorization request parameter for OpenID Connect. The parameter enables a Client to convey structured contextual information to the OpenID Provider (OP) so that the OP can apply context-specific authentication policy, display, claim release, and audit processing when issuing an ID Token. 
        The mechanism is designed for deployments where a single  client_id  represents multiple logical applications, tenants, or operational purposes, such as AI agents acting on behalf of users or just-in-time administrative workflows requiring privilege elevation. 
-       The OP returns the applied context in the ID Token, allowing the Client to verify that authentication occurred under the intended context and to bind subsequent operations accordingly. 
+       The OP returns the applied context in the ID Token, allowing the Client to verify that authentication occurred under the intended context and to bind subsequent operations accordingly. The returned context is request context confirmed by the OP; it is not, by itself, a durable authorization object or lifecycle-governed authority grant. 
     " name="description">
 <meta content="xml2rfc 3.31.0" name="generator">
 <meta content="OpenID Connect" name="keyword">
@@ -1053,7 +1053,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 11 September 2026</td>
+<td class="center">Expires 16 September 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1066,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-mcguinness-connect-client-context-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-03-10" class="published">10 March 2026</time>
+<time datetime="2026-03-15" class="published">15 March 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-09-11">11 September 2026</time></dd>
+<dd class="expires"><time datetime="2026-09-16">16 September 2026</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1084,9 +1084,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">OpenID Connect Client Context Parameter</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This specification defines the <code>client_context</code> authorization request parameter for OpenID Connect. The parameter enables a Client to convey structured contextual information to the OpenID Provider (OP) so that the OP can apply context-specific authentication policy and claim release when issuing an ID Token.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This specification defines the <code>client_context</code> authorization request parameter for OpenID Connect. The parameter enables a Client to convey structured contextual information to the OpenID Provider (OP) so that the OP can apply context-specific authentication policy, display, claim release, and audit processing when issuing an ID Token.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <p id="section-abstract-2">The mechanism is designed for deployments where a single <code>client_id</code> represents multiple logical applications, tenants, or operational purposes, such as AI agents acting on behalf of users or just-in-time administrative workflows requiring privilege elevation.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
-<p id="section-abstract-3">The OP returns the applied context in the ID Token, allowing the Client to verify that authentication occurred under the intended context and to bind subsequent operations accordingly.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
+<p id="section-abstract-3">The OP returns the applied context in the ID Token, allowing the Client to verify that authentication occurred under the intended context and to bind subsequent operations accordingly. The returned context is request context confirmed by the OP; it is not, by itself, a durable authorization object or lifecycle-governed authority grant.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1118,7 +1118,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 11 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1162,6 +1162,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.4">
                 <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="auto internal xref">1.4</a>.  <a href="#name-design-principles" class="internal xref">Design Principles</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.5">
+                <p id="section-toc.1-1.1.2.5.1"><a href="#section-1.5" class="auto internal xref">1.5</a>.  <a href="#name-non-goals" class="internal xref">Non-Goals</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.6">
+                <p id="section-toc.1-1.1.2.6.1"><a href="#section-1.6" class="auto internal xref">1.6</a>.  <a href="#name-incremental-adoption" class="internal xref">Incremental Adoption</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
@@ -1182,10 +1188,13 @@ svg :is([fill="white"], [fill^="#fff"]) {
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-definition" class="internal xref">Definition</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-context-object-schema" class="internal xref">Context Object Schema</a></p>
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-context-envelope-schema" class="internal xref">Context Envelope Schema</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
-                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-transmission" class="internal xref">Transmission</a></p>
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-requested-applied-and-proje" class="internal xref">Requested, Applied, and Projected Forms</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-transmission" class="internal xref">Transmission</a></p>
 </li>
             </ul>
 </li>
@@ -1230,13 +1239,16 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-client-processing-rules" class="internal xref">Client Processing Rules</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-constructing-the-request" class="internal xref">Constructing the Request</a></p>
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-minimal-conformant-implemen" class="internal xref">Minimal Conformant Implementation</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-validating-the-response" class="internal xref">Validating the Response</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-constructing-the-request" class="internal xref">Constructing the Request</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
-                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-example-client-verification" class="internal xref">Example: Client Verification Logic</a></p>
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-validating-the-response" class="internal xref">Validating the Response</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-example-client-verification" class="internal xref">Example: Client Verification Logic</a></p>
 </li>
             </ul>
 </li>
@@ -1285,9 +1297,6 @@ svg :is([fill="white"], [fill^="#fff"]) {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
                 <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-client-processing-of-the-hi" class="internal xref">Client Processing of the Hint</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4">
-                <p id="section-toc.1-1.9.2.4.1"><a href="#section-9.4" class="auto internal xref">9.4</a>.  <a href="#name-discovery-metadata" class="internal xref">Discovery Metadata</a></p>
-</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
@@ -1301,6 +1310,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
                 <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-relationship-to-resource-in" class="internal xref">Relationship to Resource Indicators</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
+                <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="auto internal xref">10.4</a>.  <a href="#name-relationship-to-the-claims-" class="internal xref">Relationship to the <code>claims</code> Parameter</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.5">
+                <p id="section-toc.1-1.10.2.5.1"><a href="#section-10.5" class="auto internal xref">10.5</a>.  <a href="#name-profiles-and-extensions-not" class="internal xref">Profiles and Extensions Note</a></p>
 </li>
             </ul>
 </li>
@@ -1338,7 +1353,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
                 <p id="section-toc.1-1.14.2.7.1"><a href="#section-14.7" class="auto internal xref">14.7</a>.  <a href="#name-third-party-hint-injection" class="internal xref">Third-Party Hint Injection</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.8">
-                <p id="section-toc.1-1.14.2.8.1"><a href="#section-14.8" class="auto internal xref">14.8</a>.  <a href="#name-confidentiality-of-purpose-" class="internal xref">Confidentiality of Purpose Context</a></p>
+                <p id="section-toc.1-1.14.2.8.1"><a href="#section-14.8" class="auto internal xref">14.8</a>.  <a href="#name-op-retention-of-applied-con" class="internal xref">OP Retention of Applied Context and Display Evidence</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.9">
+                <p id="section-toc.1-1.14.2.9.1"><a href="#section-14.9" class="auto internal xref">14.9</a>.  <a href="#name-confidentiality-of-purpose-" class="internal xref">Confidentiality of Purpose Context</a></p>
 </li>
             </ul>
 </li>
@@ -1421,7 +1439,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-1.2-2.1.1"><code>scope</code> indicates which permissions or resources are requested, not why or under which application context.<a href="#section-1.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.2-2.2">
-            <p id="section-1.2-2.2.1"><code>claims</code> requests specific identity attributes, not contextual information about the request itself.<a href="#section-1.2-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.2-2.2.1"><code>claims</code> (Section 5.5 of <span>[<a href="#OIDC.Core" class="cite xref">OIDC.Core</a>]</span>) requests specific user attributes to be returned in the ID Token or UserInfo response; it operates in the output direction, shaping what the OP returns. <code>client_context</code> operates in the input direction, shaping how the OP authenticates. The two parameters are orthogonal: <code>claims</code> says "give me these attributes"; <code>client_context</code> says "authenticate under this context".<a href="#section-1.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.2-2.3">
             <p id="section-1.2-2.3.1"><code>acr_values</code> communicates the desired authentication assurance level, not the business or purpose context that determines what assurance is appropriate.<a href="#section-1.2-2.3.1" class="pilcrow">¶</a></p>
@@ -1441,7 +1459,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         <h3 id="name-this-specification">
 <a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-this-specification" class="section-name selfRef">This Specification</a>
         </h3>
-<p id="section-1.3-1">This specification introduces the <code>client_context</code> request parameter to address this gap. The parameter carries a structured array of typed context objects that the OP can use as input to authentication policy, claim release decisions, and audit logging. The OP returns the applied context in the ID Token, enabling the Client to cryptographically verify that authentication was performed under the intended context.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+<p id="section-1.3-1">This specification introduces the <code>client_context</code> request parameter to address this gap. The parameter carries a structured object containing typed context members that the OP can use as input to authentication policy, display, claim release decisions, and audit logging. The OP returns the applied context in the ID Token, enabling the Client to cryptographically verify that authentication was performed under the intended context.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="design-principles">
@@ -1452,15 +1470,49 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <p id="section-1.4-1">This specification is guided by the following principles:<a href="#section-1.4-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.4-2.1">
-            <p id="section-1.4-2.1.1"><code>client_context</code> influences authentication behavior and ID Token content. It does not define access token permissions.<a href="#section-1.4-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-1.4-2.1.1"><code>client_context</code> is request context for authentication policy, display, and audit. It influences authentication behavior and ID Token content, but does not define access token permissions.<a href="#section-1.4-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.4-2.2">
-            <p id="section-1.4-2.2.1"><code>purpose.kind</code> is the primary policy key for purpose-scoped authentication.<a href="#section-1.4-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.4-2.2.1"><code>client_context</code> is not itself a durable authorization object and does not, by itself, define access permissions or lifecycle governance.<a href="#section-1.4-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.4-2.3">
-            <p id="section-1.4-2.3.1"><code>params</code> contains purpose-specific, validated inputs for authentication policy, consent display, and audit. It is not a general-purpose extension bag.<a href="#section-1.4-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-1.4-2.3.1"><code>purpose.kind</code> is the stable purpose-class identifier and the primary policy key for purpose-scoped authentication.<a href="#section-1.4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.4-2.4">
+            <p id="section-1.4-2.4.1"><code>params</code> contains purpose-specific, validated instance inputs for authentication policy, display, and audit. It is not a general-purpose extension bag and does not itself define authority semantics.<a href="#section-1.4-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
+</section>
+</div>
+<div id="non-goals">
+<section id="section-1.5">
+        <h3 id="name-non-goals">
+<a href="#section-1.5" class="section-number selfRef">1.5. </a><a href="#name-non-goals" class="section-name selfRef">Non-Goals</a>
+        </h3>
+<p id="section-1.5-1">This specification does not attempt to define:<a href="#section-1.5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.5-2.1">
+            <p id="section-1.5-2.1.1">A durable authorization object or authority grant.<a href="#section-1.5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.5-2.2">
+            <p id="section-1.5-2.2.1">A general-purpose authorization or policy language.<a href="#section-1.5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.5-2.3">
+            <p id="section-1.5-2.3.1">A downstream assertion format.<a href="#section-1.5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.5-2.4">
+            <p id="section-1.5-2.4.1">Ongoing lifecycle governance for server-side authorization objects.<a href="#section-1.5-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="incremental-adoption">
+<section id="section-1.6">
+        <h3 id="name-incremental-adoption">
+<a href="#section-1.6" class="section-number selfRef">1.6. </a><a href="#name-incremental-adoption" class="section-name selfRef">Incremental Adoption</a>
+        </h3>
+<p id="section-1.6-1">Authorization Servers MAY support only a subset of registered context types. A conformant implementation does not need to support every type defined by this specification.<a href="#section-1.6-1" class="pilcrow">¶</a></p>
+<p id="section-1.6-2">Clients MUST discover or otherwise know which context types an OP supports and MUST be prepared for requests containing unsupported types to fail with <code>unsupported_client_context_type</code>.<a href="#section-1.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1506,14 +1558,34 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-2.1-4.4.1">A registered identifier (e.g., <code>app</code>, <code>tenant</code>, <code>purpose</code>) denoting the semantic category of a context object.<a href="#section-2.1-4.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-2.1-4.5"><strong>Context Object</strong></dt>
+<dt id="section-2.1-4.5"><strong>Context Envelope</strong></dt>
           <dd style="margin-left: 1.5em" id="section-2.1-4.6">
-            <p id="section-2.1-4.6.1">A JSON object within the <code>client_context</code> array, containing at minimum a <code>type</code> field and type-specific members.<a href="#section-2.1-4.6.1" class="pilcrow">¶</a></p>
+            <p id="section-2.1-4.6.1">A JSON object conveyed in the <code>client_context</code> parameter or claim. The envelope contains a <code>contexts</code> member containing typed context objects. Profiles MAY define additional envelope-level members, but those members are outside base-spec processing unless the profile defines their semantics.<a href="#section-2.1-4.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-2.1-4.7"><strong>Purpose</strong></dt>
+<dt id="section-2.1-4.7"><strong>Context Object</strong></dt>
           <dd style="margin-left: 1.5em" id="section-2.1-4.8">
-            <p id="section-2.1-4.8.1">An operational context representing a specific task, workflow, or purpose for which authentication is being requested, as opposed to a general-purpose login.<a href="#section-2.1-4.8.1" class="pilcrow">¶</a></p>
+            <p id="section-2.1-4.8.1">A type-specific JSON object contained in the <code>contexts</code> member of a client context envelope.<a href="#section-2.1-4.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-2.1-4.9"><strong>Purpose</strong></dt>
+          <dd style="margin-left: 1.5em" id="section-2.1-4.10">
+            <p id="section-2.1-4.10.1">An operational context representing a specific task, workflow, or purpose for which authentication is being requested, as opposed to a general-purpose login.<a href="#section-2.1-4.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-2.1-4.11"><strong>Requested Context</strong></dt>
+          <dd style="margin-left: 1.5em" id="section-2.1-4.12">
+            <p id="section-2.1-4.12.1">The <code>client_context</code> value supplied by the Client in the authorization request.<a href="#section-2.1-4.12.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-2.1-4.13"><strong>Applied Context</strong></dt>
+          <dd style="margin-left: 1.5em" id="section-2.1-4.14">
+            <p id="section-2.1-4.14.1">The context values that the OP validated, normalized as needed, and actually used for authentication policy, display, claim release, or audit processing. Applied context is conveyed in the <code>client_context</code> claim in the ID Token.<a href="#section-2.1-4.14.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-2.1-4.15"><strong>Projected Context</strong></dt>
+          <dd style="margin-left: 1.5em" id="section-2.1-4.16">
+            <p id="section-2.1-4.16.1">A reduced, audience-appropriate representation derived from applied context for use in downstream assertions, logs, or correlated systems. Projected context is not required to contain the full <code>client_context</code> value.<a href="#section-2.1-4.16.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1532,14 +1604,14 @@ svg :is([fill="white"], [fill^="#fff"]) {
  Client                           OpenID Provider
    |                                     |
    |-- Authorization Request -----------&gt;|
-   |   client_context: [                 |
-   |     { type: "app",                  |
-   |       id: "admin_console" },        |
-   |     { type: "tenant",               |
-   |       id: "example.com" },          |
-   |     { type: "purpose",              |
-   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
-   |   ]                                 |
+   |   client_context: {                 |
+   |     contexts: {                     |
+   |       app: { id: "admin_console" }, |
+   |       tenant: { id: "example.com" },|
+   |       purpose: {                    |
+   |         kind: "https://example.com/purposes/deprovision-user-access" }      |
+   |     }                               |
+   |   }                                 |
    |   scope, acr_values, claims, ...    |
    |                                     |
    |                              [Context Validation]
@@ -1553,39 +1625,39 @@ svg :is([fill="white"], [fill^="#fff"]) {
    |                                     |
    |&lt;-- ID Token ------------------------|
    |   acr: "http://...mfa"              |
-   |   client_context: [                 |
-   |     { type: "app",                  |
-   |       id: "admin_console" },        |
-   |     { type: "tenant",               |
-   |       id: "example.com" },          |
-   |     { type: "purpose",              |
-   |       kind: "https://example.com/purposes/deprovision-user-access" }        |
-   |   ]                                 |
+   |   client_context: {                 |
+   |     contexts: {                     |
+   |       app: { id: "admin_console" }, |
+   |       tenant: { id: "example.com" },|
+   |       purpose: {                    |
+   |         kind: "https://example.com/purposes/deprovision-user-access" } |
+   |     }                               |
+   |   }                                 |
    |   ...standard claims...             |
    |                                     |
    |  [Client verifies context]          |
-   |  [Enables purpose-bound actions]    |
+   |  [Enables context-bound actions]    |
 </pre><a href="#section-3-2" class="pilcrow">¶</a>
 </div>
 <p id="section-3-3">The protocol proceeds as follows:<a href="#section-3-3" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-3-4">
 <li id="section-3-4.1">
-          <p id="section-3-4.1.1">The Client constructs an authorization request that includes <code>client_context</code> alongside standard OpenID Connect parameters.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.1.1">The Client constructs an authorization request that includes requested context in <code>client_context</code> alongside standard OpenID Connect parameters.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.2">
           <p id="section-3-4.2.1">The OP receives the request and validates the <code>client_context</code> parameter structure.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.3">
-          <p id="section-3-4.3.1">The OP evaluates the supplied context as input to its authentication policy, for example, determining that a <code>purpose</code> context with <code>kind</code> <code>https://example.com/purposes/deprovision-user-access</code> requires step-up MFA authentication, or that a <code>tenant</code> context restricts authentication to a specific identity provider.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.3.1">The OP evaluates the supplied context as input to its authentication policy, display processing, claim release, and audit handling, for example, determining that a <code>purpose</code> context with <code>kind</code> <code>https://example.com/purposes/deprovision-user-access</code> requires step-up MFA authentication, or that a <code>tenant</code> context restricts authentication to a specific identity provider.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.4">
           <p id="section-3-4.4.1">The OP authenticates the End-User according to the derived policy.<a href="#section-3-4.4.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.5">
-          <p id="section-3-4.5.1">The OP issues an ID Token that includes a <code>client_context</code> claim reflecting the context that was actually applied. This MAY differ from the requested context if the OP normalized values or applied local policy.<a href="#section-3-4.5.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.5.1">The OP issues an ID Token that includes a <code>client_context</code> claim reflecting the applied context. This MAY differ from the requested context if the OP normalized values or applied local policy.<a href="#section-3-4.5.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-3-4.6">
-          <p id="section-3-4.6.1">The Client validates the ID Token, verifies the returned <code>client_context</code> claim, and enables only the operations appropriate for the confirmed context.<a href="#section-3-4.6.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.6.1">The Client validates the ID Token, verifies the returned applied context, and enables only the operations appropriate for the confirmed context.<a href="#section-3-4.6.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
 </section>
@@ -1603,7 +1675,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <span class="break"></span><dl class="dlParallel" id="section-4.1-1">
           <dt id="section-4.1-1.1"><code>client_context</code></dt>
           <dd style="margin-left: 1.5em" id="section-4.1-1.2">
-            <p id="section-4.1-1.2.1">OPTIONAL. A JSON array of Context Objects providing contextual information about the request. Each element MUST be a JSON object containing at minimum a <code>type</code> field. The semantics and additional members of each object are determined by the context type definition.<a href="#section-4.1-1.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-1.2.1">OPTIONAL. A JSON object providing contextual information about the request. The object is a client context envelope. It contains a <code>contexts</code> member whose entries are type-specific context objects. Profiles MAY define additional envelope-level members, but those members are outside base-spec processing unless the profile defines their semantics. The semantics and additional members of each typed context object are determined by the context type definition.<a href="#section-4.1-1.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1616,7 +1688,7 @@ GET /authorize?
   &amp;redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
   &amp;scope=openid%20email
   &amp;acr_values=urn%3Amace%3Aincommon%3Aiap%3Asilver
-  &amp;client_context=%5B%7B%22type%22%3A%22app%22%2C%22id%22%3A%22calendar%22%7D%5D
+  &amp;client_context=%7B%22contexts%22%3A%7B%22app%22%3A%7B%22id%22%3A%22calendar%22%7D%7D%7D
   &amp;nonce=n-0S6_WzA2Mj HTTP/1.1
 Host: server.example.com
 </pre><a href="#section-4.1-3" class="pilcrow">¶</a>
@@ -1624,44 +1696,81 @@ Host: server.example.com
 <p id="section-4.1-4">The decoded <code>client_context</code> value is:<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-4.1-5">
 <pre>
-[
-  { "type": "app", "id": "calendar" }
-]
+{
+  "contexts": {
+    "app": { "id": "calendar" }
+  }
+}
 </pre><a href="#section-4.1-5" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="context-object-schema">
+<div id="context-envelope-schema">
 <section id="section-4.2">
-        <h3 id="name-context-object-schema">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-context-object-schema" class="section-name selfRef">Context Object Schema</a>
+        <h3 id="name-context-envelope-schema">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-context-envelope-schema" class="section-name selfRef">Context Envelope Schema</a>
         </h3>
-<p id="section-4.2-1">Each element of the <code>client_context</code> array MUST be a JSON object conforming to the following:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">The <code>client_context</code> value MUST be a JSON object conforming to the following:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2-2.1">
-            <p id="section-4.2-2.1.1">The object MUST contain a <code>type</code> member whose value is a string identifying the context type. The value MUST be a registered context type name or a URI identifying a private-use extension type.<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.1.1">The envelope MUST contain a <code>contexts</code> member whose value is a JSON object.<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.2">
-            <p id="section-4.2-2.2.1">Additional members are defined by the context type specification.<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.2.1">The <code>contexts</code> object MUST contain at least one member.<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.3">
-            <p id="section-4.2-2.3.1">Members not recognized by the recipient MUST be ignored (forward-compatibility). Implementations MUST NOT reject a context object solely because it contains unrecognized members.<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.3.1">Each member name of <code>contexts</code> identifies a context type. The member name MUST be a registered context type name or a URI identifying a private-use extension type.<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.4">
-            <p id="section-4.2-2.4.1">Unless otherwise specified by the context type, a request MUST NOT include more than one context object with the same <code>type</code> value. A request that violates this constraint MUST be rejected with <code>invalid_client_context</code>.<a href="#section-4.2-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.4.1">Each member value of <code>contexts</code> MUST be a JSON object conforming to the schema for that context type.<a href="#section-4.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.2-2.5">
+            <p id="section-4.2-2.5.1">Unrecognized envelope-level members outside <code>contexts</code> MUST be ignored (forward-compatibility). Implementations MUST NOT reject a client context envelope solely because it contains unrecognized envelope-level members. Profiles that define additional envelope-level members MUST define whether those members are required, optional, or ignored under that profile.<a href="#section-4.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
 </div>
-<div id="transmission">
+<div id="requested-applied-and-projected-forms">
 <section id="section-4.3">
-        <h3 id="name-transmission">
-<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-transmission" class="section-name selfRef">Transmission</a>
+        <h3 id="name-requested-applied-and-proje">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-requested-applied-and-proje" class="section-name selfRef">Requested, Applied, and Projected Forms</a>
         </h3>
-<p id="section-4.3-1">The <code>client_context</code> parameter MAY be transmitted in any of the following ways:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.3-2"><strong>Direct query parameter.</strong> The JSON array is URL-encoded and included as a query parameter. This is simple but exposes context values in server logs and browser history. Not RECOMMENDED for sensitive purpose context.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
-<p id="section-4.3-3"><strong>Request Object.</strong> The parameter is included as a claim in a JWT Request Object per Section 6 of <span>[<a href="#OIDC.Core" class="cite xref">OIDC.Core</a>]</span>. This protects integrity when the Request Object is signed.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-4.3-4">
+<p id="section-4.3-1">This specification distinguishes three conceptual forms of client context:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3-2.1">
+            <p id="section-4.3-2.1.1"><strong>Requested context</strong> is the <code>client_context</code> envelope supplied by the Client in the authorization request.<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.2">
+            <p id="section-4.3-2.2.1"><strong>Applied context</strong> is the validated and possibly normalized <code>client_context</code> envelope the OP actually used. It is conveyed in the <code>client_context</code> claim in the ID Token.<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.3">
+            <p id="section-4.3-2.3.1"><strong>Projected context</strong> is an optional reduced representation derived from applied context for downstream use outside the immediate OpenID Connect transaction.<a href="#section-4.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.3-3">These forms have distinct roles:<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3-4.1">
+            <p id="section-4.3-4.1.1">Requested context is client input.<a href="#section-4.3-4.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-4.2">
+            <p id="section-4.3-4.2.1">Applied context is OP-confirmed authentication context.<a href="#section-4.3-4.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-4.3">
+            <p id="section-4.3-4.3.1">Projected context is audience-specific output derived from applied context.<a href="#section-4.3-4.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.3-5">Profiles MAY define additional processing rules over these forms. For example, a profile may use applied context as input to create a separate server-side authorization object, and use projected context rather than the full applied <code>client_context</code> value in downstream assertions.<a href="#section-4.3-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="transmission">
+<section id="section-4.4">
+        <h3 id="name-transmission">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-transmission" class="section-name selfRef">Transmission</a>
+        </h3>
+<p id="section-4.4-1">The <code>client_context</code> parameter MAY be transmitted in any of the following ways:<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2"><strong>Direct query parameter.</strong> The JSON object is URL-encoded and included as a query parameter. This is simple but exposes context values in server logs and browser history. Not RECOMMENDED for sensitive purpose context.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.4-3"><strong>Request Object.</strong> The parameter is included as a claim in a JWT Request Object per Section 6 of <span>[<a href="#OIDC.Core" class="cite xref">OIDC.Core</a>]</span>. This protects integrity when the Request Object is signed.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-4.4-4">
 <pre>
 {
   "iss": "s6BhdRkqt3",
@@ -1670,26 +1779,27 @@ Host: server.example.com
   "client_id": "s6BhdRkqt3",
   "scope": "openid email",
   "nonce": "n-0S6_WzA2Mj",
-  "client_context": [
-    { "type": "app", "id": "admin_console" },
-    { "type": "tenant", "id": "example.com" },
-    {
-      "type": "purpose",
-      "kind": "https://example.com/purposes/deprovision-user-access",
-      "display": {
-        "title": "Deprovision User Access",
-        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
-        "locale": "en"
-      },
-      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
-      "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
+  "client_context": {
+    "contexts": {
+      "app": { "id": "admin_console" },
+      "tenant": { "id": "example.com" },
+      "purpose": {
+        "kind": "https://example.com/purposes/deprovision-user-access",
+        "display": {
+          "title": "Deprovision User Access",
+          "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
+          "locale": "en"
+        },
+        "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+        "constraints": { "expires_at": "2026-04-01T18:00:00Z" }
+      }
     }
-  ]
+  }
 }
-</pre><a href="#section-4.3-4" class="pilcrow">¶</a>
+</pre><a href="#section-4.4-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3-5"><strong>Pushed Authorization Request (PAR).</strong> The parameter is included in the body of a PAR request per <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>. This is the RECOMMENDED approach for requests containing sensitive context (e.g., purpose context for privileged workflows). PAR ensures the context is submitted directly to the OP over a server-to-server TLS connection, preventing exposure in browser redirects.<a href="#section-4.3-5" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3-6">
+<p id="section-4.4-5"><strong>Pushed Authorization Request (PAR).</strong> The parameter is included in the body of a PAR request per <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>. This is the RECOMMENDED approach for requests containing sensitive context (e.g., purpose context for privileged workflows). PAR ensures the context is submitted directly to the OP over a server-to-server TLS connection, preventing exposure in browser redirects.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.4-6">
 <pre>
 POST /as/par HTTP/1.1
 Host: op.example.com
@@ -1700,10 +1810,10 @@ response_type=code
 &amp;redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
 &amp;scope=openid%20email
 &amp;acr_values=urn%3Amace%3Aincommon%3Aiap%3Asilver
-&amp;client_context=%5B%7B%22type%22%3A%22app%22%2C%22id%22%3A%22admin_console%22%7D%2C
-  %7B%22type%22%3A%22tenant%22%2C%22id%22%3A%22example.com%22%7D%2C
-  %7B%22type%22%3A%22purpose%22%2C%22kind%22%3A%22https%3A%2F%2Fexample.com%2Fpurposes%2Fdeprovision-user-access%22%7D%5D
-</pre><a href="#section-4.3-6" class="pilcrow">¶</a>
+&amp;client_context=%7B%22contexts%22%3A%7B%22app%22%3A%7B%22id%22%3A%22admin_console%22%7D%2C
+  %22tenant%22%3A%7B%22id%22%3A%22example.com%22%7D%2C
+  %22purpose%22%3A%7B%22kind%22%3A%22https%3A%2F%2Fexample.com%2Fpurposes%2Fdeprovision-user-access%22%7D%7D%7D
+</pre><a href="#section-4.4-6" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -1714,6 +1824,7 @@ response_type=code
       <h2 id="name-registered-context-types">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-registered-context-types" class="section-name selfRef">Registered Context Types</a>
       </h2>
+<p id="section-5-1">For each context type, <strong>Required members</strong> lists what the Client MUST include. <strong>Optional members</strong> lists what the Client MAY include. <strong>OP policy guidance</strong> describes how the OP SHOULD process that type. Each type also identifies its selector field, which is the field used for allow-list enforcement via <code>client_context_values</code> registration metadata.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <div id="application-context-app">
 <section id="section-5.1">
         <h3 id="name-application-context-app">
@@ -1722,36 +1833,20 @@ response_type=code
 <p id="section-5.1-1">The <code>app</code> context type identifies the logical application within a multi-application client deployment.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2"><strong>Required members:</strong><a href="#section-5.1-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.1-3">
-          <dt id="section-5.1-3.1"><code>type</code></dt>
+          <dt id="section-5.1-3.1"><code>id</code></dt>
           <dd style="margin-left: 1.5em" id="section-5.1-3.2">
-            <p id="section-5.1-3.2.1">MUST be <code>"app"</code>.<a href="#section-5.1-3.2.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-5.1-3.3"><code>id</code></dt>
-          <dd style="margin-left: 1.5em" id="section-5.1-3.4">
-            <p id="section-5.1-3.4.1">REQUIRED. String identifier for the logical application. The value space is defined by the client and SHOULD be registered in the client's metadata.<a href="#section-5.1-3.4.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-3.2.1">REQUIRED. String identifier for the logical application. The value space is defined by the client and SHOULD be registered in the client's metadata.<a href="#section-5.1-3.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-5.1-4"><strong>Optional members:</strong><a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.1-5">
-          <dt id="section-5.1-5.1"><code>version</code></dt>
-          <dd style="margin-left: 1.5em" id="section-5.1-5.2">
-            <p id="section-5.1-5.2.1">OPTIONAL. String indicating the version of the application.<a href="#section-5.1-5.2.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-</dl>
-<p id="section-5.1-6"><strong>Example:</strong><a href="#section-5.1-6" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-5.1-7">
+<p id="section-5.1-4">For the purposes of <code>client_context_values</code> registration metadata, the selector field for <code>app</code> is <code>id</code>.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.1-5"><strong>Example:</strong><a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-5.1-6">
 <pre>
-{
-  "type": "app",
-  "id": "calendar",
-  "version": "3.2"
-}
-</pre><a href="#section-5.1-7" class="pilcrow">¶</a>
+{ "id": "calendar" }
+</pre><a href="#section-5.1-6" class="pilcrow">¶</a>
 </div>
-<p id="section-5.1-8"><strong>OP policy guidance:</strong> The OP MAY use the <code>id</code> value to select an application-specific login theme, restrict claim release to claims relevant to that application, or apply application-specific session policies. The OP SHOULD validate that the requested <code>id</code> is registered as a permitted application for this <code>client_id</code>.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
+<p id="section-5.1-7"><strong>OP policy guidance:</strong> The OP MAY use the <code>id</code> value to select an application-specific login theme, restrict claim release to claims relevant to that application, or apply application-specific session policies. The OP SHOULD validate that the requested <code>id</code> is registered as a permitted application for this <code>client_id</code>.<a href="#section-5.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tenant-context-tenant">
@@ -1762,35 +1857,28 @@ response_type=code
 <p id="section-5.2-1">The <code>tenant</code> context type identifies the organizational tenant on whose behalf authentication is being requested. This is used in multi-tenant deployments where a single client serves multiple organizations.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <p id="section-5.2-2"><strong>Required members:</strong><a href="#section-5.2-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.2-3">
-          <dt id="section-5.2-3.1"><code>type</code></dt>
+          <dt id="section-5.2-3.1"><code>id</code></dt>
           <dd style="margin-left: 1.5em" id="section-5.2-3.2">
-            <p id="section-5.2-3.2.1">MUST be <code>"tenant"</code>.<a href="#section-5.2-3.2.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-5.2-3.3"><code>id</code></dt>
-          <dd style="margin-left: 1.5em" id="section-5.2-3.4">
-            <p id="section-5.2-3.4.1">REQUIRED. String identifying the tenant. This is typically a domain name (e.g., <code>"example.com"</code>), an internal tenant UUID, or another stable tenant identifier registered with the OP.<a href="#section-5.2-3.4.1" class="pilcrow">¶</a></p>
+            <p id="section-5.2-3.2.1">REQUIRED. String identifying the tenant. This is typically a domain name (e.g., <code>"example.com"</code>), an internal tenant UUID, or another stable tenant identifier registered with the OP.<a href="#section-5.2-3.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-5.2-4"><strong>Optional members:</strong><a href="#section-5.2-4" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.2-5">
-          <dt id="section-5.2-5.1"><code>domain</code></dt>
-          <dd style="margin-left: 1.5em" id="section-5.2-5.2">
-            <p id="section-5.2-5.2.1">OPTIONAL. The domain associated with the tenant, when the <code>id</code> is not itself a domain. Useful for routing home-realm discovery.<a href="#section-5.2-5.2.1" class="pilcrow">¶</a></p>
+<p id="section-5.2-4">For the purposes of <code>client_context_values</code> registration metadata, the selector field for <code>tenant</code> is <code>id</code>.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
+<p id="section-5.2-5"><strong>Optional members:</strong><a href="#section-5.2-5" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5.2-6">
+          <dt id="section-5.2-6.1"><code>domain</code></dt>
+          <dd style="margin-left: 1.5em" id="section-5.2-6.2">
+            <p id="section-5.2-6.2.1">OPTIONAL. The domain associated with the tenant, when the <code>id</code> is not itself a domain. Useful for routing home-realm discovery.<a href="#section-5.2-6.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-5.2-6"><strong>Example:</strong><a href="#section-5.2-6" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-5.2-7">
+<p id="section-5.2-7"><strong>Example:</strong><a href="#section-5.2-7" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-5.2-8">
 <pre>
-{
-  "type": "tenant",
-  "id": "example.com"
-}
-</pre><a href="#section-5.2-7" class="pilcrow">¶</a>
+{ "id": "example.com" }
+</pre><a href="#section-5.2-8" class="pilcrow">¶</a>
 </div>
-<p id="section-5.2-8"><strong>OP policy guidance:</strong> The OP MAY use tenant context to enforce that only users with verified membership in the tenant may authenticate, redirect to a tenant-specific identity provider for federation, apply tenant-specific password and MFA policies, and include tenant-specific claims in the ID Token (e.g., a tenant identifier claim for downstream services).<a href="#section-5.2-8" class="pilcrow">¶</a></p>
+<p id="section-5.2-9"><strong>OP policy guidance:</strong> The OP MAY use tenant context to enforce that only users with verified membership in the tenant may authenticate, redirect to a tenant-specific identity provider for federation, apply tenant-specific password and MFA policies, and include tenant-specific claims in the ID Token (e.g., a tenant identifier claim for downstream services).<a href="#section-5.2-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="purpose-context-purpose">
@@ -1814,7 +1902,7 @@ response_type=code
             <p id="section-5.3-3.4.1"><strong>Delegated user actions</strong>: recording that a user is authenticating to authorize a specific action taken by another entity.<a href="#section-5.3-3.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.3-4">The purpose object uses a class/instance model. The <code>kind</code> URI identifies the <strong>purpose class</strong>: the type of operation being authorized (e.g., "deprovision user access", "summarize inbox"). The purpose class is stable, registered with the OP, and is the unit against which authentication policy is defined. Instance-specific data such as the specific subject being affected, the ticket number, or the reason code belongs in <code>params</code>. This separation is intentional: the OP's policy engine keys off <code>kind</code> to determine authentication requirements, while <code>params</code> carries the instance context that parameterizes this specific execution of that class.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">The purpose object uses a class/instance model. The <code>kind</code> URI identifies the <strong>purpose class</strong>: the type of operation being authenticated (e.g., "deprovision user access", "summarize inbox"). The purpose class is stable, registered with the OP, and is the unit against which authentication policy is defined. Instance-specific data such as the specific subject being affected, the ticket number, or the reason code belongs in <code>params</code>. This separation is intentional: the OP's policy engine keys off <code>kind</code> to determine authentication requirements and profile mappings, while <code>params</code> carries the instance inputs that parameterize this specific execution of that class.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
 <p id="section-5.3-5">The purpose object is structured to serve two distinct audiences: a <strong>policy engine</strong> at the OP that evaluates authentication requirements, and a <strong>consent UI</strong> that presents the user with a clear description of what they are authorizing. These concerns are separated into distinct sub-objects to avoid ambiguity and enable each consumer to operate independently on its relevant fields.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
 <div id="top-level-members">
 <section id="section-5.3.1">
@@ -1823,42 +1911,47 @@ response_type=code
           </h4>
 <p id="section-5.3.1-1"><strong>Required members:</strong><a href="#section-5.3.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.3.1-2">
-            <dt id="section-5.3.1-2.1"><code>type</code></dt>
+            <dt id="section-5.3.1-2.1"><code>kind</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.1-2.2">
-              <p id="section-5.3.1-2.2.1">MUST be <code>"purpose"</code>.<a href="#section-5.3.1-2.2.1" class="pilcrow">¶</a></p>
-</dd>
-            <dd class="break"></dd>
-<dt id="section-5.3.1-2.3"><code>kind</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.1-2.4">
-              <p id="section-5.3.1-2.4.1">REQUIRED. URI (absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>) identifying the purpose class. The URI names the type of operation being authorized, not this specific invocation of it. For example, <code>"https://example.com/purposes/deprovision-user-access"</code> identifies the class "deprovision user access" — a high-blast-radius operation that spans multiple resource servers (session revocation, directory, provisioning); the specific subject, reason, and ticket reference for this particular invocation are carried in <code>params</code>. The <code>kind</code> URI is the primary key against which the OP evaluates authentication policy, looking up required ACR, session lifetime caps, or step-up requirements from its purpose catalog. The URI MUST be stable across invocations of the same purpose class; clients MUST NOT encode instance-specific data into the URI. Using a URI provides inherent namespace ownership: the party controlling the URI prefix owns the purpose class definition, enabling interoperability without a central registry. OPs SHOULD validate that the URI is registered as a permitted purpose for this <code>client_id</code>. <code>https</code> URIs are RECOMMENDED. URNs MAY be used for private or standards-track purpose types. Example values: <code>"https://example.com/purposes/deprovision-user-access"</code>, <code>"https://example.com/purposes/approve-change-request"</code>, <code>"https://example.com/purposes/privileged-deployment"</code>, <code>"https://example.com/purposes/summarize-inbox"</code>.<a href="#section-5.3.1-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.3.1-2.2.1">REQUIRED. Absolute URI (per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>) identifying the purpose class for this authentication request:<a href="#section-5.3.1-2.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.3.1-2.2.2.1">
+                  <p id="section-5.3.1-2.2.2.1.1"><strong>What it identifies.</strong> The URI names the stable <em>class</em> of operation, not this specific invocation. For example, <code>"https://example.com/purposes/deprovision-user-access"</code> identifies the class "deprovision user access". The specific subject, reason, and ticket reference for this invocation belong in <code>params</code>, not the URI.<a href="#section-5.3.1-2.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-5.3.1-2.2.2.2">
+                  <p id="section-5.3.1-2.2.2.2.1"><strong>Stability.</strong> The URI MUST be stable across invocations of the same purpose class. Clients MUST NOT encode instance-specific data in the URI.<a href="#section-5.3.1-2.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-5.3.1-2.2.2.3">
+                  <p id="section-5.3.1-2.2.2.3.1"><strong>URI format and namespace.</strong> <code>https</code> URIs are RECOMMENDED. URNs MAY be used for private or standards-track purpose types. Using a URI provides inherent namespace ownership: the party controlling the URI prefix owns the purpose class definition, enabling interoperability without a central registry. Example values: <code>"https://example.com/purposes/deprovision-user-access"</code>, <code>"https://example.com/purposes/approve-change-request"</code>, <code>"https://example.com/purposes/summarize-inbox"</code>.<a href="#section-5.3.1-2.2.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-5.3.1-2.2.2.4">
+                  <p id="section-5.3.1-2.2.2.4.1"><strong>OP policy key.</strong> The OP uses <code>kind</code> as the primary lookup key in its purpose catalog to determine required ACR, session lifetime caps, step-up requirements, and profile-specific mappings. OPs SHOULD validate that <code>kind</code> is registered as a permitted purpose for this <code>client_id</code> before processing the request.<a href="#section-5.3.1-2.2.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-5.3.1-3"><strong>Optional members:</strong><a href="#section-5.3.1-3" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.3.1-4">
-            <dt id="section-5.3.1-4.1"><code>id</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.1-4.2">
-              <p id="section-5.3.1-4.2.1">OPTIONAL. String containing a client-generated identifier for this specific invocation of the purpose. This value enables later receipts, audit records, or downstream protocols to refer to the same authenticated purpose instance. The <code>id</code> MUST be unique within the scope of the issuing <code>client_id</code> and the <code>purpose.kind</code>; clients MUST NOT reuse an <code>id</code> value across different authorization requests for the same purpose class. When present, the OP SHOULD include the <code>id</code> in the <code>client_context</code> claim of the issued ID Token without modification. Example value: <code>"01JNP8Q8W5W4K7QG0R9B3R2M6F"</code>.<a href="#section-5.3.1-4.2.1" class="pilcrow">¶</a></p>
+<p id="section-5.3.1-3">For the purposes of <code>client_context_values</code> registration metadata, the selector field for <code>purpose</code> is <code>kind</code>.<a href="#section-5.3.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.1-4"><strong>Optional members:</strong><a href="#section-5.3.1-4" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5.3.1-5">
+            <dt id="section-5.3.1-5.1"><code>display</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.1-5.2">
+              <p id="section-5.3.1-5.2.1">OPTIONAL. Object providing human-readable labels for display in the OP's consent and authentication UI. See <a href="#display-object" class="auto internal xref">Section 5.3.2</a>.<a href="#section-5.3.1-5.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.1-4.3"><code>display</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.1-4.4">
-              <p id="section-5.3.1-4.4.1">OPTIONAL. Object providing human-readable labels for display in the OP's consent and authentication UI. See <a href="#display-object" class="auto internal xref">Section 5.3.2</a>.<a href="#section-5.3.1-4.4.1" class="pilcrow">¶</a></p>
+<dt id="section-5.3.1-5.3"><code>params</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.1-5.4">
+              <p id="section-5.3.1-5.4.1">OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of <code>params</code> is defined per <code>kind</code> value; different purpose types carry different parameters. See <a href="#params-object" class="auto internal xref">Section 5.3.3</a>.<a href="#section-5.3.1-5.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.1-4.5"><code>params</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.1-4.6">
-              <p id="section-5.3.1-4.6.1">OPTIONAL. Object containing instance-level parameters specific to this execution of the purpose. The schema of <code>params</code> is defined per <code>kind</code> value; different purpose types carry different parameters. See <a href="#params-object" class="auto internal xref">Section 5.3.3</a>.<a href="#section-5.3.1-4.6.1" class="pilcrow">¶</a></p>
+<dt id="section-5.3.1-5.5"><code>actor</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.1-5.6">
+              <p id="section-5.3.1-5.6.1">OPTIONAL. Object identifying the entity that triggered this purpose and is requesting the authentication on behalf of the End-User. See <a href="#actor-object" class="auto internal xref">Section 5.3.4</a>.<a href="#section-5.3.1-5.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.1-4.7"><code>actor</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.1-4.8">
-              <p id="section-5.3.1-4.8.1">OPTIONAL. Object identifying the entity that triggered this purpose and is requesting the authentication on behalf of the End-User. See <a href="#actor-object" class="auto internal xref">Section 5.3.4</a>.<a href="#section-5.3.1-4.8.1" class="pilcrow">¶</a></p>
-</dd>
-            <dd class="break"></dd>
-<dt id="section-5.3.1-4.9"><code>constraints</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.1-4.10">
-              <p id="section-5.3.1-4.10.1">OPTIONAL. Object specifying limiting conditions on the resulting authentication session and tokens. See <a href="#constraints-object" class="auto internal xref">Section 5.3.5</a>.<a href="#section-5.3.1-4.10.1" class="pilcrow">¶</a></p>
+<dt id="section-5.3.1-5.7"><code>constraints</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.1-5.8">
+              <p id="section-5.3.1-5.8.1">OPTIONAL. Object specifying limiting conditions on the resulting authentication session and tokens. See <a href="#constraints-object" class="auto internal xref">Section 5.3.5</a>.<a href="#section-5.3.1-5.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -1869,7 +1962,7 @@ response_type=code
           <h4 id="name-the-display-object">
 <a href="#section-5.3.2" class="section-number selfRef">5.3.2. </a><a href="#name-the-display-object" class="section-name selfRef">The <code>display</code> Object</a>
           </h4>
-<p id="section-5.3.2-1">The <code>display</code> sub-object carries information for the OP's consent and authentication UI. Its contents are treated as client-supplied labels that the OP SHOULD present to the End-User.<a href="#section-5.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.2-1">The <code>display</code> sub-object carries information for the OP's consent and authentication UI. Its contents are treated as client-supplied labels that the OP SHOULD present to the End-User. <code>display</code> is a request-direction hint: it tells the OP what to show the user; it carries no verification value in the applied context returned to the client. OPs SHOULD omit <code>display</code> from the <code>client_context</code> claim in the issued ID Token. Including <code>display</code> in the returned context provides no additional assurance to the client and unnecessarily inflates the token.<a href="#section-5.3.2-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.3.2-2">
             <dt id="section-5.3.2-2.1"><code>title</code></dt>
             <dd style="margin-left: 1.5em" id="section-5.3.2-2.2">
@@ -1894,7 +1987,7 @@ response_type=code
           <h4 id="name-the-params-object">
 <a href="#section-5.3.3" class="section-number selfRef">5.3.3. </a><a href="#name-the-params-object" class="section-name selfRef">The <code>params</code> Object</a>
           </h4>
-<p id="section-5.3.3-1">The <code>params</code> sub-object carries the instance-level parameters that distinguish this specific execution of the purpose class from other executions of the same class. Where <code>kind</code> says "what class of operation this is", <code>params</code> says "the specific details of this invocation". Its members are defined per purpose class (identified by <code>kind</code>), MUST be documented in the client's purpose catalog, and MUST NOT be used to carry data that belongs to the purpose class definition itself.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-1">The <code>params</code> sub-object carries the instance-level parameters that distinguish this specific execution of the purpose class from other executions of the same class. Where <code>kind</code> says "what class of operation this is", <code>params</code> says "the specific details of this invocation". Its members are defined per purpose class (identified by <code>kind</code>), MUST be documented in the client's purpose catalog, and MUST NOT be used to carry data that belongs to the purpose class definition itself. This specification does not define <code>params</code> schemas; schemas are defined per purpose class, externally to this specification, by the party that controls the <code>kind</code> URI namespace.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.3-2">Clients and OPs MUST validate <code>params</code> according to the schema and policy associated with the <code>purpose.kind</code> value. Unknown parameter names, malformed values, or values outside the allowed policy for that <code>purpose.kind</code> MUST cause the request to be rejected or the <code>purpose</code> object to be ignored according to local policy.<a href="#section-5.3.3-2" class="pilcrow">¶</a></p>
 <p id="section-5.3.3-3"><code>params</code> serves three purposes:<a href="#section-5.3.3-3" class="pilcrow">¶</a></p>
 <ul class="normal">
@@ -1908,7 +2001,7 @@ response_type=code
               <p id="section-5.3.3-4.3.1"><strong>Structured audit.</strong> Because <code>params</code> is a JSON object rather than a free-text string, audit systems can query and aggregate over it. For example: "all <code>https://example.com/purposes/deprovision-user-access</code> invocations for <code>params.subject</code> in the past 30 days" or "all deprovisioning actions triggered by <code>params.reason</code> of <code>security-incident</code>."<a href="#section-5.3.3-4.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-5.3.3-5">Clients SHOULD include only policy-relevant instance attributes in <code>params</code>. <code>params</code> is not a general-purpose authorization descriptor and MUST NOT be used to express resource permissions or downstream access rights.<a href="#section-5.3.3-5" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-5">Clients SHOULD include only policy-relevant instance attributes in <code>params</code>. <code>params</code> is not a general-purpose authorization descriptor and MUST NOT be used to express resource permissions, downstream access rights, or durable authority semantics.<a href="#section-5.3.3-5" class="pilcrow">¶</a></p>
 <p id="section-5.3.3-6"><code>params</code> MAY include policy-relevant target identifiers for an authenticated administrative action, such as a target subject identifier, client identifier, tenant identifier, or deployment environment. <code>params</code> MUST NOT be used to convey command execution state, workflow progress, completion status, or other mutable state that belongs to a downstream command or orchestration protocol.<a href="#section-5.3.3-6" class="pilcrow">¶</a></p>
 <p id="section-5.3.3-7">Clients MUST NOT include sensitive personal data in <code>params</code> beyond what is necessary for policy evaluation and audit. Clients SHOULD NOT rely on <code>params</code> values as the sole basis for access control decisions at downstream resource servers; that is the role of access tokens.<a href="#section-5.3.3-7" class="pilcrow">¶</a></p>
 </section>
@@ -1919,102 +2012,43 @@ response_type=code
 <a href="#section-5.3.4" class="section-number selfRef">5.3.4. </a><a href="#name-the-actor-object" class="section-name selfRef">The <code>actor</code> Object</a>
           </h4>
 <p id="section-5.3.4-1">The <code>actor</code> sub-object identifies the entity that triggered the purpose and requested authentication on the End-User's behalf. This enables the OP to apply policy rules based on who or what initiated the authentication, not just what purpose is being performed.<a href="#section-5.3.4-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.3.4-2">
-            <dt id="section-5.3.4-2.1"><code>type</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.4-2.2">
-              <p id="section-5.3.4-2.2.1">REQUIRED if <code>actor</code> is present. String indicating the category of the acting entity. RECOMMENDED values:<a href="#section-5.3.4-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2"><code>actor</code> is OPTIONAL and intended for deployments that need to distinguish direct-user actions from agent- or service-triggered requests. Implementations that do not need this distinction MAY omit <code>actor</code> entirely.<a href="#section-5.3.4-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5.3.4-3">
+            <dt id="section-5.3.4-3.1"><code>type</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.4-3.2">
+              <p id="section-5.3.4-3.2.1">REQUIRED if <code>actor</code> is present. String indicating the category of the acting entity. RECOMMENDED values:<a href="#section-5.3.4-3.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.3.4-2.2.2.1">
-                  <p id="section-5.3.4-2.2.2.1.1"><code>user</code> — a human user initiated this authentication (e.g., a manager initiating a verification flow for a team member).<a href="#section-5.3.4-2.2.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.3.4-3.2.2.1">
+                  <p id="section-5.3.4-3.2.2.1.1"><code>user</code>: a human user initiated this authentication (e.g., a manager initiating a verification flow for a team member).<a href="#section-5.3.4-3.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li class="normal" id="section-5.3.4-2.2.2.2">
-                  <p id="section-5.3.4-2.2.2.2.1"><code>agent</code> — an AI agent or automated agent initiated this authentication.<a href="#section-5.3.4-2.2.2.2.1" class="pilcrow">¶</a></p>
+                <li class="normal" id="section-5.3.4-3.2.2.2">
+                  <p id="section-5.3.4-3.2.2.2.1"><code>agent</code>: an AI agent or automated agent initiated this authentication.<a href="#section-5.3.4-3.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li class="normal" id="section-5.3.4-2.2.2.3">
-                  <p id="section-5.3.4-2.2.2.3.1"><code>service</code> — an application, system, or automated service initiated this authentication.<a href="#section-5.3.4-2.2.2.3.1" class="pilcrow">¶</a></p>
+                <li class="normal" id="section-5.3.4-3.2.2.3">
+                  <p id="section-5.3.4-3.2.2.3.1"><code>service</code>: an application, system, or automated service initiated this authentication.<a href="#section-5.3.4-3.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
               </ul>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.4-2.3"><code>id</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.4-2.4">
-              <p id="section-5.3.4-2.4.1">OPTIONAL. String containing a stable identifier for the acting entity itself — the agent session, service name, or user identifier that names the direct actor. <code>actor.id</code> identifies <em>what</em> is acting. Its interpretation depends on <code>actor.type</code>:
+<dt id="section-5.3.4-3.3"><code>id</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.4-3.4">
+              <p id="section-5.3.4-3.4.1">OPTIONAL. String containing a stable identifier for the acting entity itself (the agent session, service name, or user identifier that names the direct actor). <code>actor.id</code> identifies <em>what</em> is acting. Its interpretation depends on <code>actor.type</code>:
 * When <code>type</code> is <code>user</code>: <code>id</code> is a stable identifier for the human user acting as the direct actor (e.g., a platform user ID). If <code>sub</code> is also present, both MUST refer to the same individual.
 * When <code>type</code> is <code>agent</code>: <code>id</code> is a stable identifier for the agent instance or agent deployment (e.g., a session ID, model deployment name, or agent registration identifier). It MUST NOT be used to carry the identity of the human principal behind the agent; use <code>sub</code> for that purpose.
-* When <code>type</code> is <code>service</code>: <code>id</code> is a stable identifier for the service or application registered with the platform (e.g., a service account name or client ID). It MUST NOT carry a human user identifier.<a href="#section-5.3.4-2.4.1" class="pilcrow">¶</a></p>
+* When <code>type</code> is <code>service</code>: <code>id</code> is a stable identifier for the service or application registered with the platform (e.g., a service account name or client ID). It MUST NOT carry a human user identifier.<a href="#section-5.3.4-3.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.4-2.5"><code>sub</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.4-2.6">
-              <p id="section-5.3.4-2.6.1">OPTIONAL. String containing the subject identifier of the human principal on whose authority this actor is acting. <code>actor.sub</code> always refers to a human, regardless of <code>actor.type</code>:
-* When <code>type</code> is <code>user</code>: <code>sub</code> SHOULD be set to that user's stable subject identifier (e.g., their <code>sub</code> from a prior ID Token). <code>actor.id</code> and <code>actor.sub</code> MAY be the same value.
-* When <code>type</code> is <code>agent</code>: <code>sub</code> MUST be set to the subject identifier of the human user who authorized the agent to act. It MUST NOT contain the agent's own identifier. The distinction is: <code>id</code> names the agent, <code>sub</code> names the human behind it.
-* When <code>type</code> is <code>service</code>: <code>sub</code> SHOULD be set to the human user who authorized or owns the service invocation, if that relationship is known and relevant to OP policy.<a href="#section-5.3.4-2.6.1" class="pilcrow">¶</a></p>
-</dd>
-            <dd class="break"></dd>
-<dt id="section-5.3.4-2.7"><code>delegation</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.4-2.8">
-              <p id="section-5.3.4-2.8.1">OPTIONAL. Array of delegation chain objects describing the sequence of intermediaries through which authority was delegated to the direct actor, ordered from the principal closest to the human (outermost, index 0) to the entity immediately preceding the direct actor (innermost, last element). The direct actor itself is expressed in the top-level <code>actor</code> object and MUST NOT be repeated in <code>delegation</code>. This ordering follows the direction of authority delegation: <code>delegation[0]</code> is the entity that originated or authorized the chain, and the last element delegated to the direct actor.<a href="#section-5.3.4-2.8.1" class="pilcrow">¶</a></p>
-<p id="section-5.3.4-2.8.2">Each element of the <code>delegation</code> array MUST be a JSON object with the following members:<a href="#section-5.3.4-2.8.2" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.3.4-2.8.3">
-                <dt id="section-5.3.4-2.8.3.1"><code>type</code></dt>
-                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.2">
-                  <p id="section-5.3.4-2.8.3.2.1">REQUIRED. String indicating the category of this chain member. Uses the same RECOMMENDED values as <code>actor.type</code> (<code>user</code>, <code>agent</code>, <code>service</code>).<a href="#section-5.3.4-2.8.3.2.1" class="pilcrow">¶</a></p>
-</dd>
-                <dd class="break"></dd>
-<dt id="section-5.3.4-2.8.3.3"><code>id</code></dt>
-                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.4">
-                  <p id="section-5.3.4-2.8.3.4.1">OPTIONAL. String containing a stable identifier for the entity at this chain position. When <code>type</code> is <code>user</code>, <code>id</code> is a stable identifier for that human. When <code>type</code> is <code>agent</code>, <code>id</code> is a stable identifier for the agent instance or deployment (MUST NOT carry a human subject identifier). When <code>type</code> is <code>service</code>, <code>id</code> is a stable identifier for the service or application (MUST NOT carry a human subject identifier).<a href="#section-5.3.4-2.8.3.4.1" class="pilcrow">¶</a></p>
-</dd>
-                <dd class="break"></dd>
-<dt id="section-5.3.4-2.8.3.5"><code>sub</code></dt>
-                <dd style="margin-left: 1.5em" id="section-5.3.4-2.8.3.6">
-                  <p id="section-5.3.4-2.8.3.6.1">OPTIONAL. String containing the subject identifier of the human principal at this chain position. <code>sub</code> always refers to a human, regardless of <code>type</code>. When <code>type</code> is <code>user</code>, <code>sub</code> is that user's stable subject identifier. When <code>type</code> is <code>agent</code>, <code>sub</code> MUST be the subject identifier of the human who authorized the agent at this delegation step; it MUST NOT be the agent's own identifier. When <code>type</code> is <code>service</code>, <code>sub</code> SHOULD be the human who authorized or owns this service invocation, if known.<a href="#section-5.3.4-2.8.3.6.1" class="pilcrow">¶</a></p>
-</dd>
-              <dd class="break"></dd>
-</dl>
-<p id="section-5.3.4-2.8.4">Unknown members in delegation chain objects MUST be ignored.<a href="#section-5.3.4-2.8.4" class="pilcrow">¶</a></p>
-<p id="section-5.3.4-2.8.5">The <code>delegation</code> structure follows the direction-of-delegation ordering of the <code>act</code> claim in Token Exchange (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), adapted for the authentication layer.<a href="#section-5.3.4-2.8.5" class="pilcrow">¶</a></p>
-<p id="section-5.3.4-2.8.6">Example: a scheduler service (<code>service</code>) acting on behalf of an AI agent (<code>agent</code>) that was authorized by a user produces the following <code>actor</code> object. The user is <code>delegation[0]</code> (outermost), the agent is <code>delegation[1]</code> (intermediate), and the scheduler service is the direct actor at the top level:<a href="#section-5.3.4-2.8.6" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-5.3.4-2.8.7">
-<pre>
-{
-  "type": "service",
-  "id": "scheduler-svc",
-  "delegation": [
-    { "type": "user", "sub": "user-42" },
-    { "type": "agent", "id": "assistant-v2", "sub": "user-42" }
-  ]
-}
-</pre><a href="#section-5.3.4-2.8.7" class="pilcrow">¶</a>
-</div>
-<p id="section-5.3.4-2.8.8">The <code>delegation</code> array MUST NOT be used to bypass OP policy. The OP MUST treat all entries as unverified client assertions unless the client has been separately authorized to assert delegation claims (see <a href="#actor-verification" class="auto internal xref">Section 5.3.4.1</a>).<a href="#section-5.3.4-2.8.8" class="pilcrow">¶</a></p>
+<dt id="section-5.3.4-3.5"><code>sub</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.4-3.6">
+              <p id="section-5.3.4-3.6.1">OPTIONAL. Subject identifier of the human principal on whose authority this actor is acting. <code>actor.sub</code> always refers to a human, regardless of <code>actor.type</code>. When <code>actor.type</code> is <code>agent</code>, <code>sub</code> MUST identify the human user who authorized the agent and MUST NOT contain the agent's own identifier: <code>id</code> names the agent, <code>sub</code> names the human behind it. For <code>user</code> and <code>service</code> types, <code>sub</code> SHOULD be the stable subject identifier of the human who owns or authorized the action, if known.<a href="#section-5.3.4-3.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
-<div id="actor-verification">
-<section id="section-5.3.4.1">
-            <h5 id="name-verification-semantics">
-<a href="#section-5.3.4.1" class="section-number selfRef">5.3.4.1. </a><a href="#name-verification-semantics" class="section-name selfRef">Verification Semantics</a>
-            </h5>
-<p id="section-5.3.4.1-1">The <code>actor</code> value and its sub-fields are client-supplied assertions; they are not authenticated by this parameter alone. This means:<a href="#section-5.3.4.1-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-5.3.4.1-2.1">
-                <p id="section-5.3.4.1-2.1.1">The OP MUST NOT treat <code>actor.type</code>, <code>actor.id</code>, <code>actor.sub</code>, or <code>actor.delegation</code> as verified facts unless the client holds an explicit delegation trust grant for those claims. The mechanism for establishing delegation trust grants is to be defined in a future version of this specification (TBD).<a href="#section-5.3.4.1-2.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-5.3.4.1-2.2">
-                <p id="section-5.3.4.1-2.2.1">When the OP cannot verify <code>actor</code> claims, it SHOULD treat them as advisory context — useful for policy hints and UI display — but MUST NOT rely on them as the sole basis for elevated trust or reduced authentication requirements.<a href="#section-5.3.4.1-2.2.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-5.3.4.1-2.3">
-                <p id="section-5.3.4.1-2.3.1">When <code>actor.type</code> is <code>agent</code> or <code>service</code>, the OP SHOULD apply more stringent authentication requirements (e.g., mandatory re-authentication, higher ACR) rather than relaxing them, since the presence of a non-human actor represents increased automation risk.<a href="#section-5.3.4.1-2.3.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-5.3.4.1-2.4">
-                <p id="section-5.3.4.1-2.4.1">Clients SHOULD authenticate the acting entity through independent means (e.g., service-to-service OAuth credentials, platform identity tokens) and convey verified actor identity through those channels before asserting it in <code>actor</code>. Clients MUST NOT fabricate <code>actor.sub</code> values.<a href="#section-5.3.4.1-2.4.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<p id="section-5.3.4.1-3">Clients SHOULD omit <code>actor</code> when the End-User directly starts the authentication within the Client itself with no intermediary.<a href="#section-5.3.4.1-3" class="pilcrow">¶</a></p>
-</section>
-</div>
+<p id="section-5.3.4-4"><strong>Unverified assertions.</strong> The <code>actor</code> value and its sub-fields are client-supplied assertions; they are not authenticated by this parameter alone. The OP MUST NOT treat <code>actor.type</code>, <code>actor.id</code>, or <code>actor.sub</code> as verified facts unless the client has been separately authorized to assert them or the OP verifies them through an independent mechanism.<a href="#section-5.3.4-4" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-5"><strong>OP policy guidance.</strong> When the OP cannot verify <code>actor</code> claims, it SHOULD treat them as advisory context (useful for policy hints and UI display) but MUST NOT rely on them as the sole basis for elevated trust or reduced authentication requirements. When <code>actor.type</code> is <code>agent</code> or <code>service</code>, the OP SHOULD apply more stringent authentication requirements (e.g., mandatory re-authentication, higher ACR) rather than relaxing them, since the presence of a non-human actor represents increased automation risk.<a href="#section-5.3.4-5" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-6"><strong>Client requirements.</strong> Clients SHOULD authenticate the acting entity through independent means (e.g., service-to-service OAuth credentials, platform identity tokens) and convey verified actor identity through those channels before asserting it in <code>actor</code>. Clients MUST NOT fabricate <code>actor.sub</code> values.<a href="#section-5.3.4-6" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-7">Clients SHOULD omit <code>actor</code> when the End-User directly starts the authentication within the Client itself with no intermediary.<a href="#section-5.3.4-7" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-8">Profiles that need richer delegation-chain semantics MAY define additional actor members or companion structures. This specification does not define a delegation-chain model.<a href="#section-5.3.4-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="constraints-object">
@@ -2022,21 +2056,27 @@ response_type=code
           <h4 id="name-the-constraints-object">
 <a href="#section-5.3.5" class="section-number selfRef">5.3.5. </a><a href="#name-the-constraints-object" class="section-name selfRef">The <code>constraints</code> Object</a>
           </h4>
-<p id="section-5.3.5-1">The <code>constraints</code> sub-object groups conditions that bound the resulting authentication session and any issued tokens.<a href="#section-5.3.5-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.3.5-2">
-            <dt id="section-5.3.5-2.1"><code>expires_at</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.5-2.2">
-              <p id="section-5.3.5-2.2.1">OPTIONAL. Date-time string (<span>[<a href="#RFC3339" class="cite xref">RFC3339</a>]</span>) after which the authenticated authorization to perform this purpose instance is no longer valid. The OP SHOULD enforce that any resulting session, token, or other local authorization state used to carry out the purpose does not outlive this value, including refresh tokens where applicable. If <code>expires_at</code> is in the past at the time of processing, the OP MUST reject the request with <code>invalid_client_context_value</code>.<a href="#section-5.3.5-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-5.3.5-1">The <code>constraints</code> sub-object groups conditions that bound the resulting authentication session and any immediate token outputs of that event. The following distinctions apply:<a href="#section-5.3.5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.3.5-2.1">
+              <p id="section-5.3.5-2.1.1">The constraints in this object scope the <strong>authentication event and its immediate outputs</strong> (session lifetime, token expiry). They are not a durable lifecycle policy.<a href="#section-5.3.5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-5.3.5-2.2">
+              <p id="section-5.3.5-2.2.1">Companion profiles MAY derive longer-lived server-side lifecycle rules from validated constraints, but that derivation is defined by the profile, not this specification.<a href="#section-5.3.5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-5.3.5-2.3">
+              <p id="section-5.3.5-2.3.1">Clients and downstream systems MUST NOT assume the returned <code>constraints</code> object is itself an ongoing authorization lifecycle policy. The returned constraints confirm what the OP applied at authentication time; they do not govern post-issuance authorization decisions.<a href="#section-5.3.5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<span class="break"></span><dl class="dlParallel" id="section-5.3.5-3">
+            <dt id="section-5.3.5-3.1"><code>expires_at</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.5-3.2">
+              <p id="section-5.3.5-3.2.1">OPTIONAL. Date-time string (<span>[<a href="#RFC3339" class="cite xref">RFC3339</a>]</span>) after which the applied authentication context for this purpose instance is no longer valid for the intended purpose. The OP SHOULD enforce that any resulting session, token, or other local authorization state used to carry out the purpose does not outlive this value, including refresh tokens where applicable. If <code>expires_at</code> is in the past at the time of processing, the OP MUST reject the request with <code>invalid_client_context_value</code>.<a href="#section-5.3.5-3.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-5.3.5-2.3"><code>max_duration</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.5-2.4">
-              <p id="section-5.3.5-2.4.1">OPTIONAL. Non-negative integer expressing the maximum permitted lifetime of the resulting session and tokens, in seconds, measured from the time of token issuance. When present, the OP SHOULD cap the lifetime of the issued ID Token, access token, and any refresh tokens to this value. If both <code>expires_at</code> and <code>max_duration</code> are present, the OP MUST enforce whichever bound is more restrictive (i.e., whichever results in the earlier expiration). <code>max_duration</code> is a relative constraint and is appropriate when the client cannot predict the exact issuance time; <code>expires_at</code> is appropriate when the authorization is tied to an external deadline (e.g., end of a business day or ticket expiry). Both MAY be present simultaneously to express "no longer than X seconds and no later than Y".<a href="#section-5.3.5-2.4.1" class="pilcrow">¶</a></p>
-</dd>
-            <dd class="break"></dd>
-<dt id="section-5.3.5-2.5"><code>max_uses</code></dt>
-            <dd style="margin-left: 1.5em" id="section-5.3.5-2.6">
-              <p id="section-5.3.5-2.6.1">OPTIONAL. Positive integer indicating the maximum number of successful token issuances that may result from this authorization request. A <strong>use</strong> is defined as one successful completion of the authorization code exchange (or equivalent token endpoint call) that results in the issuance of tokens carrying the <code>client_context</code> claim for this <code>id</code>. Re-authentication flows that produce a new ID Token each count as one use. Token refresh operations against an already-issued token do NOT count as additional uses. When <code>max_uses</code> is <code>1</code>, the purpose is single-use: once tokens have been issued, the OP MUST reject any further authorization attempts that present the same <code>id</code> with <code>invalid_client_context</code>. When <code>max_uses</code> is greater than <code>1</code>, the OP SHOULD track use-count against the <code>id</code> and return <code>invalid_client_context</code> once the limit is reached. Use of <code>max_uses</code> without <code>id</code> is NOT RECOMMENDED; without <code>id</code>, the OP has no stable key against which to track use-count.<a href="#section-5.3.5-2.6.1" class="pilcrow">¶</a></p>
+<dt id="section-5.3.5-3.3"><code>max_duration</code></dt>
+            <dd style="margin-left: 1.5em" id="section-5.3.5-3.4">
+              <p id="section-5.3.5-3.4.1">OPTIONAL. Non-negative integer expressing the maximum permitted lifetime of the resulting session and tokens, in seconds, measured from the time of token issuance. When present, the OP SHOULD cap the lifetime of the issued ID Token, access token, and any refresh tokens to this value. If both <code>expires_at</code> and <code>max_duration</code> are present, the OP MUST enforce whichever bound is more restrictive (i.e., whichever results in the earlier expiration). <code>max_duration</code> is a relative constraint and is appropriate when the client cannot predict the exact issuance time; <code>expires_at</code> is appropriate when the authorization is tied to an external deadline (e.g., end of a business day or ticket expiry). Both MAY be present simultaneously to express "no longer than X seconds and no later than Y".<a href="#section-5.3.5-3.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -2047,10 +2087,10 @@ response_type=code
           <h4 id="name-op-policy-guidance">
 <a href="#section-5.3.6" class="section-number selfRef">5.3.6. </a><a href="#name-op-policy-guidance" class="section-name selfRef">OP Policy Guidance</a>
           </h4>
-<p id="section-5.3.6-1">The OP SHOULD use <code>kind</code> as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog.<a href="#section-5.3.6-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.6-1">The OP SHOULD use <code>kind</code> as the primary key for policy evaluation, looking up authentication requirements (required ACR, session lifetime cap, step-up rules) from its purpose catalog. Companion profiles MAY also use <code>kind</code> as input to a server-side template or policy lookup; for example, mapping a <code>kind</code> URI to a predefined purpose record, authorization template, or approval workflow. Because <code>kind</code> is a stable URI under the client's namespace, it is a reliable join key between the authentication layer and any profile-defined server-side objects.<a href="#section-5.3.6-1" class="pilcrow">¶</a></p>
 <p id="section-5.3.6-2">The OP SHOULD present <code>display.title</code> and <code>display.description</code> to the End-User during authentication to provide a complete picture of what the user is authorizing.<a href="#section-5.3.6-2" class="pilcrow">¶</a></p>
 <p id="section-5.3.6-3">The OP SHOULD evaluate <code>actor.type</code> when <code>kind</code> alone is insufficient to determine authentication requirements. For example, an OP MAY require re-authentication when <code>actor.type</code> is <code>agent</code>, regardless of existing session state.<a href="#section-5.3.6-3" class="pilcrow">¶</a></p>
-<p id="section-5.3.6-4">The OP MAY bind a validated <code>purpose</code> object to the authenticated subject and, when available, to a resulting session identifier such as OIDC <code>sid</code> or a SAML <code>SessionIndex</code>. This allows the returned context to serve as a verifiable record of which subject authenticated for which purpose instance and, where supported, which session carries that authorization.<a href="#section-5.3.6-4" class="pilcrow">¶</a></p>
+<p id="section-5.3.6-4">The OP MAY bind a validated <code>purpose</code> object to the authenticated subject and, when available, to a resulting session identifier such as OIDC <code>sid</code> or a SAML <code>SessionIndex</code>. This allows the returned context to serve as a verifiable record of which subject authenticated for which purpose instance and, where supported, which session carries that applied context.<a href="#section-5.3.6-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="examples">
@@ -2062,7 +2102,6 @@ response_type=code
 <div class="lang-json sourcecode" id="section-5.3.7-2">
 <pre>
 {
-  "type": "purpose",
   "kind": "https://example.com/purposes/summarize-inbox",
   "display": {
     "title": "Summarize Inbox",
@@ -2072,13 +2111,10 @@ response_type=code
   "actor": {
     "type": "agent",
     "id": "agent-session-a1b2c3",
-    "sub": "user-9f3d2a",
-    "delegation": [
-      { "type": "user", "sub": "user-9f3d2a" }
-    ]
+    "sub": "user-9f3d2a"
   },
   "constraints": {
-    "expires_at": "2026-03-10T20:00:00Z",
+    "expires_at": "2026-04-01T20:00:00Z",
     "max_duration": 3600
   }
 }
@@ -2088,9 +2124,7 @@ response_type=code
 <div class="lang-json sourcecode" id="section-5.3.7-4">
 <pre>
 {
-  "type": "purpose",
   "kind": "https://example.com/purposes/deprovision-user-access",
-  "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
   "display": {
     "title": "Deprovision User Access",
     "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
@@ -2102,9 +2136,8 @@ response_type=code
     "ticket_ref": "HR-8823"
   },
   "constraints": {
-    "expires_at": "2026-03-10T18:00:00Z",
-    "max_duration": 900,
-    "max_uses": 1
+    "expires_at": "2026-04-01T18:00:00Z",
+    "max_duration": 900
   }
 }
 </pre><a href="#section-5.3.7-4" class="pilcrow">¶</a>
@@ -2120,85 +2153,112 @@ response_type=code
       <h2 id="name-client-processing-rules">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-client-processing-rules" class="section-name selfRef">Client Processing Rules</a>
       </h2>
-<div id="constructing-the-request">
+<div id="minimal-conformant-implementation">
 <section id="section-6.1">
-        <h3 id="name-constructing-the-request">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-constructing-the-request" class="section-name selfRef">Constructing the Request</a>
+        <h3 id="name-minimal-conformant-implemen">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-minimal-conformant-implemen" class="section-name selfRef">Minimal Conformant Implementation</a>
         </h3>
-<p id="section-6.1-1">A Client generating an authorization request containing <code>client_context</code> MUST:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.1-2">
-<li id="section-6.1-2.1">
-            <p id="section-6.1-2.1.1">Encode the parameter value as a JSON array. An empty array is NOT RECOMMENDED; omit the parameter entirely if no context is applicable.<a href="#section-6.1-2.1.1" class="pilcrow">¶</a></p>
+<p id="section-6.1-1">A minimal conformant implementation of this specification can be small. At minimum:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.1-2.1">
+            <p id="section-6.1-2.1.1">A Client constructs a <code>client_context</code> object containing a non-empty <code>contexts</code> member.<a href="#section-6.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.1-2.2">
-            <p id="section-6.1-2.2.1">Ensure each element is a JSON object containing a <code>type</code> field with a non-empty string value.<a href="#section-6.1-2.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-6.1-2.2">
+            <p id="section-6.1-2.2.1">An Authorization Server parses the <code>client_context</code> object and validates any supported context types it recognizes.<a href="#section-6.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.1-2.3">
-            <p id="section-6.1-2.3.1">Ensure each object's structure conforms to the schema defined for that context type.<a href="#section-6.1-2.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-6.1-2.3">
+            <p id="section-6.1-2.3.1">The Authorization Server rejects malformed requests and unsupported context types with the defined errors.<a href="#section-6.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.1-2.4">
-            <p id="section-6.1-2.4.1">Ensure the array contains at most one object per <code>type</code> value. Including multiple objects with the same <code>type</code> is a protocol error and will cause the request to be rejected.<a href="#section-6.1-2.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-6.1-2.4">
+            <p id="section-6.1-2.4.1">If authentication succeeds, the Authorization Server returns the applied <code>client_context</code> in the ID Token.<a href="#section-6.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.1-2.5">
-            <p id="section-6.1-2.5.1">Include a <code>nonce</code> parameter in the authorization request to bind the resulting ID Token to the request.<a href="#section-6.1-2.5.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-6.1-2.5">
+            <p id="section-6.1-2.5.1">The Client verifies the returned <code>client_context</code> before using it to gate context-sensitive behavior.<a href="#section-6.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-6.1-3">An implementation does not need to support every context type or every optional member in this specification to claim support.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="constructing-the-request">
+<section id="section-6.2">
+        <h3 id="name-constructing-the-request">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-constructing-the-request" class="section-name selfRef">Constructing the Request</a>
+        </h3>
+<p id="section-6.2-1">A Client generating an authorization request containing <code>client_context</code> MUST:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.2-2">
+<li id="section-6.2-2.1">
+            <p id="section-6.2-2.1.1">Encode the parameter value as a JSON object. The object MUST contain a non-empty <code>contexts</code> member; omit the parameter entirely if no context is applicable.<a href="#section-6.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-6.2-2.2">
+            <p id="section-6.2-2.2.1">Ensure that, when present, the <code>contexts</code> member is a JSON object.<a href="#section-6.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-6.2-2.3">
+            <p id="section-6.2-2.3.1">Ensure each <code>contexts</code> member name identifies a supported context type and each corresponding member value is a JSON object.<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-6.2-2.4">
+            <p id="section-6.2-2.4.1">Ensure each typed context object's structure conforms to the schema defined for that context type.<a href="#section-6.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-6.2-2.5">
+            <p id="section-6.2-2.5.1">Include a <code>nonce</code> parameter in the authorization request to bind the resulting ID Token to the request.<a href="#section-6.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-6.1-3">Clients SHOULD use PAR (<span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>) or a signed Request Object when <code>client_context</code> contains sensitive information such as purpose identifiers or administrative identifiers.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">Clients SHOULD use PAR (<span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>) or a signed Request Object when <code>client_context</code> contains sensitive information such as purpose identifiers or administrative identifiers.<a href="#section-6.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="validating-the-response">
-<section id="section-6.2">
+<section id="section-6.3">
         <h3 id="name-validating-the-response">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-validating-the-response" class="section-name selfRef">Validating the Response</a>
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-validating-the-response" class="section-name selfRef">Validating the Response</a>
         </h3>
-<p id="section-6.2-1">When receiving an ID Token in response to a request that included <code>client_context</code>, the Client MUST:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.2-2">
-<li id="section-6.2-2.1">
-            <p id="section-6.2-2.1.1">Validate the ID Token per Section 3.1.3.7 of <span>[<a href="#OIDC.Core" class="cite xref">OIDC.Core</a>]</span>, including signature verification, issuer, audience, and expiration checks.<a href="#section-6.2-2.1.1" class="pilcrow">¶</a></p>
+<p id="section-6.3-1">When receiving an ID Token in response to a request that included <code>client_context</code>, the Client MUST:<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3-2">
+<li id="section-6.3-2.1">
+            <p id="section-6.3-2.1.1">Validate the ID Token per Section 3.1.3.7 of <span>[<a href="#OIDC.Core" class="cite xref">OIDC.Core</a>]</span>, including signature verification, issuer, audience, and expiration checks.<a href="#section-6.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.2-2.2">
-            <p id="section-6.2-2.2.1">Verify that the <code>nonce</code> claim in the ID Token matches the <code>nonce</code> sent in the request.<a href="#section-6.2-2.2.1" class="pilcrow">¶</a></p>
+          <li id="section-6.3-2.2">
+            <p id="section-6.3-2.2.1">Verify that the <code>nonce</code> claim in the ID Token matches the <code>nonce</code> sent in the request.<a href="#section-6.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.2-2.3">
-            <p id="section-6.2-2.3.1">If the request included <code>client_context</code> and a token response was successfully received, examine the <code>client_context</code> claim in the ID Token. There are two distinct cases when the claim is absent, and clients MUST handle them differently:<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+          <li id="section-6.3-2.3">
+            <p id="section-6.3-2.3.1">If the request included <code>client_context</code> and a token response was successfully received, examine the <code>client_context</code> claim in the ID Token. There are two distinct cases when the claim is absent, and clients MUST handle them differently:<a href="#section-6.3-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6.2-2.3.2.1">
-                <p id="section-6.2-2.3.2.1.1"><strong>Absent because the OP does not support <code>client_context</code>:</strong> This case does not arise at this step. An OP that does not support <code>client_context</code> MUST reject the request before issuing tokens (returning <code>unsupported_client_context_type</code> at the authorization or token endpoint). If the client received a successful token response, the OP did not reject the request, so this case does not apply here.<a href="#section-6.2-2.3.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6.3-2.3.2.1">
+                <p id="section-6.3-2.3.2.1.1"><strong>Absent because the OP does not support <code>client_context</code>:</strong> This case does not arise at this step. An OP that does not support <code>client_context</code> MUST reject the request before issuing tokens (returning <code>unsupported_client_context_type</code> at the authorization or token endpoint). If the client received a successful token response, the OP did not reject the request, so this case does not apply here.<a href="#section-6.3-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-6.2-2.3.2.2">
-                <p id="section-6.2-2.3.2.2.1"><strong>Absent from an otherwise valid ID Token:</strong> If the ID Token was issued successfully but does not contain a <code>client_context</code> claim, this is a processing failure. The client MUST treat this as a verification failure, MUST NOT proceed with any operations that depend on the applied context, and SHOULD surface a distinct error to the caller indicating that the OP did not confirm the requested context. The client SHOULD NOT silently fall back to using the context it sent in the request.<a href="#section-6.2-2.3.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-6.3-2.3.2.2">
+                <p id="section-6.3-2.3.2.2.1"><strong>Absent from an otherwise valid ID Token:</strong> If the ID Token was issued successfully but does not contain a <code>client_context</code> claim, this is a processing failure. The client MUST treat this as a verification failure, MUST NOT proceed with any operations that depend on the applied context, and SHOULD surface a distinct error to the caller indicating that the OP did not confirm the requested context. The client SHOULD NOT silently fall back to using the context it sent in the request.<a href="#section-6.3-2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-6.2-2.3.3">
-A Client that gates any operation on <code>client_context</code> MUST verify the <code>client_context</code> claim in the validated ID Token. The Client MUST NOT rely on the <code>client_context</code> it sent in the authorization request as confirmation that the OP evaluated or applied that context.<a href="#section-6.2-2.3.3" class="pilcrow">¶</a></p>
+<p id="section-6.3-2.3.3">
+A Client that gates any operation on <code>client_context</code> MUST verify the <code>client_context</code> claim in the validated ID Token. The Client MUST NOT rely on the <code>client_context</code> it sent in the authorization request as confirmation that the OP evaluated or applied that context.<a href="#section-6.3-2.3.3" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.2-2.4">
-            <p id="section-6.2-2.4.1">Compare the returned context to the requested context. The Client MUST detect and handle:<a href="#section-6.2-2.4.1" class="pilcrow">¶</a></p>
+          <li id="section-6.3-2.4">
+            <p id="section-6.3-2.4.1">Compare the returned context to the requested context. The Client MUST detect and handle:<a href="#section-6.3-2.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6.2-2.4.2.1">
-                <p id="section-6.2-2.4.2.1.1"><strong>Missing context:</strong> A context type that was requested is absent from the returned value. The Client MUST apply local policy to determine whether this is acceptable. For security-critical context (e.g., purpose context for privileged operations), the Client MUST treat missing context as an error and reject the token.<a href="#section-6.2-2.4.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6.3-2.4.2.1">
+                <p id="section-6.3-2.4.2.1.1"><strong>Missing context:</strong> A context type that was requested is absent from the returned value. The Client MUST apply local policy to determine whether this is acceptable. For security-critical context (e.g., purpose context for privileged operations), the Client MUST treat missing context as an error and reject the token.<a href="#section-6.3-2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-6.2-2.4.2.2">
-                <p id="section-6.2-2.4.2.2.1"><strong>Modified context:</strong> A context value was altered by the OP (e.g., due to normalization). The Client MUST evaluate whether the modification is acceptable.<a href="#section-6.2-2.4.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-6.3-2.4.2.2">
+                <p id="section-6.3-2.4.2.2.1"><strong>Modified context:</strong> A context value was altered by the OP (e.g., due to normalization). The Client MUST evaluate whether the modification is acceptable.<a href="#section-6.3-2.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-6.2-2.4.2.3">
-                <p id="section-6.2-2.4.2.3.1"><strong>Additional context:</strong> The OP included context objects not present in the request. The Client SHOULD ignore unexpected context types.<a href="#section-6.2-2.4.2.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-6.3-2.4.2.3">
+                <p id="section-6.3-2.4.2.3.1"><strong>Additional context:</strong> The OP included context objects not present in the request. The Client SHOULD ignore unexpected context types.
+Differences limited to request-direction UI hints such as <code>display</code> do not, by themselves, constitute a verification failure unless a profile or local policy explicitly requires equality on those fields.<a href="#section-6.3-2.4.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li id="section-6.2-2.5">
-            <p id="section-6.2-2.5.1">Reject or restrict privileged operations if required context values are absent or inconsistent.<a href="#section-6.2-2.5.1" class="pilcrow">¶</a></p>
+          <li id="section-6.3-2.5">
+            <p id="section-6.3-2.5.1">Reject or restrict privileged operations if required context values are absent or inconsistent.<a href="#section-6.3-2.5.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
 </section>
 </div>
 <div id="example-client-verification-logic">
-<section id="section-6.3">
+<section id="section-6.4">
         <h3 id="name-example-client-verification">
-<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-example-client-verification" class="section-name selfRef">Example: Client Verification Logic</a>
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-example-client-verification" class="section-name selfRef">Example: Client Verification Logic</a>
         </h3>
-<p id="section-6.3-1">The following pseudocode illustrates how a Client might verify returned context for a purpose-bound administrative operation:<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6.3-2">
+<p id="section-6.4-1">The following pseudocode illustrates how a Client might verify returned context for a purpose-bound administrative operation:<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.4-2">
 <pre>
 id_token = validate_and_parse_jwt(token_response.id_token)
 
@@ -2208,21 +2268,22 @@ assert id_token.aud == client_id
 assert id_token.nonce == request_nonce
 
 # Context verification
-returned_context = id_token.client_context  # array of objects
+returned_context = id_token.client_context
+contexts = returned_context.contexts
 
-purpose = find(returned_context, type="purpose")
+purpose = contexts.get("purpose")
 if purpose is None:
     raise SecurityError("Purpose context missing from ID Token")
 if purpose.kind != requested_purpose_kind:
     raise SecurityError("Purpose context mismatch")
 
-tenant = find(returned_context, type="tenant")
+tenant = contexts.get("tenant")
 if tenant is None or tenant.id != expected_tenant:
     raise SecurityError("Tenant context invalid")
 
 # All checks passed; enable purpose-scoped operations
 enable_operations(purpose.kind)
-</pre><a href="#section-6.3-2" class="pilcrow">¶</a>
+</pre><a href="#section-6.4-2" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2241,31 +2302,28 @@ enable_operations(purpose.kind)
 <p id="section-7.1-1">If the <code>client_context</code> parameter is present in an authorization request, the Authorization Server MUST:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-7.1-2">
 <li id="section-7.1-2.1">
-            <p id="section-7.1-2.1.1">Parse the parameter value as a JSON array. If parsing fails, return an <code>invalid_client_context</code> error (see <a href="#errors" class="auto internal xref">Section 13</a>).<a href="#section-7.1-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.1.1">Parse the parameter value as a JSON object. If parsing fails, return an <code>invalid_client_context</code> error (see <a href="#errors" class="auto internal xref">Section 13</a>).<a href="#section-7.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.2">
-            <p id="section-7.1-2.2.1">Verify that each element of the array is a JSON object. If any element is not an object, return <code>invalid_client_context</code>.<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.2.1">Verify that the <code>contexts</code> member is present and that its value is a JSON object. If not, return <code>invalid_client_context</code>.<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.3">
-            <p id="section-7.1-2.3.1">Verify that each object contains a <code>type</code> field with a non-empty string value. If any object is missing <code>type</code>, return <code>invalid_client_context</code>.<a href="#section-7.1-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.3.1">Verify that the <code>contexts</code> object contains at least one member. If not, return <code>invalid_client_context</code>.<a href="#section-7.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.4">
-            <p id="section-7.1-2.4.1">Verify that no two objects in the array share the same <code>type</code> value. If duplicate context types are present, return <code>invalid_client_context</code>. Partial application of a subset of the array is not permitted.<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.4.1">For each member of <code>contexts</code>:
+a. If the context type name is not recognized, return <code>unsupported_client_context_type</code>.
+b. If the context type is recognized, verify that the member value is a JSON object and validate it against the registered schema for that type. If validation fails, return <code>invalid_client_context_value</code>.
+c. If the context type is <code>purpose</code>, verify that the <code>kind</code> field is present and is a syntactically valid absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. If the <code>kind</code> is missing or not a valid absolute URI, return <code>invalid_client_context_value</code>.<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.5">
-            <p id="section-7.1-2.5.1">For each context type in the request:
-a. If the type is not recognized and the OP does not support unknown types, return <code>unsupported_client_context_type</code>.
-b. If the type is recognized, validate the object against the registered schema for that type. If validation fails, return <code>invalid_client_context_value</code>.
-c. If the type is <code>purpose</code>, verify that the <code>kind</code> field is present and is a syntactically valid absolute URI per <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. If the <code>kind</code> is missing or not a valid absolute URI, return <code>invalid_client_context_value</code>.<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.5.1">If the client's registration metadata includes <code>client_context_types</code>, verify that all requested context types are in the registered list. If not, return <code>unsupported_client_context_type</code>.<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.6">
-            <p id="section-7.1-2.6.1">If the client's registration metadata includes <code>client_context_types</code>, verify that all requested context types are in the registered list. If not, return <code>unsupported_client_context_type</code>.<a href="#section-7.1-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.6.1">If <code>client_context_par_required</code> is <code>true</code> in the OP's discovery metadata and the request was not submitted as a Pushed Authorization Request (<span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>), return <code>invalid_request</code>. The OP MUST NOT process <code>client_context</code> received outside of a PAR request when this flag is set.<a href="#section-7.1-2.6.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.1-2.7">
-            <p id="section-7.1-2.7.1">If <code>client_context_par_required</code> is <code>true</code> in the OP's discovery metadata and the request was not submitted as a Pushed Authorization Request (<span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>), return <code>invalid_request</code>. The OP MUST NOT process <code>client_context</code> received outside of a PAR request when this flag is set.<a href="#section-7.1-2.7.1" class="pilcrow">¶</a></p>
-</li>
-          <li id="section-7.1-2.8">
-            <p id="section-7.1-2.8.1">If any context object fails validation or is unsupported (steps 2–6), the Authorization Server MUST reject the entire authorization request. Partial application of valid context objects from an otherwise invalid request is not permitted.<a href="#section-7.1-2.8.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.7.1">If any typed context object fails validation or is unsupported (steps 2–5), the Authorization Server MUST reject the entire authorization request.<a href="#section-7.1-2.7.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
 </section>
@@ -2287,7 +2345,8 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
             <p id="section-7.2-2.3.1"><strong>Purpose context</strong> MAY trigger step-up authentication, require explicit re-authentication regardless of existing session, reduce session and token lifetimes, or require additional approval.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.2-3">The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier, expanding a short tenant code to a fully qualified domain name) before evaluating policy. When normalization occurs, the OP MUST return the canonical value it acted upon in the <code>client_context</code> claim of the ID Token, not the alias or abbreviated form the client submitted. For example, if the client sends <code>{ "type": "app", "id": "admin" }</code> and the OP resolves <code>"admin"</code> to the canonical identifier <code>"admin_console"</code>, the ID Token MUST contain <code>{ "type": "app", "id": "admin_console" }</code>. Clients MUST be prepared to receive canonical values that differ from what they submitted and MUST evaluate normalization acceptability as part of their response validation (see <a href="#validating-the-response" class="auto internal xref">Section 6.2</a>).<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">The OP MAY normalize context values according to local policy (e.g., resolving an application name alias to a canonical identifier, expanding a short tenant code to a fully qualified domain name) before evaluating policy. When normalization occurs, the OP MUST return, as the value of the <code>client_context</code> claim in the ID Token, the canonical value it acted upon, not the alias or abbreviated form the client submitted. For example, if the client sends <code>{ "contexts": { "app": { "id": "admin" } } }</code> and the OP resolves <code>"admin"</code> to the canonical identifier <code>"admin_console"</code>, the <code>client_context</code> claim value in the ID Token MUST be <code>{ "contexts": { "app": { "id": "admin_console" } } }</code>. Clients MUST be prepared to receive canonical values that differ from what they submitted and MUST evaluate normalization acceptability as part of their response validation (see <a href="#validating-the-response" class="auto internal xref">Section 6.3</a>).<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-4">The OP MAY provide validated applied context to an associated authorization component, policy engine, or control plane for issuance, lifecycle, or audit processing. This specification does not define that handoff interface or its resulting server-side objects. Companion profiles MAY define such handoff behavior.<a href="#section-7.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issuing-the-id-token">
@@ -2295,19 +2354,10 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
         <h3 id="name-issuing-the-id-token">
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-issuing-the-id-token" class="section-name selfRef">Issuing the ID Token</a>
         </h3>
-<p id="section-7.3-1">If authentication succeeds and the request included <code>client_context</code>, the Authorization Server MUST include a <code>client_context</code> claim in the ID Token. The value MUST be a JSON array reflecting the context as evaluated and applied by the OP. The OP MUST NOT include context elements it did not validate and apply. The returned value MAY differ from the requested value due to normalization or OP policy (e.g., resolved aliases, dropped optional fields), but it MUST accurately represent what the OP acted upon — it MUST NOT be an unevaluated echo of the request.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">There are two distinct cases in which the <code>client_context</code> claim may be absent from an ID Token, and clients MUST handle them differently:<a href="#section-7.3-2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-7.3-3">
-<li id="section-7.3-3.1">
-            <p id="section-7.3-3.1.1"><strong>OP does not support the feature.</strong> If the OP does not support <code>client_context</code>, it MUST reject the authorization request with <code>unsupported_client_context_type</code> before issuing any tokens. An ID Token will not be issued in this case. Clients encountering this error SHOULD NOT retry with the same parameter against the same OP; they SHOULD consult the OP's discovery metadata to determine whether any context types are supported.<a href="#section-7.3-3.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li id="section-7.3-3.2">
-            <p id="section-7.3-3.2.1"><strong>OP supports the feature but the claim is absent from an issued ID Token.</strong> If the OP advertises <code>client_context_types_supported</code> (indicating it supports the feature) but the issued ID Token does not contain a <code>client_context</code> claim, this is a processing failure. Clients MUST treat this as a verification failure. Clients MUST NOT proceed with operations that depend on the applied context, and SHOULD surface an error indicating that the expected context was not confirmed by the OP.<a href="#section-7.3-3.2.1" class="pilcrow">¶</a></p>
-</li>
-        </ol>
-<p id="section-7.3-4">The two cases are distinguishable: case 1 results in an error response at the authorization or token endpoint; case 2 results in a successful token response containing an ID Token without the expected claim.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
-<p id="section-7.3-5">The following is an example ID Token payload containing an applied context:<a href="#section-7.3-5" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-7.3-6">
+<p id="section-7.3-1">If authentication succeeds and the request included <code>client_context</code>, the Authorization Server MUST include a <code>client_context</code> claim in the ID Token. The value MUST be a JSON object reflecting the context as evaluated and applied by the OP. The OP MUST NOT include typed context members it did not validate and apply. The returned value MAY differ from the requested value due to normalization or OP policy (e.g., resolved aliases, dropped optional fields), but it MUST accurately represent what the OP acted upon; it MUST NOT be an unevaluated echo of the request.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">If the OP supports <code>client_context</code> but issues an ID Token without the <code>client_context</code> claim, the client MUST treat this as a verification failure and MUST NOT proceed with operations that depend on the applied context. See <a href="#validating-the-response" class="auto internal xref">Section 6.3</a> for how clients distinguish this from an OP that rejects the request entirely.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<p id="section-7.3-3">The following is an example ID Token payload containing applied context:<a href="#section-7.3-3" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-7.3-4">
 <pre>
 {
   "iss": "https://op.example.com",
@@ -2319,24 +2369,21 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
   "acr": "urn:mace:incommon:iap:silver",
   "amr": ["mfa", "swk"],
   "email": "user@example.com",
-  "client_context": [
-    { "type": "app", "id": "admin_console" },
-    { "type": "tenant", "id": "example.com" },
-    {
-      "type": "purpose",
-      "kind": "https://example.com/purposes/deprovision-user-access",
-      "display": {
-        "title": "Deprovision User Access",
-        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
-        "locale": "en"
-      },
-      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
-      "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
+  "client_context": {
+    "contexts": {
+      "app": { "id": "admin_console" },
+      "tenant": { "id": "example.com" },
+      "purpose": {
+        "kind": "https://example.com/purposes/deprovision-user-access",
+        "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+        "constraints": { "expires_at": "2026-04-01T18:00:00Z" }
+      }
     }
-  ]
+  }
 }
-</pre><a href="#section-7.3-6" class="pilcrow">¶</a>
+</pre><a href="#section-7.3-4" class="pilcrow">¶</a>
 </div>
+<p id="section-7.3-5">The returned <code>client_context</code> claim is applied context.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2366,10 +2413,12 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
 <p id="section-8.1-3"><strong>Example:</strong><a href="#section-8.1-3" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.1-4">
 <pre>
-"client_context": [
-  { "type": "app", "id": "project_management" },
-  { "type": "tenant", "id": "acme-corp.com" }
-]
+"client_context": {
+  "contexts": {
+    "app": { "id": "project_management" },
+    "tenant": { "id": "acme-corp.com" }
+  }
+}
 </pre><a href="#section-8.1-4" class="pilcrow">¶</a>
 </div>
 <p id="section-8.1-5">The OP uses the tenant context to route the user to Acme Corp's configured identity provider and apply Acme Corp's authentication policy, then returns the tenant context in the ID Token so the application can load Acme Corp's workspace.<a href="#section-8.1-5" class="pilcrow">¶</a></p>
@@ -2384,22 +2433,22 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
 <p id="section-8.2-2"><strong>Example: An admin panel requesting authentication to deprovision a terminated user:</strong><a href="#section-8.2-2" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.2-3">
 <pre>
-"client_context": [
-  { "type": "app", "id": "admin_console" },
-  { "type": "tenant", "id": "example.com" },
-  {
-    "type": "purpose",
-    "kind": "https://example.com/purposes/deprovision-user-access",
-    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
-    "display": {
-      "title": "Deprovision User Access",
-      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
-      "locale": "en"
-    },
-    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
-    "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
+"client_context": {
+  "contexts": {
+    "app": { "id": "admin_console" },
+    "tenant": { "id": "example.com" },
+    "purpose": {
+      "kind": "https://example.com/purposes/deprovision-user-access",
+      "display": {
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
+        "locale": "en"
+      },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+      "constraints": { "expires_at": "2026-04-01T18:00:00Z" }
+    }
   }
-]
+}
 </pre><a href="#section-8.2-3" class="pilcrow">¶</a>
 </div>
 <p id="section-8.2-4">The OP receiving this request might:<a href="#section-8.2-4" class="pilcrow">¶</a></p>
@@ -2411,7 +2460,7 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
             <p id="section-8.2-5.2.1">Display the purpose details to the user for explicit confirmation.<a href="#section-8.2-5.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-8.2-5.3">
-            <p id="section-8.2-5.3.1">Limit the validity of the authenticated authorization to act so that it does not outlive <code>expires_at</code>.<a href="#section-8.2-5.3.1" class="pilcrow">¶</a></p>
+            <p id="section-8.2-5.3.1">Limit the validity of the applied authentication context so that it does not outlive <code>expires_at</code>.<a href="#section-8.2-5.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-8.2-5.4">
             <p id="section-8.2-5.4.1">Record the purpose identifier and task details in its audit log.<a href="#section-8.2-5.4.1" class="pilcrow">¶</a></p>
@@ -2446,20 +2495,21 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
 <p id="section-8.3-3"><strong>Example: An AI assistant requesting access to a user's calendar to schedule a meeting:</strong><a href="#section-8.3-3" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.3-4">
 <pre>
-"client_context": [
-  { "type": "app", "id": "ai_assistant" },
-  {
-    "type": "purpose",
-    "kind": "https://example.com/purposes/schedule-meeting",
-    "display": {
-      "title": "Schedule a Meeting",
-      "description": "AI Assistant will access your calendar to schedule a team meeting for next Tuesday.",
-      "locale": "en"
-    },
-    "actor": { "type": "agent", "id": "agent-session-7f3a2b1c" },
-    "constraints": { "expires_at": "2026-03-10T23:00:00Z" }
+"client_context": {
+  "contexts": {
+    "app": { "id": "ai_assistant" },
+    "purpose": {
+      "kind": "https://example.com/purposes/schedule-meeting",
+      "display": {
+        "title": "Schedule a Meeting",
+        "description": "AI Assistant will access your calendar to schedule a team meeting for next Tuesday.",
+        "locale": "en"
+      },
+      "actor": { "type": "agent", "id": "agent-session-7f3a2b1c" },
+      "constraints": { "expires_at": "2026-04-01T23:00:00Z" }
+    }
   }
-]
+}
 </pre><a href="#section-8.3-4" class="pilcrow">¶</a>
 </div>
 <p id="section-8.3-5">The OP might respond by:<a href="#section-8.3-5" class="pilcrow">¶</a></p>
@@ -2473,10 +2523,8 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
           <li id="section-8.3-6.3">
             <p id="section-8.3-6.3.1">Including the <code>purpose</code> context in the ID Token so that the agent platform can verify the user authenticated specifically for this task.<a href="#section-8.3-6.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-8.3-6.4">
-            <p id="section-8.3-6.4.1">Issuing an access token with scopes constrained to <code>calendar.read</code> and <code>calendar.write</code>.<a href="#section-8.3-6.4.1" class="pilcrow">¶</a></p>
-</li>
         </ol>
+<p id="section-8.3-7">Any access tokens and their scopes are governed by the OAuth authorization layer independently. <code>client_context</code> shapes the authentication event and ID Token; downstream access grants remain the responsibility of the authorization server and resource server.<a href="#section-8.3-7" class="pilcrow">¶</a></p>
 <div id="why-not-token-exchange-or-rar">
 <section id="section-8.3.1">
           <h4 id="name-why-not-token-exchange-or-r">
@@ -2589,7 +2637,7 @@ c. If the type is <code>purpose</code>, verify that the <code>kind</code> field 
 <span class="break"></span><dl class="dlParallel" id="section-9.2-1">
           <dt id="section-9.2-1.1"><code>client_context_hint</code></dt>
           <dd style="margin-left: 1.5em" id="section-9.2-1.2">
-            <p id="section-9.2-1.2.1">OPTIONAL. A JSON array of context objects in the same format as <code>client_context</code>. Passed by an initiating party to the Client's login initiation endpoint to suggest the context under which authentication should be requested.<a href="#section-9.2-1.2.1" class="pilcrow">¶</a></p>
+            <p id="section-9.2-1.2.1">OPTIONAL. A JSON object in the same envelope format as <code>client_context</code>. Passed by an initiating party to the Client's login initiation endpoint to suggest the context under which authentication should be requested.<a href="#section-9.2-1.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -2601,8 +2649,7 @@ GET /login-initiation?
   iss=https%3A%2F%2Fop.example.com
   &amp;target_link_uri=https%3A%2F%2Fclient.example.org%2Fapp%2Fcalendar
   &amp;login_hint=alice%40example.com
-  &amp;client_context_hint=%5B%7B%22type%22%3A%22app%22%2C%22id%22%3A%22calendar%22%7D%2C
-    %7B%22type%22%3A%22tenant%22%2C%22id%22%3A%22example.com%22%7D%5D
+  &amp;client_context_hint=%7B%22contexts%22%3A%7B%22app%22%3A%7B%22id%22%3A%22calendar%22%7D%2C%22tenant%22%3A%7B%22id%22%3A%22example.com%22%7D%7D%7D
   HTTP/1.1
 Host: client.example.org
 </pre><a href="#section-9.2-4" class="pilcrow">¶</a>
@@ -2610,31 +2657,34 @@ Host: client.example.org
 <p id="section-9.2-5">The decoded <code>client_context_hint</code> value is:<a href="#section-9.2-5" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-9.2-6">
 <pre>
-[
-  { "type": "app", "id": "calendar" },
-  { "type": "tenant", "id": "example.com" }
-]
+{
+  "contexts": {
+    "app": { "id": "calendar" },
+    "tenant": { "id": "example.com" }
+  }
+}
 </pre><a href="#section-9.2-6" class="pilcrow">¶</a>
 </div>
 <p id="section-9.2-7"><strong>Example: A service desk initiating a just-in-time administrative authentication:</strong><a href="#section-9.2-7" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-9.2-8">
 <pre>
-[
-  { "type": "app", "id": "admin_console" },
-  { "type": "tenant", "id": "example.com" },
-  {
-    "type": "purpose",
-    "kind": "https://example.com/purposes/deprovision-user-access",
-    "display": {
-      "title": "Deprovision User Access",
-      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
-      "locale": "en"
-    },
-    "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
-    "actor": { "type": "service", "id": "hr-offboarding-system" },
-    "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
+{
+  "contexts": {
+    "app": { "id": "admin_console" },
+    "tenant": { "id": "example.com" },
+    "purpose": {
+      "kind": "https://example.com/purposes/deprovision-user-access",
+      "display": {
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
+        "locale": "en"
+      },
+      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+      "actor": { "type": "service", "id": "hr-offboarding-system" },
+      "constraints": { "expires_at": "2026-04-01T18:00:00Z" }
+    }
   }
-]
+}
 </pre><a href="#section-9.2-8" class="pilcrow">¶</a>
 </div>
 <p id="section-9.2-9">Here the service desk application knows the task being performed but is not itself the application that will perform it; it directs the user to the admin console client to authenticate and execute the action.<a href="#section-9.2-9" class="pilcrow">¶</a></p>
@@ -2648,40 +2698,27 @@ Host: client.example.org
 <p id="section-9.3-1">The Client receiving a <code>client_context_hint</code> at its login initiation endpoint MUST treat the hint as untrusted input from a third party. The following processing rules apply:<a href="#section-9.3-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-9.3-2">
 <li id="section-9.3-2.1">
-            <p id="section-9.3-2.1.1"><strong>Parse.</strong> The Client MUST parse the hint value as a JSON array. If parsing fails, the Client MUST ignore the hint and proceed with default context or return an error to the initiating party.<a href="#section-9.3-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.1.1"><strong>Parse.</strong> The Client MUST parse the hint value as a JSON object. If parsing fails, the Client MUST ignore the hint and proceed with default context or return an error to the initiating party.<a href="#section-9.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.2">
-            <p id="section-9.3-2.2.1"><strong>Validate context types.</strong> The Client MUST verify that each context type in the hint is one the Client supports and is permitted for this Client's registration. The Client MUST discard or reject any object whose <code>type</code> is not in the Client's permitted set.<a href="#section-9.3-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.2.1"><strong>Validate envelope shape.</strong> The Client MUST verify that the hint contains a <code>contexts</code> member whose value is a JSON object, and that the <code>contexts</code> object contains at least one member. If not, the Client MUST ignore the hint or return an error to the initiating party.<a href="#section-9.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.3">
-            <p id="section-9.3-2.3.1"><strong>Validate context values.</strong> The Client MUST validate each field value against its own configuration, for example, confirming that a <code>tenant.id</code> value is a tenant the Client is configured to serve, and that a <code>purpose.kind</code> value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.<a href="#section-9.3-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.3.1"><strong>Validate context types.</strong> The Client MUST verify that each context type name under the hint's <code>contexts</code> member is one the Client supports and is permitted for this Client's registration. The Client MUST discard or reject any member whose name is not in the Client's permitted set.<a href="#section-9.3-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.4">
-            <p id="section-9.3-2.4.1"><strong>Construct <code>client_context</code>.</strong> After validation, the Client uses the validated hint, possibly enriched with additional context the Client determines from its own state, as the basis for the <code>client_context</code> parameter in the authorization request to the OP.<a href="#section-9.3-2.4.1" class="pilcrow">¶</a></p>
-<p id="section-9.3-2.4.2">
-When a hint includes an <code>actor</code> object, the Client MUST NOT forward that value unchanged unless it has independently authenticated and verified the acting entity. Otherwise, the Client MUST remove the hinted <code>actor</code> or replace it with a locally derived value.<a href="#section-9.3-2.4.2" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.4.1"><strong>Validate context values.</strong> The Client MUST validate each field value against its own configuration, for example, confirming that a <code>tenant.id</code> value is a tenant the Client is configured to serve, and that a <code>purpose.kind</code> value is in the Client's list of permitted purpose identifiers. The Client MUST NOT accept context values that would grant access or privilege not authorized by the Client's own policy.<a href="#section-9.3-2.4.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-9.3-2.5">
-            <p id="section-9.3-2.5.1"><strong>Authenticate the initiating party.</strong> Clients SHOULD authenticate or verify the origin of the initiation request where possible (e.g., by requiring the initiating party to be a registered application in the same platform, or by verifying a signed initiation token). Unauthenticated initiation requests with <code>client_context_hint</code> SHOULD be limited to low-privilege context types.<a href="#section-9.3-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-9.3-2.5.1"><strong>Construct <code>client_context</code>.</strong> After validation, the Client uses the validated hint, possibly enriched with additional context the Client determines from its own state, as the basis for the <code>client_context</code> parameter in the authorization request to the OP.<a href="#section-9.3-2.5.1" class="pilcrow">¶</a></p>
+<p id="section-9.3-2.5.2">
+When a hint includes an <code>actor</code> object, the Client MUST NOT forward that value unchanged unless it has independently authenticated and verified the acting entity. Otherwise, the Client MUST remove the hinted <code>actor</code> or replace it with a locally derived value.<a href="#section-9.3-2.5.2" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.3-2.6">
+            <p id="section-9.3-2.6.1"><strong>Authenticate the initiating party.</strong> Clients SHOULD authenticate or verify the origin of the initiation request where possible (e.g., by requiring the initiating party to be a registered application in the same platform, or by verifying a signed initiation token). Unauthenticated initiation requests with <code>client_context_hint</code> SHOULD be limited to low-privilege context types.<a href="#section-9.3-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
 <p id="section-9.3-3">The result of this processing is that the Client, not the initiating party, is responsible for the <code>client_context</code> that reaches the OP. The hint influences but does not control the authorization request.<a href="#section-9.3-3" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="discovery-metadata">
-<section id="section-9.4">
-        <h3 id="name-discovery-metadata">
-<a href="#section-9.4" class="section-number selfRef">9.4. </a><a href="#name-discovery-metadata" class="section-name selfRef">Discovery Metadata</a>
-        </h3>
-<p id="section-9.4-1">Clients that accept <code>client_context_hint</code> at their login initiation endpoint SHOULD advertise this in their client metadata or in a well-known configuration endpoint if one is published.<a href="#section-9.4-1" class="pilcrow">¶</a></p>
-<p id="section-9.4-2">The following Client metadata parameter is defined for use where Client metadata is published:<a href="#section-9.4-2" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-9.4-3">
-          <dt id="section-9.4-3.1"><code>client_context_hint_types_supported</code></dt>
-          <dd style="margin-left: 1.5em" id="section-9.4-3.2">
-            <p id="section-9.4-3.2.1">OPTIONAL. JSON array of context type values that this Client accepts in <code>client_context_hint</code> at its login initiation endpoint.<a href="#section-9.4-3.2.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-</dl>
 </section>
 </div>
 </section>
@@ -2726,6 +2763,25 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
         </h3>
 <p id="section-10.3-1">OAuth 2.0 Resource Indicators (<span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>) allow a Client to identify the protected resource for which an access token is intended, enabling the OP to audience-restrict the access token.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
 <p id="section-10.3-2">The <code>resource</code> parameter indicates the <em>target</em> of an access token. The <code>client_context</code> parameter conveys contextual information driving <em>authentication behavior and ID Token content</em>. These are complementary; both MAY be present in the same request.<a href="#section-10.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="relationship-to-the-claims-parameter">
+<section id="section-10.4">
+        <h3 id="name-relationship-to-the-claims-">
+<a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-relationship-to-the-claims-" class="section-name selfRef">Relationship to the <code>claims</code> Parameter</a>
+        </h3>
+<p id="section-10.4-1">The <code>claims</code> parameter (Section 5.5 of <span>[<a href="#OIDC.Core" class="cite xref">OIDC.Core</a>]</span>) and <code>client_context</code> differ fundamentally in direction. <code>claims</code> is an output request: it tells the OP which user attributes to include in the ID Token or UserInfo response. <code>client_context</code> is an input: it tells the OP the context under which to authenticate the user.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
+<p id="section-10.4-2">A request MAY include both. For example, a purpose-scoped administrative authentication might use <code>client_context</code> to drive step-up MFA policy for a deprovisioning workflow, and <code>claims</code> to request the <code>email</code> attribute for display in the resulting session. The parameters do not interact; each is processed independently by the OP.<a href="#section-10.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="profiles-and-extensions-note">
+<section id="section-10.5">
+        <h3 id="name-profiles-and-extensions-not">
+<a href="#section-10.5" class="section-number selfRef">10.5. </a><a href="#name-profiles-and-extensions-not" class="section-name selfRef">Profiles and Extensions Note</a>
+        </h3>
+<p id="section-10.5-1">This discussion is explanatory and does not define additional protocol behavior.<a href="#section-10.5-1" class="pilcrow">¶</a></p>
+<p id="section-10.5-2"><code>client_context</code> is request context for authentication policy, display, and audit. The <code>client_context</code> claim in the ID Token records applied context. Neither value is, by itself, a durable authorization object, an access permission grant, or a lifecycle-governed authority record. A profile or deployment MAY use validated applied context as input to create a separate server-side authority object; this specification does not define that object.<a href="#section-10.5-2" class="pilcrow">¶</a></p>
+<p id="section-10.5-3">Applied context MAY also be used as input to downstream identity or authorization assertions issued by the same OP or an associated component in the same administrative domain. In such profiles, the downstream assertion SHOULD carry projected context rather than the full applied <code>client_context</code> value, <code>purpose.kind</code> MAY serve as a stable join key for profile-defined server-side processing, and UI-oriented fields such as <code>display</code> SHOULD be omitted. Companion profiles MUST define the format, trust model, and issuance rules for any such assertions.<a href="#section-10.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2790,7 +2846,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
         <dd class="break"></dd>
 <dt id="section-12-2.3"><code>client_context_values</code></dt>
         <dd style="margin-left: 1.5em" id="section-12-2.4">
-          <p id="section-12-2.4.1">OPTIONAL. JSON object mapping context type values to arrays of permitted identifier values. For example, to restrict a client to specific application IDs or purpose identifiers:<a href="#section-12-2.4.1" class="pilcrow">¶</a></p>
+          <p id="section-12-2.4.1">OPTIONAL. JSON object mapping context type values to arrays of permitted selector values for that type. Each registered context type definition identifies its selector field. For the context types defined in this specification, <code>app</code> and <code>tenant</code> use <code>id</code>, and <code>purpose</code> uses <code>kind</code>. For example, to restrict a client to specific application IDs or purpose identifiers:<a href="#section-12-2.4.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -2805,7 +2861,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
 }
 </pre><a href="#section-12-3" class="pilcrow">¶</a>
 </div>
-<p id="section-12-4">This registration metadata allows OPs to enforce allow-lists on context values, preventing clients from escalating their context beyond what was administratively approved.<a href="#section-12-4" class="pilcrow">¶</a></p>
+<p id="section-12-4">This registration metadata allows OPs to enforce allow-lists on context values, preventing clients from escalating their context beyond what was administratively approved. Future context type specifications that want to interoperate with <code>client_context_values</code> SHOULD identify a single selector field for registration and allow-list enforcement.<a href="#section-12-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="errors">
@@ -2818,7 +2874,7 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
 <span class="break"></span><dl class="dlParallel" id="section-13-3">
         <dt id="section-13-3.1"><code>invalid_client_context</code></dt>
         <dd style="margin-left: 1.5em" id="section-13-3.2">
-          <p id="section-13-3.2.1">The <code>client_context</code> parameter could not be parsed as a JSON array, or one or more elements are not valid JSON objects, or a required field is missing.<a href="#section-13-3.2.1" class="pilcrow">¶</a></p>
+          <p id="section-13-3.2.1">The <code>client_context</code> parameter could not be parsed as a JSON object, or the required <code>contexts</code> member is missing or empty, or one or more typed context values are not valid JSON objects, or a required field is missing.<a href="#section-13-3.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-13-3.3"><code>unsupported_client_context_type</code></dt>
@@ -2829,6 +2885,11 @@ When a hint includes an <code>actor</code> object, the Client MUST NOT forward t
 <dt id="section-13-3.5"><code>invalid_client_context_value</code></dt>
         <dd style="margin-left: 1.5em" id="section-13-3.6">
           <p id="section-13-3.6.1">A context object contains one or more invalid field values (e.g., an <code>expires_at</code> in the past, an unrecognized <code>kind</code> value for an unsupported purpose type).<a href="#section-13-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-13-3.7"><code>invalid_request</code></dt>
+        <dd style="margin-left: 1.5em" id="section-13-3.8">
+          <p id="section-13-3.8.1">The request violates a server policy independent of the context content, such as when <code>client_context_par_required</code> is <code>true</code> and the request was not submitted via PAR (<span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>). This code is defined in <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> and applied here for PAR enforcement failures.<a href="#section-13-3.8.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -2877,6 +2938,8 @@ Content-Type: application/json
 </li>
         </ul>
 <p id="section-14.1-4">Clients MUST NOT transmit sensitive purpose context (e.g., administrative workflow identifiers) as unprotected query parameters where it may be logged by servers, proxies, or browsers.<a href="#section-14.1-4" class="pilcrow">¶</a></p>
+<p id="section-14.1-5">OPs SHOULD retain the applied context used for authentication so that later audit, evidence, or profile-specific processing can determine what context was actually validated and applied.<a href="#section-14.1-5" class="pilcrow">¶</a></p>
+<p id="section-14.1-6">If the OP displayed client-supplied or OP-generated context text to the End-User, the OP SHOULD retain either the rendered display shown to the user or a canonicalized form sufficient to reconstruct what was presented. Profiles MAY bind this retained evidence to approval records, downstream authorization records, or associated audit systems.<a href="#section-14.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-injection">
@@ -2942,7 +3005,7 @@ Content-Type: application/json
         <h3 id="name-purpose-context-expiration">
 <a href="#section-14.6" class="section-number selfRef">14.6. </a><a href="#name-purpose-context-expiration" class="section-name selfRef">Purpose Context Expiration</a>
         </h3>
-<p id="section-14.6-1">When <code>expires_at</code> is included in a <code>purpose</code> context object, the OP SHOULD enforce that the authenticated authorization to perform that purpose does not outlive this value. Any resulting session, token, or other local authorization state used to carry out the purpose SHOULD expire no later than <code>expires_at</code>. Clients SHOULD request a new authentication for a new purpose rather than reusing an expired-purpose authorization.<a href="#section-14.6-1" class="pilcrow">¶</a></p>
+<p id="section-14.6-1">When <code>expires_at</code> is included in a <code>purpose</code> context object, the OP SHOULD enforce that the applied authentication context for that purpose does not outlive this value. Any resulting session, token, or other local authorization state used to carry out the purpose SHOULD expire no later than <code>expires_at</code>. Clients SHOULD request a new authentication for a new purpose rather than reusing expired purpose-scoped context. Companion profiles MAY derive longer-lived server-side lifecycle rules from validated constraints, but this specification does not define those lifecycle semantics.<a href="#section-14.6-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="third-party-hint-injection">
@@ -2954,12 +3017,22 @@ Content-Type: application/json
 <p id="section-14.7-2">Clients MUST validate all hint values against their own allowlists before using them to construct <code>client_context</code>. Clients MUST NOT treat the presence of a hint value as equivalent to the Client's own policy decision to use that context. Where possible, Clients SHOULD authenticate the source of the initiation request before accepting elevated context types such as <code>purpose</code>.<a href="#section-14.7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="confidentiality-of-purpose-context">
+<div id="op-retention-of-applied-context-and-display-evidence">
 <section id="section-14.8">
-        <h3 id="name-confidentiality-of-purpose-">
-<a href="#section-14.8" class="section-number selfRef">14.8. </a><a href="#name-confidentiality-of-purpose-" class="section-name selfRef">Confidentiality of Purpose Context</a>
+        <h3 id="name-op-retention-of-applied-con">
+<a href="#section-14.8" class="section-number selfRef">14.8. </a><a href="#name-op-retention-of-applied-con" class="section-name selfRef">OP Retention of Applied Context and Display Evidence</a>
         </h3>
-<p id="section-14.8-1">Purpose context MAY contain information that is sensitive from a business or operational security perspective, for example, the name of an administrative action being performed or the identity of a user being affected. Clients SHOULD ensure that purpose context is not unnecessarily logged or exposed.<a href="#section-14.8-1" class="pilcrow">¶</a></p>
+<p id="section-14.8-1">For deployments where applied context may serve as approval evidence (for example, purpose-scoped administrative actions or delegated workflows), the OP SHOULD retain a record of the applied context and the consent display actually presented to the End-User at the time of authentication. This record provides evidence that the user was shown an accurate description of the action and chose to authenticate for it.<a href="#section-14.8-1" class="pilcrow">¶</a></p>
+<p id="section-14.8-2">The retained record SHOULD include the applied <code>contexts</code> values, the <code>display</code> content shown to the user, the authenticated subject, and the authentication time. Profiles MAY bind this retained evidence to a downstream authorization record or approval artifact within the OP's administrative domain.<a href="#section-14.8-2" class="pilcrow">¶</a></p>
+<p id="section-14.8-3">This specification does not define retention duration, format, or access controls for retained evidence. Those are deployment and profile concerns.<a href="#section-14.8-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="confidentiality-of-purpose-context">
+<section id="section-14.9">
+        <h3 id="name-confidentiality-of-purpose-">
+<a href="#section-14.9" class="section-number selfRef">14.9. </a><a href="#name-confidentiality-of-purpose-" class="section-name selfRef">Confidentiality of Purpose Context</a>
+        </h3>
+<p id="section-14.9-1">Purpose context MAY contain information that is sensitive from a business or operational security perspective, for example, the name of an administrative action being performed or the identity of a user being affected. Clients SHOULD ensure that purpose context is not unnecessarily logged or exposed.<a href="#section-14.9-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2971,7 +3044,8 @@ Content-Type: application/json
       </h2>
 <p id="section-15-1">The <code>client_context</code> parameter MAY convey information about the End-User's activities (e.g., which application they are using, the administrative actions they are performing, or the tasks they have delegated to an AI agent). This information is transmitted to the OP and returned in the ID Token, potentially making it available to other parties.<a href="#section-15-1" class="pilcrow">¶</a></p>
 <p id="section-15-2">Implementations SHOULD minimize the information included in <code>client_context</code> to what is necessary for authentication policy and audit purposes. Free-text fields such as <code>display.description</code> SHOULD NOT contain personally identifiable information beyond what is necessary.<a href="#section-15-2" class="pilcrow">¶</a></p>
-<p id="section-15-3">OPs MUST handle <code>client_context</code> data in accordance with their privacy policy and applicable law. Context data SHOULD NOT be used for purposes beyond authentication policy evaluation and audit logging without the End-User's explicit consent.<a href="#section-15-3" class="pilcrow">¶</a></p>
+<p id="section-15-3">When applied context is projected into downstream assertions or other cross-boundary artifacts, implementations SHOULD project only the minimum necessary subset and SHOULD omit UI-oriented fields such as <code>display</code> unless they are specifically required for the audience.<a href="#section-15-3" class="pilcrow">¶</a></p>
+<p id="section-15-4">OPs MUST handle <code>client_context</code> data in accordance with their privacy policy and applicable law. Context data SHOULD NOT be used for purposes beyond authentication policy evaluation and audit logging without the End-User's explicit consent.<a href="#section-15-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -3077,12 +3151,6 @@ Content-Type: application/json
 </td>
               <td class="text-left" rowspan="1" colspan="1">This document</td>
             </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">
-                <code>client_context_hint_types_supported</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
           </tbody>
         </table>
 </section>
@@ -3092,7 +3160,7 @@ Content-Type: application/json
         <h3 id="name-oauth-client-context-type-r">
 <a href="#section-16.4" class="section-number selfRef">16.4. </a><a href="#name-oauth-client-context-type-r" class="section-name selfRef">OAuth Client Context Type Registry</a>
         </h3>
-<p id="section-16.4-1">This specification establishes the "OAuth Client Context Type" registry. The registry records context type identifiers that may appear in the <code>type</code> field of a <code>client_context</code> object.<a href="#section-16.4-1" class="pilcrow">¶</a></p>
+<p id="section-16.4-1">This specification establishes the "OAuth Client Context Type" registry. The registry records context type identifiers that may appear as key names in the <code>contexts</code> member of a <code>client_context</code> envelope.<a href="#section-16.4-1" class="pilcrow">¶</a></p>
 <p id="section-16.4-2"><strong>Registration policy:</strong> Specification Required per <span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>. Designated experts SHOULD evaluate whether the proposed context type:<a href="#section-16.4-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-16.4-3.1">
@@ -3103,6 +3171,9 @@ Content-Type: application/json
 </li>
           <li class="normal" id="section-16.4-3.3">
             <p id="section-16.4-3.3.1">Is backed by a publicly available specification.<a href="#section-16.4-3.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-16.4-3.4">
+            <p id="section-16.4-3.4.1">Identifies a single selector field if the type is intended to interoperate with <code>client_context_values</code> registration metadata.<a href="#section-16.4-3.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-16.4-4"><strong>Initial registry contents:</strong><a href="#section-16.4-4" class="pilcrow">¶</a></p>
@@ -3139,7 +3210,7 @@ Content-Type: application/json
             </tr>
           </tbody>
         </table>
-<p id="section-16.4-6">Private-use context types MUST use URIs as their <code>type</code> value (e.g., <code>"https://example.com/context-types/custom"</code>). Short string type names (i.e., non-URI strings) are reserved for registered types.<a href="#section-16.4-6" class="pilcrow">¶</a></p>
+<p id="section-16.4-6">Private-use context types MUST use URIs as their context type name in the <code>contexts</code> object (e.g., <code>"https://example.com/context-types/custom"</code>). Short string type names (i.e., non-URI strings) are reserved for registered types.<a href="#section-16.4-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="jwt-claims-registry">
@@ -3287,28 +3358,28 @@ response_type=code
 <p id="appendix-A.1-3">The decoded <code>client_context</code> value:<a href="#appendix-A.1-3" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="appendix-A.1-4">
 <pre>
-[
-  { "type": "app", "id": "admin_console" },
-  { "type": "tenant", "id": "example.com" },
-  {
-    "type": "purpose",
-    "kind": "https://example.com/purposes/deprovision-user-access",
-    "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
-    "display": {
-      "title": "Deprovision User Access",
-      "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
-      "locale": "en"
-    },
-    "params": {
-      "subject": "bjensen@example.com",
-      "reason": "employment-terminated",
-      "ticket_ref": "HR-8823"
-    },
-    "constraints": {
-      "expires_at": "2026-03-10T18:00:00Z"
+{
+  "contexts": {
+    "app": { "id": "admin_console" },
+    "tenant": { "id": "example.com" },
+    "purpose": {
+      "kind": "https://example.com/purposes/deprovision-user-access",
+      "display": {
+        "title": "Deprovision User Access",
+        "description": "You are authorizing deprovisioning of all access for bjensen@example.com. This will revoke active sessions, disable the directory account, and remove application assignments (ticket HR-8823).",
+        "locale": "en"
+      },
+      "params": {
+        "subject": "bjensen@example.com",
+        "reason": "employment-terminated",
+        "ticket_ref": "HR-8823"
+      },
+      "constraints": {
+        "expires_at": "2026-04-01T18:00:00Z"
+      }
     }
   }
-]
+}
 </pre><a href="#appendix-A.1-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-A.1-5">The decoded <code>authorization_details</code> value:<a href="#appendix-A.1-5" class="pilcrow">¶</a></p>
@@ -3351,7 +3422,7 @@ response_type=code
           <dd class="break"></dd>
 <dt id="appendix-A.2-1.3"><code>client_context</code></dt>
           <dd style="margin-left: 1.5em" id="appendix-A.2-1.4">
-            <p id="appendix-A.2-1.4.1">Tells the OP <em>why</em> this authentication is occurring. The OP uses the <code>purpose</code> object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window for acting on the authenticated purpose via <code>expires_at</code>, and record the purpose, params, and actor in its audit log. The applied context is returned in the ID Token for the client to verify.<a href="#appendix-A.2-1.4.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.2-1.4.1">Tells the OP <em>why</em> this authentication is occurring. The OP uses the <code>purpose</code> object to enforce that this is a purpose-scoped re-authentication (not a reuse of an existing session), present the operation details to the user on the consent screen, constrain the validity window of the applied context via <code>expires_at</code>, and record the purpose, params, and actor in its audit log. The applied context is returned in the ID Token for the client to verify. That applied context may later be used as input to a separate server-side authority object, but the ID Token claim is not itself that authority object.<a href="#appendix-A.2-1.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.2-1.5"><code>authorization_details</code></dt>
@@ -3379,21 +3450,21 @@ response_type=code
   "acr": "urn:ietf:params:ac:classes:phishing-resistant",
   "amr": ["hwk", "pin"],
   "email": "bob@example.com",
-  "client_context": [
-    { "type": "app", "id": "admin_console" },
-    { "type": "tenant", "id": "example.com" },
-    {
-      "type": "purpose",
-      "kind": "https://example.com/purposes/deprovision-user-access",
-      "id": "01JNP8Q8W5W4K7QG0R9B3R2M6F",
-      "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
-      "constraints": { "expires_at": "2026-03-10T18:00:00Z" }
+  "client_context": {
+    "contexts": {
+      "app": { "id": "admin_console" },
+      "tenant": { "id": "example.com" },
+      "purpose": {
+        "kind": "https://example.com/purposes/deprovision-user-access",
+        "params": { "subject": "bjensen@example.com", "reason": "employment-terminated", "ticket_ref": "HR-8823" },
+        "constraints": { "expires_at": "2026-04-01T18:00:00Z" }
+      }
     }
-  ]
+  }
 }
 </pre><a href="#appendix-A.3-1" class="pilcrow">¶</a>
 </div>
-<p id="appendix-A.3-2">The <code>acr</code> claim confirms phishing-resistant MFA was satisfied. The <code>client_context</code> claim confirms the authentication was bound to the <code>deprovision-user-access</code> purpose for <code>bjensen@example.com</code> under ticket HR-8823. The client verifies both before invoking any of the three resource servers. Each resource server independently enforces its scoped access token.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
+<p id="appendix-A.3-2">The <code>acr</code> claim confirms phishing-resistant MFA was satisfied. The <code>client_context</code> claim confirms the applied authentication context for the <code>deprovision-user-access</code> purpose for <code>bjensen@example.com</code> under ticket HR-8823. The client verifies the applied context and <code>acr</code> before invoking any of the three resource servers. Each resource server independently enforces its scoped access token.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="layered-model-summary">
